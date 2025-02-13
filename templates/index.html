@@ -31,7 +31,7 @@
     <div id="logMessage"></div>
 
     <script>
-        // ✅ Fix: Fetch Items from Backend (Search Works Now)
+        // ✅ Fix: Ensure Item Search Works
         document.getElementById("searchBox").addEventListener("input", function() {
             let query = this.value;
             if (query.length < 1) {
@@ -55,7 +55,7 @@
             document.getElementById("suggestions").innerHTML = "";
         }
 
-        // ✅ Fix: Log Consumption to Backend
+        // ✅ Fix: Ensure Consumption Logging Works
         function logConsumption() {
             const item = document.getElementById("searchBox").value;
             const area = document.getElementById("area").value;
