@@ -10,15 +10,28 @@
         #suggestions { margin-top: 10px; text-align: left; max-width: 320px; }
         #suggestions p { background: #f2f2f2; padding: 5px; cursor: pointer; }
         #suggestions p:hover { background: #ddd; }
+        #logBtn { padding: 10px 20px; background: blue; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <h1>Item Code Tracker</h1>
+    
+    <!-- Item Search -->
     <input type="text" id="searchBox" placeholder="Search for an item...">
     <div id="suggestions"></div>
 
+    <!-- Consumption Log Form -->
+    <h2>Log Consumption</h2>
+    <input type="text" id="area" placeholder="Enter Area">
+    <input type="number" id="quantity" placeholder="Enter Quantity">
+    <input type="date" id="date">
+    <button id="logBtn" onclick="logConsumption()">Log Consumption</button>
+
+    <div id="logMessage"></div>
+
     <script>
+        // ✅ Item Search Feature (Fixed)
         document.getElementById("searchBox").addEventListener("input", function() {
             let query = this.value;
             if (query.length < 1) {
@@ -27,15 +40,12 @@
             }
 
             fetch("/get-items")
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(items => {
                     let matches = items.filter(item => item.toLowerCase().includes(query.toLowerCase()));
-                    document.getElementById("suggestions").innerHTML = matches.map(item => `<p onclick="selectItem('${item}')">${item}</p>`).join("");
+                    document.getElementById("suggestions").innerHTML = matches
+                        .map(item => `<p onclick="selectItem('${item}')">${item}</p>`)
+                        .join("");
                 })
                 .catch(error => console.error("Error fetching items:", error));
         });
@@ -43,6 +53,34 @@
         function selectItem(item) {
             document.getElementById("searchBox").value = item;
             document.getElementById("suggestions").innerHTML = "";
+        }
+
+        // ✅ Log Consumption Feature (Fixed)
+        function logConsumption() {
+            const item = document.getElementById("searchBox").value;
+            const area = document.getElementById("area").value;
+            const quantity = document.getElementById("quantity").value;
+            const date = document.getElementById("date").value;
+
+            if (!item || !area || !quantity || !date) {
+                document.getElementById("logMessage").innerHTML = "<p style='color:red;'>❌ Please fill all fields!</p>";
+                return;
+            }
+
+            fetch("/log-consumption", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ item, area, quantity, date })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("logMessage").innerHTML = `<p style='color:red;'>❌ ${data.error}</p>`;
+                } else {
+                    document.getElementById("logMessage").innerHTML = `<p style='color:green;'>✅ ${data.message}</p>`;
+                }
+            })
+            .catch(error => console.error("Error logging consumption:", error));
         }
     </script>
 

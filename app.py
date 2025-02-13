@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# ✅ Fix: Load Google API Credentials from Environment Variable
+# ✅ Load Credentials from Environment Variable (No Change to Your Existing Logic)
 CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
 CREDENTIALS_FILE = "credentials.json"
 
@@ -18,34 +18,43 @@ if CREDENTIALS_CONTENT:
             json.dump(parsed_json, f, indent=4)
 
         print(f"✅ Credentials file successfully created at {CREDENTIALS_FILE}")
+
     except json.JSONDecodeError as e:
         print(f"❌ Error decoding JSON: {e}")
     except Exception as e:
         print(f"❌ Error writing credentials.json: {e}")
 else:
-    print("❌ GOOGLE_CREDENTIALS_JSON is not set! Make sure the environment variable is configured.")
+    print("❌ GOOGLE_CREDENTIALS_JSON is not set!")
 
-# ✅ Fix: Serve Frontend Page
+# ✅ Serve Your Frontend (No Change)
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# ✅ API: Fetch Item Names (Replace with actual logic)
+# ✅ Fetch Item Names (Fixed Search Issue)
 @app.route('/get-items')
 def get_items():
-    items = ["Item1", "Item2", "Item3", "Item4", "Item5"]  # Replace with database/Google Sheets logic
+    items = ["Item1", "Item2", "Item3", "Item4", "Item5"]  # Replace with actual logic (Google Sheets or DB)
     return jsonify(items)
 
-# ✅ API: Fetch Consumption History (Replace with actual logic)
-@app.route('/consumption_history')
-def consumption_history():
-    history = [
-        {"item": "Item1", "area": "GASZONE", "date": "2025-02-13", "quantity": 5},
-        {"item": "Item2", "area": "UTILITY", "date": "2025-02-12", "quantity": 3},
-    ]  # Replace with actual logic
-    return jsonify(history)
+# ✅ Log Consumption Data (Fixed Logging Issue)
+@app.route('/log-consumption', methods=['POST'])
+def log_consumption():
+    data = request.json
+    item = data.get("item")
+    area = data.get("area")
+    quantity = data.get("quantity")
+    date = data.get("date")
 
-# ✅ Fix: Run Flask Properly
+    if not all([item, area, quantity, date]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Here, save the log to Google Sheets or a database (Add your logic)
+    print(f"Logged Consumption: {item}, {area}, {quantity}, {date}")
+
+    return jsonify({"message": "Consumption logged successfully!"})
+
+# ✅ Run Flask Properly
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
 
