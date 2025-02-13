@@ -16,7 +16,17 @@ app = Flask(__name__)
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 import os
 
+import json
+import os
+
+CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
 CREDENTIALS_FILE = "credentials.json"
+
+# Create credentials.json dynamically at runtime
+if CREDENTIALS_CONTENT:
+    with open(CREDENTIALS_FILE, "w") as f:
+        f.write(CREDENTIALS_CONTENT)
+
 
 
 if not CREDENTIALS_FILE or not os.path.exists(CREDENTIALS_FILE):
