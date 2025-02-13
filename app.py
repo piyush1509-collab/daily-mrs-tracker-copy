@@ -1,6 +1,8 @@
 import os
 import json
-from flask import Flask
+import gspread
+from flask import Flask, render_template, jsonify
+from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 
@@ -31,8 +33,25 @@ else:
 
 @app.route('/')
 def home():
-    return "✅ Flask App Running Successfully!"
+    return render_template('index.html')
+
+# ✅ New Route: Fetch Items from Google Sheets
+@app.route('/get-items')
+def get_items():
+    try:
+        # Connect to Google Sheets
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        client = gspread.authorize(creds)
+
+        # Open the sheet and get data (Change 'YourGoogleSheetName' to your actual sheet name)
+        sheet = client.open("YourGoogleSheetName").worksheet("Sheet1")
+        items = sheet.col_values(1)  # Assuming item names are in the first column
+
+        return jsonify(items)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
-
