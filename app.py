@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# ✅ Load Credentials from Environment Variable (No Change to Your Existing Logic)
+# ✅ Load Google API Credentials from Environment Variable (No Change)
 CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
 CREDENTIALS_FILE = "credentials.json"
 
@@ -26,18 +26,18 @@ if CREDENTIALS_CONTENT:
 else:
     print("❌ GOOGLE_CREDENTIALS_JSON is not set!")
 
-# ✅ Serve Your Frontend (No Change)
+# ✅ Serve Your Original Frontend Page
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# ✅ Fetch Item Names (Fixed Search Issue)
+# ✅ Fix: API Route for Item Search
 @app.route('/get-items')
 def get_items():
-    items = ["Item1", "Item2", "Item3", "Item4", "Item5"]  # Replace with actual logic (Google Sheets or DB)
+    items = ["Item1", "Item2", "Item3", "Item4", "Item5"]  # Replace with actual logic (Google Sheets or Database)
     return jsonify(items)
 
-# ✅ Log Consumption Data (Fixed Logging Issue)
+# ✅ Fix: API Route for Logging Consumption
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     data = request.json
@@ -49,12 +49,11 @@ def log_consumption():
     if not all([item, area, quantity, date]):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Here, save the log to Google Sheets or a database (Add your logic)
+    # Replace with your actual logic (Save to Google Sheets or Database)
     print(f"Logged Consumption: {item}, {area}, {quantity}, {date}")
 
     return jsonify({"message": "Consumption logged successfully!"})
 
-# ✅ Run Flask Properly
+# ✅ Ensure Flask Runs Properly
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
-

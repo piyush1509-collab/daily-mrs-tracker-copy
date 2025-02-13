@@ -16,7 +16,7 @@
 <body>
 
     <h1>Item Code Tracker</h1>
-    
+
     <!-- Item Search -->
     <input type="text" id="searchBox" placeholder="Search for an item...">
     <div id="suggestions"></div>
@@ -31,7 +31,7 @@
     <div id="logMessage"></div>
 
     <script>
-        // ✅ Item Search Feature (Fixed)
+        // ✅ Fix: Fetch Items from Backend (Search Works Now)
         document.getElementById("searchBox").addEventListener("input", function() {
             let query = this.value;
             if (query.length < 1) {
@@ -55,7 +55,7 @@
             document.getElementById("suggestions").innerHTML = "";
         }
 
-        // ✅ Log Consumption Feature (Fixed)
+        // ✅ Fix: Log Consumption to Backend
         function logConsumption() {
             const item = document.getElementById("searchBox").value;
             const area = document.getElementById("area").value;
