@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+</head>
+<body>
+    <h1>Inventory Management</h1>
+
+    <h2>Consume Item</h2>
+    <label for="itemName">Item Name:</label>
+    <input type="text" id="itemName" onkeyup="showSuggestions()">
+    <div id="suggestions"></div>
+
+    <label for="itemCode">Item Code:</label>
+    <input type="text" id="itemCode" readonly>
+    
+    <label for="consumedArea">Consumed Area:</label>
+    <select id="consumedArea">
+        <option>Pump House</option>
+        <option>R.O Plant</option>
+        <option>Furnace</option>
+        <option>Gas Zone</option>
+        <option>Material Handling</option>
+        <option>Operations</option>
+        <option>Electrical</option>
+    </select>
+    
+    <label for="date">Date:</label>
+    <input type="date" id="date">
+    
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity">
+    
+    <label for="shift">Shift:</label>
+    <select id="shift">
+        <option>General</option>
+        <option>A-Shift</option>
+        <option>B-Shift</option>
+        <option>C-Shift</option>
+    </select>
+
+    <button onclick="consumeItem()">Consume</button>
+
+    <h2>Filter Consumption History</h2>
+    <label for="filterArea">Filter by Area:</label>
+    <select id="filterArea">
+        <option value="">All</option>
+        <option>Pump House</option>
+        <option>R.O Plant</option>
+        <option>Furnace</option>
+        <option>Gas Zone</option>
+        <option>Material Handling</option>
+        <option>Operations</option>
+        <option>Electrical</option>
+    </select>
+
+    <label for="filterDate">Filter by Date:</label>
+    <input type="date" id="filterDate">
+
+    <button onclick="filterConsumptionHistory()">Apply Filter</button>
+
+    <h2>Consumption History</h2>
+    <div id="history"></div>
+
+    <script>
+    let items = [];
+    let allConsumptionData = [];
+
+    async function loadItems() {
+        let response = await fetch('/get_items');
+        items = await response.json();
+    }
+
+    function showSuggestions() {
+        let input = document.getElementById("itemName").value.toLowerCase();
+        let suggestionsDiv = document.getElementById("suggestions");
+        suggestionsDiv.innerHTML = "";
+        if (input.length === 0) return;
+
+        let matches = items.filter(item => item["Item name"].toLowerCase().includes(input));
+        matches.forEach(item => {
+            let div = document.createElement("div");
+            div.innerHTML = `${item["Item name"]} (${item["Item code"]})`;
+            div.onclick = function () { selectItem(item); };
+            suggestionsDiv.appendChild(div);
+        });
+    }
+
+    function selectItem(item) {
+        document.getElementById("itemName").value = item["Item name"];
+        document.getElementById("itemCode").value = item["Item code"];
+        document.getElementById("suggestions").innerHTML = "";
+    }
+
+    async function consumeItem() {
+        let itemCode = document.getElementById("itemCode").value;
+        let itemName = document.getElementById("itemName").value;
+        let consumedArea = document.getElementById("consumedArea").value;
+        let date = document.getElementById("date").value;
+        let quantity = document.getElementById("quantity").value;
+        let shift = document.getElementById("shift").value;
+
+        if (!itemCode || !itemName || !consumedArea || !date || !quantity || !shift) {
+            alert("Please fill out all fields before submitting.");
+            return;
+        }
+
+        let data = {
+            item_code: itemCode,
+            item_name: itemName,
+            consumed_area: consumedArea,
+            date: date,
+            quantity: quantity,
+            shift: shift
+        };
+
+        let response = await fetch('/consume', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        let result = await response.json();
+
+        if (result.error) {
+            alert(result.error);
+        } else {
+            alert(result.message);
+            loadConsumptionHistory();
+        }
+    }
+
+    async function loadConsumptionHistory() {
+        let response = await fetch('/consumption_history');
+        allConsumptionData = await response.json();
+        displayConsumptionHistory(allConsumptionData);
+    }
+
+    function displayConsumptionHistory(data) {
+        let historyDiv = document.getElementById("history");
+        historyDiv.innerHTML = "<h2>Consumption Log</h2>";
+
+        let table = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>Quantity</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
+
+        data.forEach(entry => {
+            const itemName = entry["Item name"] || "N/A";
+            const itemCode = entry["Item code"] || "N/A";
+            const quantity = entry["QTY"] || "N/A";
+            const consumedArea = entry["Consumed Area"] || "N/A";
+            const date = entry["Date"] || "N/A";
+            const shift = entry["Shift"] || "N/A";
+
+            table += `<tr>
+                <td>${itemName}</td>
+                <td>${itemCode}</td>
+                <td>${quantity}</td>
+                <td>${consumedArea}</td>
+                <td>${date}</td>
+                <td>${shift}</td>
+            </tr>`;
+        });
+
+        table += "</table>";
+        historyDiv.innerHTML += table;
+    }
+
+    function filterConsumptionHistory() {
+        const filterArea = document.getElementById("filterArea").value;
+        const filterDate = document.getElementById("filterDate").value;
+
+        const filteredData = allConsumptionData.filter(entry => {
+            const matchesArea = !filterArea || entry["Consumed Area"] === filterArea;
+            const matchesDate = !filterDate || entry["Date"] === filterDate;
+            return matchesArea && matchesDate;
+        });
+
+        displayConsumptionHistory(filteredData);
+    }
+
+    window.onload = () => {
+        loadItems();
+        loadConsumptionHistory();
+    };
+    </script>
+</body>
+</html>
