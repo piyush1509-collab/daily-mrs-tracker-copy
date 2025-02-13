@@ -16,7 +16,8 @@ app = Flask(__name__)
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 import os
 
-CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
+CREDENTIALS_FILE = "credentials.json"
+
 
 if not CREDENTIALS_FILE or not os.path.exists(CREDENTIALS_FILE):
     raise FileNotFoundError(f"Error: Credentials file not found at {CREDENTIALS_FILE}")
