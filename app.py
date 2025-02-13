@@ -29,9 +29,11 @@ if CREDENTIALS_CONTENT:
 else:
     print("❌ GOOGLE_CREDENTIALS_JSON is not set! Make sure the environment variable is configured.")
 
+from flask import render_template
+
 @app.route('/')
 def home():
-    return "✅ Flask App Running Successfully!"
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
