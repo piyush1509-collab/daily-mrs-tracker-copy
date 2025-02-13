@@ -1,10 +1,13 @@
 import os
 
-# Get the path to the credentials file from the environment variable
-CREDENTIALS_FILE = os.getenv("GOOGLE_CREDENTIALS_PATH")
+CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
-if not CREDENTIALS_FILE or not os.path.exists(CREDENTIALS_FILE):
-    raise FileNotFoundError(f"Error: Credentials file not found at {CREDENTIALS_FILE}")
+if CREDENTIALS_CONTENT:
+    print("✅ Environment variable detected!")
+else:
+    print("❌ GOOGLE_CREDENTIALS_JSON is missing!")
+
+raise FileNotFoundError(f"Error: Credentials file not found at {CREDENTIALS_CONTENT}")
 
 from flask import Flask, request, jsonify, render_template
 import gspread
