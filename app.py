@@ -1,13 +1,25 @@
 import os
+import json
 
 CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
+CREDENTIALS_FILE = "credentials.json"
 
 if CREDENTIALS_CONTENT:
-    print("✅ Environment variable detected!")
-else:
-    print("❌ GOOGLE_CREDENTIALS_JSON is missing!")
+    try:
+        # Convert string back to JSON
+        parsed_json = json.loads(CREDENTIALS_CONTENT)
 
-raise FileNotFoundError(f"Error: Credentials file not found at {CREDENTIALS_CONTENT}")
+        # Write JSON to credentials.json file
+        with open(CREDENTIALS_FILE, "w") as f:
+            json.dump(parsed_json, f, indent=4)
+        
+        print(f"✅ Credentials file successfully created at {CREDENTIALS_FILE}")
+    except json.JSONDecodeError as e:
+        print(f"❌ Error decoding JSON: {e}")
+    except Exception as e:
+        print(f"❌ Error writing credentials.json: {e}")
+else:
+    print("❌ GOOGLE_CREDENTIALS_JSON is not set! Make sure the environment variable is configured.")
 
 from flask import Flask, request, jsonify, render_template
 import gspread
