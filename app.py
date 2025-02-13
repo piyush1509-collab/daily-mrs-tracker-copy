@@ -6,8 +6,12 @@ CREDENTIALS_FILE = "credentials.json"
 
 if CREDENTIALS_CONTENT:
     try:
-        # Convert string back to JSON
+        # Convert JSON string back to dictionary
         parsed_json = json.loads(CREDENTIALS_CONTENT)
+
+        # Fix the private key formatting
+        if "private_key" in parsed_json:
+            parsed_json["private_key"] = parsed_json["private_key"].replace("\\n", "\n")
 
         # Write JSON to credentials.json file
         with open(CREDENTIALS_FILE, "w") as f:
@@ -20,6 +24,7 @@ if CREDENTIALS_CONTENT:
         print(f"❌ Error writing credentials.json: {e}")
 else:
     print("❌ GOOGLE_CREDENTIALS_JSON is not set! Make sure the environment variable is configured.")
+
 
 from flask import Flask, request, jsonify, render_template
 import gspread
