@@ -39,7 +39,7 @@ def get_items():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        sheet = client.open("YourGoogleSheetName").worksheet("Sheet1")  # Change to actual sheet name
+        sheet = client.open("items").worksheet("Inventory")  # Change to actual sheet name
         items = sheet.col_values(1)  # Assuming item names are in the first column
 
         if not items:
@@ -58,7 +58,7 @@ def get_consumption_history():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        sheet = client.open("YourGoogleSheetName").worksheet("ConsumptionHistory")  # Change to actual sheet name
+        sheet = client.open("items").worksheet("Consumption Log")  # Change to actual sheet name
         records = sheet.get_all_records()
 
         if not records:
