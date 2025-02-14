@@ -58,13 +58,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 import traceback  # 🔹 Import traceback for debugging
 
+import traceback  # Import traceback for detailed error logs
+
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     try:
         if request.content_type != "application/json":
             return jsonify({"success": False, "error": "Content-Type must be 'application/json'"}), 415
 
-        data = request.get_json(force=True)  
+        data = request.get_json(force=True)
+        print(f"🔹 Received data: {data}")  # ✅ Debugging print
 
         item_name = data.get("Item name")
         item_code = data.get("Item code")
@@ -73,17 +76,19 @@ def log_consumption():
         shift = data.get("Shift")
         qty = data.get("QTY", 1)
 
-        if not (item_name and item_code and consumed_area and date and shift):
+        if not all([item_name, item_code, consumed_area, date, shift]):
             return jsonify({"success": False, "error": "Missing required fields"}), 400
 
         # ✅ Connect to Google Sheets
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
+        print("✅ Google Sheets Connected")
 
         # ✅ Append data to "Consumption Log"
         sheet = client.open("items").worksheet("Consumption Log")
         sheet.append_row([item_name, item_code, qty, consumed_area, date, shift])
+        print("✅ Data Logged Successfully")
 
         return jsonify({"success": True})
 
@@ -91,7 +96,6 @@ def log_consumption():
         error_details = traceback.format_exc()  # 🔹 Capture full error traceback
         print(f"❌ Error logging consumption: {error_details}")  # 🔹 Print error in logs
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 # ✅ Fetch Consumption History with Filtering by Area & Date
 @app.route('/consumption-history')
