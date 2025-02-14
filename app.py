@@ -56,17 +56,22 @@ from flask import request, jsonify
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+import traceback  # 🔹 Import traceback for debugging
+
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     try:
-        # ✅ Get Data from Frontend
-        data = request.json
+        if request.content_type != "application/json":
+            return jsonify({"success": False, "error": "Content-Type must be 'application/json'"}), 415
+
+        data = request.get_json(force=True)  
+
         item_name = data.get("Item name")
         item_code = data.get("Item code")
         consumed_area = data.get("Consumed Area")
         date = data.get("Date")
         shift = data.get("Shift")
-        qty = data.get("QTY", 1)  # Default to 1
+        qty = data.get("QTY", 1)
 
         if not (item_name and item_code and consumed_area and date and shift):
             return jsonify({"success": False, "error": "Missing required fields"}), 400
@@ -76,13 +81,15 @@ def log_consumption():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        # ✅ Open the "Consumption Log" Sheet and Append Data
+        # ✅ Append data to "Consumption Log"
         sheet = client.open("items").worksheet("Consumption Log")
         sheet.append_row([item_name, item_code, qty, consumed_area, date, shift])
 
         return jsonify({"success": True})
 
     except Exception as e:
+        error_details = traceback.format_exc()  # 🔹 Capture full error traceback
+        print(f"❌ Error logging consumption: {error_details}")  # 🔹 Print error in logs
         return jsonify({"success": False, "error": str(e)}), 500
 
 
