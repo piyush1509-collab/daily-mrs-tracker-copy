@@ -73,15 +73,8 @@
                         );
 
                         suggestionsBox.innerHTML = matches
-                            .map(item => `<p class="suggestion-item" data-name="${item["Item Name"]}" data-code="${item["Item Code"]}">${item["Item Name"]} (${item["Item Code"]})</p>`)
+                            .map(item => `<p class="suggestion-item" onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
                             .join("");
-
-                        // ✅ Add Click Event to Each Suggestion
-                        document.querySelectorAll(".suggestion-item").forEach(item => {
-                            item.addEventListener("click", function() {
-                                selectItem(this.dataset.name, this.dataset.code);
-                            });
-                        });
                     })
                     .catch(error => console.error("❌ Error fetching items:", error));
             });
@@ -94,47 +87,68 @@
         }
 
         function logConsumption() {
-        let itemName = document.getElementById("searchBox").value.trim();
-        let itemCode = document.getElementById("itemCode").value.trim();
-        let area = document.getElementById("area").value;
-        let date = document.getElementById("date").value;
-        let shift = document.getElementById("shift").value;
+            let itemName = document.getElementById("searchBox").value.trim();
+            let itemCode = document.getElementById("itemCode").value.trim();
+            let area = document.getElementById("area").value;
+            let date = document.getElementById("date").value;
+            let shift = document.getElementById("shift").value;
 
-        if (!itemName || !itemCode || !area || !date || !shift) {
-            alert("❌ Please fill all fields before logging consumption.");
-            return;
+            if (!itemName || !itemCode || !area || !date || !shift) {
+                alert("❌ Please fill all fields before logging consumption.");
+                return;
+            }
+
+            let consumptionData = {
+                "Item name": itemName,
+                "Item code": itemCode,
+                "Consumed Area": area,
+                "Date": date,
+                "Shift": shift,
+                "QTY": 1
+            };
+
+            fetch("/log-consumption", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(consumptionData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("✅ Consumption logged successfully!");
+                    loadConsumptionHistory();
+                } else {
+                    alert("❌ Error logging consumption: " + data.error);
+                }
+            })
+            .catch(error => console.error("❌ Error logging consumption:", error));
         }
 
-        let consumptionData = {
-            "Item name": itemName,
-            "Item code": itemCode,
-            "Consumed Area": area,
-            "Date": date,
-            "Shift": shift,
-            "QTY": 1
-        };
+        function loadConsumptionHistory() {
+            fetch("/consumption-history")
+                .then(response => response.json())
+                .then(data => {
+                    let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
+                    data.forEach(entry => {
+                        historyTable += `<tr>
+                            <td>${entry["Item name"]}</td>
+                            <td>${entry["Item code"]}</td>
+                            <td>${entry["QTY"]}</td>
+                            <td>${entry["Consumed Area"]}</td>
+                            <td>${entry["Date"]}</td>
+                            <td>${entry["Shift"]}</td>
+                        </tr>`;
+                    });
+                    historyTable += "</table>";
+                    document.getElementById("consumptionHistory").innerHTML = historyTable;
+                })
+                .catch(error => console.error("❌ Error fetching consumption history:", error));
+        }
 
-        fetch("/log-consumption", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(consumptionData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("✅ Consumption logged successfully!");
-                loadConsumptionHistory();
-            } else {
-                alert("❌ Error logging consumption: " + data.error);
-            }
-        })
-        .catch(error => {
-            console.error("❌ Error logging consumption:", error);
-            alert("❌ Failed to log consumption. Check the console for details.");
-        });
-    }
+        loadConsumptionHistory();
+    };
 </script>
 
 

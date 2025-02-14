@@ -40,14 +40,18 @@ def get_items():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        # ✅ Fetch Data from Inventory Sheet
+        # ✅ Fetch Data from "Inventory"
         sheet = client.open("items").worksheet("Inventory")
         data = sheet.get_all_records()
 
-        return jsonify(data)  # ✅ Return as JSON
+        # ✅ Ensure correct JSON format
+        items = [{"Item Name": row["Item Name"], "Item Code": row["Item Code"]} for row in data]
+
+        return jsonify(items)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 from flask import request, jsonify
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -86,19 +90,18 @@ def log_consumption():
 @app.route('/consumption-history')
 def consumption_history():
     try:
-        # ✅ Connect to Google Sheets
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        # ✅ Fetch Data from "Consumption Log"
         sheet = client.open("items").worksheet("Consumption Log")
         data = sheet.get_all_records()
 
-        return jsonify(data)  # ✅ Return as JSON
+        return jsonify(data)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == "__main__":
