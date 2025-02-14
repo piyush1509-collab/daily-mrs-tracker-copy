@@ -31,7 +31,7 @@ else:
 def home():
     return render_template('index.html')
 
-# ✅ Fixed: Extract items correctly from Google Sheets
+# ✅ Fetch Items from "Inventory" Sheet
 @app.route('/get-items')
 def get_items():
     try:
@@ -39,18 +39,19 @@ def get_items():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        sheet = client.open("items").worksheet("Inventory")  # Change to actual sheet name
-        items = sheet.col_values(1)  # Assuming item names are in the first column
+        # ✅ Open "items" spreadsheet and "Inventory" worksheet
+        sheet = client.open("items").worksheet("Inventory")
+        data = sheet.get_all_values()
 
-        if not items:
-            return jsonify({"error": "No items found in the sheet"}), 404
+        # ✅ Convert to JSON (Skip first row, which is headers)
+        items = [{"Item Code": row[0], "Item Name": row[1]} for row in data[1:]]
 
         return jsonify(items)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ✅ Fixed: Add `/consumption-history` Route
+# ✅ Fetch Consumption History from "Consumption Log" Sheet
 @app.route('/consumption-history')
 def get_consumption_history():
     try:
@@ -58,11 +59,9 @@ def get_consumption_history():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
-        sheet = client.open("items").worksheet("Consumption Log")  # Change to actual sheet name
+        # ✅ Open "items" spreadsheet and "Consumption Log" worksheet
+        sheet = client.open("items").worksheet("Consumption Log")
         records = sheet.get_all_records()
-
-        if not records:
-            return jsonify({"error": "No consumption history found"}), 404
 
         return jsonify(records)
 
@@ -71,3 +70,4 @@ def get_consumption_history():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+

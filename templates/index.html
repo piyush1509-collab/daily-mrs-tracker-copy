@@ -47,107 +47,60 @@
     <div id="history"></div>
 
     <script>
-    let items = [];
-
-    async function loadItems() {
-        let response = await fetch('/get_items');
-        items = await response.json();
-    }
-
-    function showSuggestions() {
-        let input = document.getElementById("itemName").value.toLowerCase();
-        let suggestionsDiv = document.getElementById("suggestions");
-        suggestionsDiv.innerHTML = "";
-        if (input.length === 0) return;
-
-        let matches = items.filter(item => item["Item name"].toLowerCase().includes(input));
-        matches.forEach(item => {
-            let div = document.createElement("div");
-            div.innerHTML = `${item["Item name"]} (${item["Item code"]})`;
-            div.onclick = function () { selectItem(item); };
-            suggestionsDiv.appendChild(div);
-        });
-    }
-
-    function selectItem(item) {
-        document.getElementById("itemName").value = item["Item name"];
-        document.getElementById("itemCode").value = item["Item code"];
-        document.getElementById("suggestions").innerHTML = "";
-    }
-
-    async function consumeItem() {
-        let itemCode = document.getElementById("itemCode").value;
-        let itemName = document.getElementById("itemName").value;
-        let consumedArea = document.getElementById("consumedArea").value;
-        let date = document.getElementById("date").value;
-        let quantity = document.getElementById("quantity").value;
-        let shift = document.getElementById("shift").value;
-
-        if (!itemCode || !itemName || !consumedArea || !date || !quantity || !shift) {
-            alert("Please fill out all fields before submitting.");
+    // ✅ Fetch Items for Search (Auto-suggestion)
+    document.getElementById("searchBox").addEventListener("input", function() {
+        let query = this.value;
+        if (query.length < 1) {
+            document.getElementById("suggestions").innerHTML = "";
             return;
         }
 
-        let data = {
-            item_code: itemCode,
-            item_name: itemName,
-            consumed_area: consumedArea,
-            date: date,
-            quantity: quantity,
-            shift: shift
-        };
+        fetch("/get-items")
+            .then(response => response.json())
+            .then(items => {
+                let matches = items.filter(item => 
+                    item["Item Name"].toLowerCase().includes(query.toLowerCase())
+                );
 
-        let response = await fetch('/consume', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+                document.getElementById("suggestions").innerHTML = matches
+                    .map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
+                    .join("");
+            })
+            .catch(error => console.error("Error fetching items:", error));
+    });
 
-        let result = await response.json();
-
-        if (result.error) {
-            alert(result.error);
-        } else {
-            alert(result.message);
-            loadConsumptionHistory();
-        }
+    function selectItem(itemName, itemCode) {
+        document.getElementById("searchBox").value = itemName;
+        document.getElementById("itemCode").value = itemCode;  // Fill item code automatically
+        document.getElementById("suggestions").innerHTML = "";
     }
 
-    async function loadConsumptionHistory() {
-        let response = await fetch('/consumption_history');
-        let sheetData = await response.json();
-
-        let historyDiv = document.getElementById("history");
-        historyDiv.innerHTML = "<h2>Consumption Log</h2>";
-
-        let table = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>Quantity</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
-
-        sheetData.forEach(entry => {
-            const itemName = entry["Item name"] || "N/A";
-            const itemCode = entry["Item code"] || "N/A";
-            const quantity = entry["QTY"] || "N/A";
-            const consumedArea = entry["Consumed Area"] || "N/A";
-            const date = entry["Date"] || "N/A";
-            const shift = entry["Shift"] || "N/A";
-
-            table += `<tr>
-                <td>${itemName}</td>
-                <td>${itemCode}</td>
-                <td>${quantity}</td>
-                <td>${consumedArea}</td>
-                <td>${date}</td>
-                <td>${shift}</td>
-            </tr>`;
-        });
-
-        table += "</table>";
-        historyDiv.innerHTML += table;
+    // ✅ Fetch and Display Consumption History
+    function loadConsumptionHistory() {
+        fetch("/consumption-history")
+            .then(response => response.json())
+            .then(data => {
+                let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
+                data.forEach(entry => {
+                    historyTable += `<tr>
+                        <td>${entry["Item name"]}</td>
+                        <td>${entry["Item code"]}</td>
+                        <td>${entry["QTY"]}</td>
+                        <td>${entry["Consumed Area"]}</td>
+                        <td>${entry["Date"]}</td>
+                        <td>${entry["Shift"]}</td>
+                    </tr>`;
+                });
+                historyTable += "</table>";
+                document.getElementById("consumptionHistory").innerHTML = historyTable;
+            })
+            .catch(error => console.error("Error fetching consumption history:", error));
     }
 
-    window.onload = () => {
-        loadItems();
-        loadConsumptionHistory();
-    };
-    </script>
+    // ✅ Load history on page load
+    window.onload = loadConsumptionHistory;
+</script>
+
+
 </body>
 </html>
