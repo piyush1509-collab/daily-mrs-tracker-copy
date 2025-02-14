@@ -35,16 +35,16 @@ def home():
 @app.route('/get-items')
 def get_items():
     try:
+        # ✅ Connect to Google Sheets
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
+        # ✅ Fetch Data from Inventory Sheet
         sheet = client.open("items").worksheet("Inventory")
-        data = sheet.get_all_values()
+        data = sheet.get_all_records()
 
-        items = [{"Item Code": row[0], "Item Name": row[1]} for row in data[1:]]
-
-        return jsonify(items)
+        return jsonify(data)  # ✅ Return as JSON
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -62,7 +62,7 @@ def log_consumption():
         consumed_area = data.get("Consumed Area")
         date = data.get("Date")
         shift = data.get("Shift")
-        qty = data.get("QTY")
+        qty = data.get("QTY", 1)  # Default to 1
 
         if not (item_name and item_code and consumed_area and date and shift):
             return jsonify({"success": False, "error": "Missing required fields"}), 400
@@ -72,9 +72,8 @@ def log_consumption():
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
+        # ✅ Open the "Consumption Log" Sheet and Append Data
         sheet = client.open("items").worksheet("Consumption Log")
-
-        # ✅ Append Data to Sheet
         sheet.append_row([item_name, item_code, qty, consumed_area, date, shift])
 
         return jsonify({"success": True})
@@ -84,30 +83,23 @@ def log_consumption():
 
 
 # ✅ Fetch Consumption History with Filtering by Area & Date
-@app.route('/consumption-history', methods=['GET'])
-def get_consumption_history():
+@app.route('/consumption-history')
+def consumption_history():
     try:
+        # ✅ Connect to Google Sheets
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
         client = gspread.authorize(creds)
 
+        # ✅ Fetch Data from "Consumption Log"
         sheet = client.open("items").worksheet("Consumption Log")
-        records = sheet.get_all_records()
+        data = sheet.get_all_records()
 
-        # ✅ Apply Filters (If Provided)
-        area_filter = request.args.get("area")
-        date_filter = request.args.get("date")
-
-        if area_filter:
-            records = [r for r in records if r["Consumed Area"].lower() == area_filter.lower()]
-
-        if date_filter:
-            records = [r for r in records if r["Date"] == date_filter]
-
-        return jsonify(records)
+        return jsonify(data)  # ✅ Return as JSON
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
