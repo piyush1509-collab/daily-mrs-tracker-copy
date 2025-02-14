@@ -1,82 +1,126 @@
-<script>
-    window.onload = function() {
-        // ✅ Ensure searchBox exists before adding event listener
-        let searchBox = document.getElementById("searchBox");
-        
-        if (searchBox) {
-            searchBox.addEventListener("input", function() {
-                let query = this.value;
-                if (query.length < 1) {
-                    document.getElementById("suggestions").innerHTML = "";
-                    return;
-                }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Code Tracker</title>
+</head>
+<body>
 
-                fetch("/get-items")
-                    .then(response => response.json())
-                    .then(items => {
-                        let matches = items.filter(item => 
-                            item["Item Name"].toLowerCase().includes(query.toLowerCase())
-                        );
+    <!-- ✅ Search Box for Item Search -->
+    <label for="searchBox">Search for Item:</label>
+    <input type="text" id="searchBox" placeholder="Search for an item">
+    <div id="suggestions"></div>
 
-                        document.getElementById("suggestions").innerHTML = matches
-                            .map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
-                            .join("");
-                    })
-                    .catch(error => console.error("❌ Error fetching items:", error));
-            });
-        } else {
-            console.error("❌ Error: searchBox element not found in HTML.");
-        }
+    <!-- ✅ Hidden Input to Store Selected Item Code -->
+    <input type="hidden" id="itemCode">
 
-        // ✅ Ensure filters exist before loading consumption history
-        let filterArea = document.getElementById("filterArea");
-        let filterDate = document.getElementById("filterDate");
+    <!-- ✅ Filters for Consumption History -->
+    <label for="filterArea">Filter by Area:</label>
+    <select id="filterArea">
+        <option value="">All Areas</option>
+        <option value="Pump House">Pump House</option>
+        <option value="Utility">Utility</option>
+        <option value="Furnace">Furnace</option>
+        <option value="M.H">M.H</option>
+        <option value="Electrical">Electrical</option>
+        <option value="Operation">Operation</option>
+    </select>
 
-        function loadConsumptionHistory() {
-            let area = filterArea ? filterArea.value : "";
-            let date = filterDate ? filterDate.value : "";
-            
-            let url = "/consumption-history";
-            let params = [];
+    <label for="filterDate">Filter by Date:</label>
+    <input type="date" id="filterDate">
 
-            if (area) params.push(`area=${encodeURIComponent(area)}`);
-            if (date) params.push(`date=${encodeURIComponent(date)}`);
+    <button onclick="loadConsumptionHistory()">Filter</button>
 
-            if (params.length > 0) {
-                url += "?" + params.join("&");
+    <!-- ✅ Table for Consumption History -->
+    <div id="consumptionHistory">
+        <p>Loading consumption history...</p>
+    </div>
+
+    <script>
+        window.onload = function() {
+            let searchBox = document.getElementById("searchBox");
+            let filterArea = document.getElementById("filterArea");
+            let filterDate = document.getElementById("filterDate");
+            let consumptionHistory = document.getElementById("consumptionHistory");
+
+            if (!searchBox) console.error("❌ Error: searchBox element not found in HTML.");
+            if (!consumptionHistory) console.error("❌ Error: consumptionHistory element not found in HTML.");
+
+            // ✅ Search Box for Auto-Suggestion
+            if (searchBox) {
+                searchBox.addEventListener("input", function() {
+                    let query = this.value;
+                    if (query.length < 1) {
+                        document.getElementById("suggestions").innerHTML = "";
+                        return;
+                    }
+
+                    fetch("/get-items")
+                        .then(response => response.json())
+                        .then(items => {
+                            let matches = items.filter(item => 
+                                item["Item Name"].toLowerCase().includes(query.toLowerCase())
+                            );
+
+                            document.getElementById("suggestions").innerHTML = matches
+                                .map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
+                                .join("");
+                        })
+                        .catch(error => console.error("❌ Error fetching items:", error));
+                });
             }
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
-                    data.forEach(entry => {
-                        historyTable += `<tr>
-                            <td>${entry["Item name"]}</td>
-                            <td>${entry["Item code"]}</td>
-                            <td>${entry["QTY"]}</td>
-                            <td>${entry["Consumed Area"]}</td>
-                            <td>${entry["Date"]}</td>
-                            <td>${entry["Shift"]}</td>
-                        </tr>`;
-                    });
-                    historyTable += "</table>";
-                    document.getElementById("consumptionHistory").innerHTML = historyTable;
-                })
-                .catch(error => console.error("❌ Error fetching consumption history:", error));
-        }
+            function selectItem(itemName, itemCode) {
+                document.getElementById("searchBox").value = itemName;
+                document.getElementById("itemCode").value = itemCode;
+                document.getElementById("suggestions").innerHTML = "";
+            }
 
-        // ✅ Load history on page load if elements exist
-        if (document.getElementById("consumptionHistory")) {
-            loadConsumptionHistory();
-        } else {
-            console.error("❌ Error: consumptionHistory element not found in HTML.");
-        }
-    };
+            // ✅ Fetch and Display Consumption History with Filters
+            function loadConsumptionHistory() {
+                let area = filterArea ? filterArea.value : "";
+                let date = filterDate ? filterDate.value : "";
+                
+                let url = "/consumption-history";
+                let params = [];
 
-    function selectItem(itemName, itemCode) {
-        document.getElementById("searchBox").value = itemName;
-        document.getElementById("itemCode").value = itemCode;
-        document.getElementById("suggestions").innerHTML = "";
-    }
-</script>
+                if (area) params.push(`area=${encodeURIComponent(area)}`);
+                if (date) params.push(`date=${encodeURIComponent(date)}`);
+
+                if (params.length > 0) {
+                    url += "?" + params.join("&");
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
+                        data.forEach(entry => {
+                            historyTable += `<tr>
+                                <td>${entry["Item name"]}</td>
+                                <td>${entry["Item code"]}</td>
+                                <td>${entry["QTY"]}</td>
+                                <td>${entry["Consumed Area"]}</td>
+                                <td>${entry["Date"]}</td>
+                                <td>${entry["Shift"]}</td>
+                            </tr>`;
+                        });
+                        historyTable += "</table>";
+                        consumptionHistory.innerHTML = historyTable;
+                    })
+                    .catch(error => console.error("❌ Error fetching consumption history:", error));
+            }
+
+            // ✅ Load history on page load if elements exist
+            if (consumptionHistory) {
+                loadConsumptionHistory();
+            } else {
+                console.error("❌ Error: consumptionHistory element not found in HTML.");
+            }
+        };
+    </script>
+
+</body>
+</html>
+
