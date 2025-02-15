@@ -3,146 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MRS - Material Request System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-control, .btn {
-            margin-bottom: 10px;
-        }
-        #suggestions {
-            background: white;
-            position: absolute;
-            z-index: 1000;
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        #suggestions p {
-            padding: 10px;
-            cursor: pointer;
-            margin: 0;
-        }
-        #suggestions p:hover {
-            background: #007bff;
-            color: white;
-        }
-    </style>
+    <title>MRS</title>
 </head>
 <body>
-    <div class="container">
-        <h2>MRS - Material Request System</h2>
-        <div class="mb-3 position-relative">
-            <label for="searchBox" class="form-label">Item Name</label>
-            <input type="text" id="searchBox" class="form-control" placeholder="Start typing item name...">
-            <div id="suggestions"></div>
-        </div>
-        <div class="mb-3">
-            <label for="itemCode" class="form-label">Item Code</label>
-            <input type="text" id="itemCode" class="form-control" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="qty" class="form-label">Quantity</label>
-            <input type="number" id="qty" class="form-control" placeholder="Enter quantity">
-        </div>
-        <div class="mb-3">
-            <label for="unit" class="form-label">Unit</label>
-            <select id="unit" class="form-select">
-                <option value="Each">Each</option>
-                <option value="Litre">Litre</option>
-                <option value="KG">KG</option>
-                <option value="Meter">Meter</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="area" class="form-label">Consumed Area</label>
-            <select id="area" class="form-select">
-                <option>PUMP HOUSE</option>
-                <option>RO PLANT</option>
-                <option>GASZONE</option>
-                <option>FURNACE</option>
-                <option>MATERIAL HANDELING</option>
-                <option>ELECTRICAL</option>
-                <option>OPERATION</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="date" class="form-label">Date</label>
-            <input type="date" id="date" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label for="shift" class="form-label">Shift</label>
-            <select id="shift" class="form-select">
-                <option>G</option>
-                <option>A</option>
-                <option>B</option>
-                <option>C</option>
-            </select>
-        </div>
-        <button id="logConsumption" class="btn btn-primary w-100">Log Consumption</button>
-        <h3 class="mt-4">Consumption History</h3>
-        <div id="consumptionHistory" class="table-responsive"></div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <h1>MRS</h1>
+
+    <!-- Item Entry Form -->
+    <input type="text" id="searchBox" placeholder="Enter item name">
+    <div id="suggestions"></div>
+    <input type="text" id="itemCode" placeholder="Item Code" readonly>
+    
+    <select id="area">
+        <option>PUMP HOUSE</option>
+        <option>RO PLANT</option>
+        <option>GASZONE</option>
+        <option>FURNACE</option>
+        <option>MATERIAL HANDELING</option>
+        <option>ELECTRICAL</option>
+        <option>OPERATION</option>
+    </select>
+    
+    <input type="date" id="date">
+    
+    <select id="shift">
+        <option>G</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+    </select>
+    
+    <input type="number" id="qty" placeholder="Quantity">
+    
+    <button onclick="logConsumption()">Log Consumption</button>
+
+    <!-- Consumption History -->
+    <h2>Consumption History</h2>
+    <div id="consumptionHistory"></div>
+
     <script>
-        $(document).ready(function() {
-            $('#searchBox').on('input', function() {
-                let query = $(this).val();
-                if (query.length < 1) {
-                    $('#suggestions').html('');
-                    return;
-                }
-                $.getJSON('/get-items', function(response) {
-                    if (Array.isArray(response.items)) {
-                        let matches = response.items.filter(item => item["Item Name"].toLowerCase().includes(query.toLowerCase()));
-                        $('#suggestions').html(matches.map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`).join(''));
-                    }
-                }).fail(function() {
-                    console.error("Error fetching items from /get-items API");
-                });
-            });
-            
-            function selectItem(itemName, itemCode) {
-                $('#searchBox').val(itemName);
-                $('#itemCode').val(itemCode);
-                $('#suggestions').html('');
+        // Fetch Items for Auto-suggestion
+        document.getElementById("searchBox").addEventListener("input", function() {
+            let query = this.value;
+            if (query.length < 1) {
+                document.getElementById("suggestions").innerHTML = "";
+                return;
             }
-            
-            function loadConsumptionHistory() {
-                $.getJSON('/consumption-history', function(response) {
-                    if (Array.isArray(response.history)) {
-                        let history = `<table class='table table-bordered'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Unit</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>`;
-                        response.history.forEach(entry => {
-                            history += `<tr><td>${entry["Item name"]}</td><td>${entry["Item code"]}</td><td>${entry["QTY"]}</td><td>${entry["Unit"]}</td><td>${entry["Consumed Area"]}</td><td>${entry["Date"]}</td><td>${entry["Shift"]}</td></tr>`;
-                        });
-                        history += "</table>";
-                        $('#consumptionHistory').html(history);
-                    }
-                }).fail(function() {
-                    console.error("Error fetching consumption history from /consumption-history API");
-                });
-            }
-            loadConsumptionHistory();
+
+            fetch("/get-items")
+                .then(response => response.json())
+                .then(items => {
+                    let matches = items.filter(item => 
+                        item["Item Name"].toLowerCase().includes(query.toLowerCase())
+                    );
+
+                    document.getElementById("suggestions").innerHTML = matches
+                        .map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
+                        .join("");
+                })
+                .catch(error => console.error("Error fetching items:", error));
         });
+
+        function selectItem(itemName, itemCode) {
+            document.getElementById("searchBox").value = itemName;
+            document.getElementById("itemCode").value = itemCode;
+            document.getElementById("suggestions").innerHTML = "";
+        }
+
+        // Fetch and Display Consumption History
+        function loadConsumptionHistory() {
+            fetch("/consumption-history")
+                .then(response => response.json())
+                .then(data => {
+                    let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
+                    data.forEach(entry => {
+                        historyTable += `<tr>
+                            <td>${entry["Item name"]}</td>
+                            <td>${entry["Item code"]}</td>
+                            <td>${entry["QTY"]}</td>
+                            <td>${entry["Consumed Area"]}</td>
+                            <td>${entry["Date"]}</td>
+                            <td>${entry["Shift"]}</td>
+                        </tr>`;
+                    });
+                    historyTable += "</table>";
+                    document.getElementById("consumptionHistory").innerHTML = historyTable;
+                })
+                .catch(error => console.error("Error fetching consumption history:", error));
+        }
+
+        function logConsumption() {
+            let data = {
+                "Item name": document.getElementById("searchBox").value,
+                "Item code": document.getElementById("itemCode").value,
+                "QTY": document.getElementById("qty").value,
+                "Consumed Area": document.getElementById("area").value,
+                "Date": document.getElementById("date").value,
+                "Shift": document.getElementById("shift").value
+            };
+
+            fetch("/log-consumption", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(response => {
+                alert(response.message || "Error logging consumption!");
+                loadConsumptionHistory();
+            })
+            .catch(error => console.error("Error logging consumption:", error));
+        }
+
+        // Load history on page load
+        window.onload = loadConsumptionHistory;
     </script>
 </body>
 </html>
+
