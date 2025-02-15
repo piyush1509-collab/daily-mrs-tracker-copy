@@ -1,119 +1,61 @@
+from flask import Flask, request, jsonify, render_template
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
-import gspread
-from flask import Flask, render_template, jsonify, request
-from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 
-CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
+# Load credentials
 CREDENTIALS_FILE = "credentials.json"
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+client = gspread.authorize(creds)
 
-if CREDENTIALS_CONTENT:
-    try:
-        parsed_json = json.loads(CREDENTIALS_CONTENT)
-        if "private_key" in parsed_json:
-            parsed_json["private_key"] = parsed_json["private_key"].replace("\\n", "\n")
-
-        with open(CREDENTIALS_FILE, "w") as f:
-            json.dump(parsed_json, f, indent=4)
-
-        print(f"✅ Credentials file successfully created at {CREDENTIALS_FILE}")
-
-    except json.JSONDecodeError as e:
-        print(f"❌ Error decoding JSON: {e}")
-    except Exception as e:
-        print(f"❌ Error writing credentials.json: {e}")
-else:
-    print("❌ GOOGLE_CREDENTIALS_JSON is not set! Make sure the environment variable is configured.")
+# Open sheets
+inventory_sheet = client.open("items").worksheet("Inventory")
+consumption_sheet = client.open("items").worksheet("Consumption Log")
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# ✅ Fetch Items from "Inventory" Sheet (Auto-Suggestion)
-@app.route('/get-items')
+@app.route('/get-items', methods=['GET'])
 def get_items():
     try:
-        # ✅ Connect to Google Sheets
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        client = gspread.authorize(creds)
-
-        # ✅ Fetch Data from "Inventory"
-        sheet = client.open("items").worksheet("Inventory")
-        data = sheet.get_all_records()
-
-        # ✅ Ensure correct JSON format
-        items = [{"Item Name": row["Item Name"], "Item Code": row["Item Code"]} for row in data]
-
-        return jsonify(items)
-
+        data = inventory_sheet.get_all_records()
+        return jsonify(data)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-from flask import request, jsonify
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
-import traceback  # 🔹 Import traceback for debugging
-
-import traceback  # Import traceback for detailed error logs
+        return jsonify({"error": str(e)})
 
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     try:
-        if request.content_type != "application/json":
-            return jsonify({"success": False, "error": "Content-Type must be 'application/json'"}), 415
-
-        data = request.get_json(force=True)
-        print(f"🔹 Received data: {data}")  # ✅ Debugging print
-
-        item_name = data.get("Item name")
-        item_code = data.get("Item code")
-        consumed_area = data.get("Consumed Area")
-        date = data.get("Date")
-        shift = data.get("Shift")
-        qty = data.get("QTY", 1)
-
-        if not all([item_name, item_code, consumed_area, date, shift]):
-            return jsonify({"success": False, "error": "Missing required fields"}), 400
-
-        # ✅ Connect to Google Sheets
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        client = gspread.authorize(creds)
-        print("✅ Google Sheets Connected")
-
-        # ✅ Append data to "Consumption Log"
-        sheet = client.open("items").worksheet("Consumption Log")
-        sheet.append_row([item_name, item_code, qty, consumed_area, date, shift])
-        print("✅ Data Logged Successfully")
-
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data received", "success": False})
+        
+        row = [
+            data.get("Item name", ""),
+            data.get("Item code", ""),
+            data.get("QTY", 1),
+            data.get("Unit", "Each"),
+            data.get("Consumed Area", ""),
+            data.get("Date", ""),
+            data.get("Shift", "")
+        ]
+        consumption_sheet.append_row(row)
         return jsonify({"success": True})
-
     except Exception as e:
-        error_details = traceback.format_exc()  # 🔹 Capture full error traceback
-        print(f"❌ Error logging consumption: {error_details}")  # 🔹 Print error in logs
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({"error": str(e), "success": False})
 
-# ✅ Fetch Consumption History with Filtering by Area & Date
-@app.route('/consumption-history')
+@app.route('/consumption-history', methods=['GET'])
 def consumption_history():
     try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        client = gspread.authorize(creds)
-
-        sheet = client.open("items").worksheet("Consumption Log")
-        data = sheet.get_all_records()
-
+        data = consumption_sheet.get_all_records()
         return jsonify(data)
-
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)})
 
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
