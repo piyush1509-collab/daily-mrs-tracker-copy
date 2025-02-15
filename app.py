@@ -7,7 +7,16 @@ import json
 app = Flask(__name__)
 
 # Load credentials
-CREDENTIALS_FILE = "credentials.json"
+import json
+import os
+
+CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
+if not CREDENTIALS_CONTENT:
+    raise FileNotFoundError("❌ GOOGLE_CREDENTIALS_JSON environment variable is missing!")
+
+creds_dict = json.loads(CREDENTIALS_CONTENT)  # Convert string to dict
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)  # Use dict
+
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
 client = gspread.authorize(creds)
