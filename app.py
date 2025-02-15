@@ -3,27 +3,27 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-app = Flask(__name__)
+# ✅ Define Google Sheets API Scope
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Load credentials
-import json
-import os
-
+# ✅ Load Google Credentials from Environment Variable
 CREDENTIALS_CONTENT = os.getenv("GOOGLE_CREDENTIALS_JSON")
 if not CREDENTIALS_CONTENT:
     raise FileNotFoundError("❌ GOOGLE_CREDENTIALS_JSON environment variable is missing!")
 
-creds_dict = json.loads(CREDENTIALS_CONTENT)  # Convert string to dict
+creds_dict = json.loads(CREDENTIALS_CONTENT)  # Convert string to dictionary
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)  # Use dict
 
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+# ✅ Authorize Google Sheets Client
 client = gspread.authorize(creds)
 
-# Open sheets
-inventory_sheet = client.open("items").worksheet("Inventory")
-consumption_sheet = client.open("items").worksheet("Consumption Log")
+# ✅ Open the Google Sheets (Make sure to replace with your actual sheet name)
+sheet_inventory = client.open("items").worksheet("Inventory")  # Sheet for item codes
+sheet_consumption = client.open("items").worksheet("Consumption Log")  # Sheet for logging consumption
+
 
 @app.route('/')
 def home():
