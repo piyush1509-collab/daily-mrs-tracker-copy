@@ -3,8 +3,6 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
 # ✅ Define Google Sheets API Scope
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -20,10 +18,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)  # U
 # ✅ Authorize Google Sheets Client
 client = gspread.authorize(creds)
 
-# ✅ Open the Google Sheets (Make sure to replace with your actual sheet name)
+# ✅ Open the Google Sheets
 sheet_inventory = client.open("items").worksheet("Inventory")  # Sheet for item codes
 sheet_consumption = client.open("items").worksheet("Consumption Log")  # Sheet for logging consumption
 
+app = Flask(__name__)
 
 @app.route('/')
 def home():
@@ -32,8 +31,8 @@ def home():
 @app.route('/get-items', methods=['GET'])
 def get_items():
     try:
-        data = inventory_sheet.get_all_records()
-        return jsonify(data)
+        data = sheet_inventory.get_all_records()
+        return jsonify({"items": data})  # Ensure response format is correct
     except Exception as e:
         return jsonify({"error": str(e)})
 
@@ -43,7 +42,7 @@ def log_consumption():
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data received", "success": False})
-        
+
         row = [
             data.get("Item name", ""),
             data.get("Item code", ""),
@@ -53,7 +52,7 @@ def log_consumption():
             data.get("Date", ""),
             data.get("Shift", "")
         ]
-        consumption_sheet.append_row(row)
+        sheet_consumption.append_row(row)
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e), "success": False})
@@ -61,8 +60,8 @@ def log_consumption():
 @app.route('/consumption-history', methods=['GET'])
 def consumption_history():
     try:
-        data = consumption_sheet.get_all_records()
-        return jsonify(data)
+        data = sheet_consumption.get_all_records()
+        return jsonify({"history": data})  # Ensure response format is correct
     except Exception as e:
         return jsonify({"error": str(e)})
 
