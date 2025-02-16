@@ -7,52 +7,59 @@ from oauth2client.service_account import ServiceAccountCredentials
 app = Flask(__name__)
 
 # Load credentials from environment variable
-creds_dict = json.loads(os.getenv("GOOGLE_CREDENTIALS_JSON", "{}"))
+with open("credentials.json") as f:
+    creds_dict = json.load(f)
 
-# Authenticate with Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
-# Open Google Sheet
-sheet = client.open("items")
+# Open the Google Sheets
+db = client.open("items")
+inventory_sheet = db.worksheet("Inventory")
+consumption_sheet = db.worksheet("Consumption Log")
 
-@app.route("/")
+@app.route('/')
 def home():
     return render_template("index.html")
 
-@app.route("/get-items")
+@app.route("/get-items", methods=["GET"])
 def get_items():
-    inventory_sheet = sheet.worksheet("Inventory")
-    data = inventory_sheet.get_all_records()
-    return jsonify(data)
-
-@app.route("/consumption-history")
-def consumption_history():
-    log_sheet = sheet.worksheet("Consumption Log")
-    data = log_sheet.get_all_records()
-    return jsonify(data)
+    try:
+        data = inventory_sheet.get_all_records()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 @app.route("/log-consumption", methods=["POST"])
 def log_consumption():
     try:
         data = request.json
-        log_sheet = sheet.worksheet("Consumption Log")
-
-        # Append data to sheet
-        log_sheet.append_row([
-            data["Item name"], 
-            data["Item code"], 
-            data["QTY"], 
-            data["Consumed Area"], 
-            data["Date"], 
-            data["Shift"]
-        ])
-        
-        return jsonify({"success": True, "message": "Consumption logged successfully!"})
-
+        row = [
+            data["Item name"], data["Item code"], data["QTY"],
+            data["Unit"], data["Consumed Area"], data["Date"], data["Shift"]
+        ]
+        consumption_sheet.append_row(row)
+        return jsonify({"success": True})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        return jsonify({"error": str(e), "success": False})
+
+@app.route("/consumption-history", methods=["GET"])
+def consumption_history():
+    try:
+        area = request.args.get("area")
+        date = request.args.get("date")
+        records = consumption_sheet.get_all_records()
+        
+        if area:
+            records = [r for r in records if r["Consumed Area"] == area]
+        if date:
+            records = [r for r in records if r["Date"] == date]
+        
+        return jsonify(records)
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+

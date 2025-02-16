@@ -3,122 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MRS</title>
+    <title>MRS - Material Request System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .history-table th, .history-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>MRS</h1>
+    <div class="container">
+        <h1>MRS</h1>
+        <input type="text" id="searchBox" placeholder="Enter Item Name" autocomplete="off">
+        <div id="suggestions"></div>
+        <input type="text" id="itemCode" placeholder="Item Code" readonly>
+        <input type="number" id="qty" placeholder="Quantity">
+        <select id="unit">
+            <option>Nos</option>
+            <option>Litre</option>
+            <option>Meter</option>
+            <option>KG</option>
+        </select>
+        <select id="area">
+            <option>PUMP HOUSE</option>
+            <option>RO PLANT</option>
+            <option>GASZONE</option>
+            <option>FURNACE</option>
+            <option>MATERIAL HANDLING</option>
+            <option>ELECTRICAL</option>
+            <option>OPERATION</option>
+        </select>
+        <input type="date" id="date">
+        <select id="shift">
+            <option>G</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+        </select>
+        <button onclick="logConsumption()">Log Consumption</button>
 
-    <!-- Item Entry Form -->
-    <input type="text" id="searchBox" placeholder="Enter item name">
-    <div id="suggestions"></div>
-    <input type="text" id="itemCode" placeholder="Item Code" readonly>
-    
-    <select id="area">
-        <option>PUMP HOUSE</option>
-        <option>RO PLANT</option>
-        <option>GASZONE</option>
-        <option>FURNACE</option>
-        <option>MATERIAL HANDELING</option>
-        <option>ELECTRICAL</option>
-        <option>OPERATION</option>
-    </select>
-    
-    <input type="date" id="date">
-    
-    <select id="shift">
-        <option>G</option>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
-    </select>
-    
-    <input type="number" id="qty" placeholder="Quantity">
-    
-    <button onclick="logConsumption()">Log Consumption</button>
-
-    <!-- Consumption History -->
-    <h2>Consumption History</h2>
-    <div id="consumptionHistory"></div>
+        <h2>Consumption History</h2>
+        <input type="date" id="filterDate">
+        <select id="filterArea">
+            <option value="">All Areas</option>
+            <option>PUMP HOUSE</option>
+            <option>RO PLANT</option>
+            <option>GASZONE</option>
+            <option>FURNACE</option>
+            <option>MATERIAL HANDLING</option>
+            <option>ELECTRICAL</option>
+            <option>OPERATION</option>
+        </select>
+        <button onclick="loadConsumptionHistory()">Filter</button>
+        <div id="consumptionHistory"></div>
+    </div>
 
     <script>
-        // Fetch Items for Auto-suggestion
-        document.getElementById("searchBox").addEventListener("input", function() {
-            let query = this.value;
-            if (query.length < 1) {
-                document.getElementById("suggestions").innerHTML = "";
-                return;
-            }
-
+        function fetchItems() {
             fetch("/get-items")
                 .then(response => response.json())
                 .then(items => {
-                    let matches = items.filter(item => 
-                        item["Item Name"].toLowerCase().includes(query.toLowerCase())
-                    );
-
-                    document.getElementById("suggestions").innerHTML = matches
-                        .map(item => `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`)
-                        .join("");
-                })
-                .catch(error => console.error("Error fetching items:", error));
-        });
-
-        function selectItem(itemName, itemCode) {
-            document.getElementById("searchBox").value = itemName;
-            document.getElementById("itemCode").value = itemCode;
+                    document.getElementById("searchBox").addEventListener("input", function() {
+                        let query = this.value.toLowerCase();
+                        let matches = items.filter(item => item["Item Name"].toLowerCase().includes(query));
+                        document.getElementById("suggestions").innerHTML = matches.map(item =>
+                            `<p onclick="selectItem('${item["Item Name"]}', '${item["Item Code"]}')">${item["Item Name"]} (${item["Item Code"]})</p>`
+                        ).join("");
+                    });
+                });
+        }
+        
+        function selectItem(name, code) {
+            document.getElementById("searchBox").value = name;
+            document.getElementById("itemCode").value = code;
             document.getElementById("suggestions").innerHTML = "";
         }
-
-        // Fetch and Display Consumption History
-        function loadConsumptionHistory() {
-            fetch("/consumption-history")
-                .then(response => response.json())
-                .then(data => {
-                    let historyTable = "<table border='1'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>";
-                    data.forEach(entry => {
-                        historyTable += `<tr>
-                            <td>${entry["Item name"]}</td>
-                            <td>${entry["Item code"]}</td>
-                            <td>${entry["QTY"]}</td>
-                            <td>${entry["Consumed Area"]}</td>
-                            <td>${entry["Date"]}</td>
-                            <td>${entry["Shift"]}</td>
-                        </tr>`;
-                    });
-                    historyTable += "</table>";
-                    document.getElementById("consumptionHistory").innerHTML = historyTable;
-                })
-                .catch(error => console.error("Error fetching consumption history:", error));
-        }
-
+        
         function logConsumption() {
             let data = {
                 "Item name": document.getElementById("searchBox").value,
                 "Item code": document.getElementById("itemCode").value,
                 "QTY": document.getElementById("qty").value,
+                "Unit": document.getElementById("unit").value,
                 "Consumed Area": document.getElementById("area").value,
                 "Date": document.getElementById("date").value,
                 "Shift": document.getElementById("shift").value
             };
-
+            
             fetch("/log-consumption", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(response => {
-                alert(response.message || "Error logging consumption!");
+            }).then(response => response.json()).then(result => {
+                alert(result.message);
                 loadConsumptionHistory();
-            })
-            .catch(error => console.error("Error logging consumption:", error));
+            });
         }
 
-        // Load history on page load
-        window.onload = loadConsumptionHistory;
+        function loadConsumptionHistory() {
+            let area = document.getElementById("filterArea").value;
+            let date = document.getElementById("filterDate").value;
+            let url = `/consumption-history?area=${encodeURIComponent(area)}&date=${encodeURIComponent(date)}`;
+            
+            fetch(url).then(response => response.json()).then(data => {
+                let historyTable = `<table class='history-table'><tr><th>Item Name</th><th>Item Code</th><th>QTY</th><th>Unit</th><th>Consumed Area</th><th>Date</th><th>Shift</th></tr>`;
+                data.forEach(entry => {
+                    historyTable += `<tr>
+                        <td>${entry["Item name"]}</td>
+                        <td>${entry["Item code"]}</td>
+                        <td>${entry["QTY"]}</td>
+                        <td>${entry["Unit"]}</td>
+                        <td>${entry["Consumed Area"]}</td>
+                        <td>${entry["Date"]}</td>
+                        <td>${entry["Shift"]}</td>
+                    </tr>`;
+                });
+                historyTable += "</table>";
+                document.getElementById("consumptionHistory").innerHTML = historyTable;
+            });
+        }
+
+        window.onload = function() {
+            fetchItems();
+            loadConsumptionHistory();
+        }
     </script>
 </body>
 </html>
+
 
