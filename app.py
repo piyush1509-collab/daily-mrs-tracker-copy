@@ -6,6 +6,13 @@ from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
 
+credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if not credentials_json:
+    raise ValueError("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set.")
+print(credentials_json)  # Debugging: Check if the variable is populated
+credentials_info = json.loads(credentials_json)
+
+
 # Load credentials from environment variable
 credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 if not credentials_json:
