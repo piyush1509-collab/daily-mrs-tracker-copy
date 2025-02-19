@@ -2,17 +2,20 @@ import os
 import json
 import gspread
 from flask import Flask, request, jsonify, render_template
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
 
 # Load credentials from environment variable
-with open("credentials.json") as f:
-    creds_dict = json.load(f)
+credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if not credentials_json:
+    raise ValueError("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set.")
 
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client = gspread.authorize(creds)
+credentials_info = json.loads(credentials_json)
+credentials = Credentials.from_service_account_info(credentials_info)
+
+# Authorize the gspread client
+client = gspread.authorize(credentials)
 
 # Open the Google Sheets
 db = client.open("items")
@@ -62,4 +65,5 @@ def consumption_history():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+
 
