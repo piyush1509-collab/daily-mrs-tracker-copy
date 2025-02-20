@@ -1,8 +1,19 @@
 from flask import Flask, render_template, request, jsonify
 import gspread
 from google.oauth2.service_account import Credentials
-import os
-from datetime import datetime
+
+# Add the correct scope for Google Sheets API
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+# Path to the credentials file
+CREDENTIALS_FILE = "credentials.json"
+
+if not os.path.exists(CREDENTIALS_FILE):
+    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
+
+# Use credentials with the correct scopes
+credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+
 
 app = Flask(__name__)
 
