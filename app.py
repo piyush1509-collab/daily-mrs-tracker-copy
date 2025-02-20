@@ -1,19 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 import gspread
 from google.oauth2.service_account import Credentials
-
-# Add the correct scope for Google Sheets API
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-# Path to the credentials file
-CREDENTIALS_FILE = "credentials.json"
-
-if not os.path.exists(CREDENTIALS_FILE):
-    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
-
-# Use credentials with the correct scopes
-credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
-
+import os  # Import 'os' module
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -23,8 +12,11 @@ CREDENTIALS_FILE = "credentials.json"  # Ensure this file is securely uploaded t
 if not os.path.exists(CREDENTIALS_FILE):
     raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
 
-# Authorize credentials
-credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+# Add the correct scope for Google Sheets API
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+# Use credentials with the correct scopes
+credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
 gc = gspread.authorize(credentials)
 
 # Open the Google Spreadsheet
@@ -123,4 +115,5 @@ def modify_tool_status():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use PORT from environment or default to 5000
     app.run(host="0.0.0.0", port=port)
+
 
