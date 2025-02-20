@@ -2,23 +2,18 @@ from flask import Flask, render_template, request, jsonify
 import gspread
 from google.oauth2.service_account import Credentials
 import os
-import json
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Debugging to check the environment variable
-credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-if not credentials_json:
-    raise ValueError("Environment variable GOOGLE_APPLICATION_CREDENTIALS_JSON is not set or is empty.")
+# Use file-based credentials instead of an environment variable
+CREDENTIALS_FILE = "credentials.json"  # Ensure this file exists in your project directory
 
-print("First 100 characters of GOOGLE_APPLICATION_CREDENTIALS_JSON:", credentials_json[:100])  # Debug log
+if not os.path.exists(CREDENTIALS_FILE):
+    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is uploaded to your server.")
 
-credentials_info = json.loads(credentials_json)
-print("private_key starts with:", credentials_info.get("private_key", "")[:20])  # Debug log
-
-# Authorize credentials
-credentials = Credentials.from_service_account_info(credentials_info)
+# Authorize credentials from the file
+credentials = Credentials.from_service_account_file(CREDENTIALS_FILE)
 gc = gspread.authorize(credentials)
 
 # Open the Google Spreadsheet
@@ -117,3 +112,4 @@ def modify_tool_status():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use PORT from environment or default to 5000
     app.run(host="0.0.0.0", port=port)
+
