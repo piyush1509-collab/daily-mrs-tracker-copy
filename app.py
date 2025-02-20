@@ -3,41 +3,40 @@ from flask import Flask, render_template, request, jsonify
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Define the correct scope for Google Sheets API
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-# Authorize credentials with the correct scope
-credentials = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
-gc = gspread.authorize(credentials)
-
+# Define the correct scopes for Google Sheets API
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
 
 # Path to the credentials file
 CREDENTIALS_FILE = "credentials.json"
 
+# Check if credentials file exists
 if not os.path.exists(CREDENTIALS_FILE):
-    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
+    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Ensure it's in the working directory.")
 
-# Use credentials with the correct scopes
-credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+# Authenticate using service account credentials
+try:
+    credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+    gc = gspread.authorize(credentials)
+    print("Successfully authenticated with Google Sheets API.")
+except Exception as e:
+    raise Exception(f"Google Sheets authentication failed: {str(e)}")
 
-
+# Initialize Flask app
 app = Flask(__name__)
-
-# Path to the credentials file
-CREDENTIALS_FILE = "credentials.json"  # Ensure this file is securely uploaded to your server
-
-if not os.path.exists(CREDENTIALS_FILE):
-    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
-
-# Authorize credentials
-credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
-gc = gspread.authorize(credentials)
 
 # Open the Google Spreadsheet
 SPREADSHEET_NAME = "items"
-sh = gc.open(SPREADSHEET_NAME)
 
-# Sheets
+try:
+    sh = gc.open(SPREADSHEET_NAME)
+    print(f"Successfully accessed spreadsheet: {SPREADSHEET_NAME}")
+except Exception as e:
+    raise Exception(f"Error accessing spreadsheet: {str(e)}")
+
+# Load Sheets
 inventory_sheet = sh.worksheet("Inventory")
 consumption_sheet = sh.worksheet("Consumption Log")
 tools_inventory_sheet = sh.worksheet("Tools Inventory")
@@ -126,7 +125,7 @@ def modify_tool_status():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Run Flask app
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use PORT from environment or default to 5000
     app.run(host="0.0.0.0", port=port)
-
