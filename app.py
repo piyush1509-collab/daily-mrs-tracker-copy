@@ -6,14 +6,14 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Use file-based credentials instead of an environment variable
-CREDENTIALS_FILE = "credentials.json"  # Ensure this file exists in your project directory
+# Path to the credentials file
+CREDENTIALS_FILE = "credentials.json"  # Ensure this file is securely uploaded to your server
 
 if not os.path.exists(CREDENTIALS_FILE):
-    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is uploaded to your server.")
+    raise FileNotFoundError(f"'{CREDENTIALS_FILE}' not found. Make sure it is present in the working directory.")
 
-# Authorize credentials from the file
-credentials = Credentials.from_service_account_file(CREDENTIALS_FILE)
+# Authorize credentials
+credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 gc = gspread.authorize(credentials)
 
 # Open the Google Spreadsheet
@@ -64,7 +64,7 @@ def get_tools():
     try:
         tools_data = tools_inventory_sheet.get_all_records()
         tool_names = [row["Tool Name"] for row in tools_data if "Tool Name" in row]
-        return jsonify(tool_names)  # Send tool names as JSON
+        return jsonify(tool_names)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -96,16 +96,16 @@ def get_pending_tools():
 def modify_tool_status():
     try:
         data = request.json
-        tool_name = data['Tool Name']
+        area = data['Area']
         new_status = data['Status']
         pending_tools = tools_pending_sheet.get_all_records()
         
         for i, row in enumerate(pending_tools, start=2):  # Skip header row
-            if row["Tool Name"] == tool_name and row["Status"] == "Pending":
+            if row["Area"] == area and row["Status"] == "Pending":
                 tools_pending_sheet.update_cell(i, 7, new_status)  # Update "Status" column
-                return jsonify({"message": f"Tool '{tool_name}' status updated to {new_status}."})
+                return jsonify({"message": f"Status updated for tools in area '{area}' to {new_status}."})
 
-        return jsonify({"message": "Tool not found or already updated."})
+        return jsonify({"message": "No tools found in the specified area or already updated."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
