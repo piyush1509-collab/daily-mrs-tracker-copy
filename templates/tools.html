@@ -14,15 +14,16 @@
         <button onclick="showUser()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">User</button>
     </div>
 
-    <!-- Store Section (Initially Hidden) -->
+    <!-- Store Section -->
     <div id="storeSection" class="p-6 hidden">
         <h3 class="text-2xl font-bold mb-6">Store Section</h3>
         <button onclick="showLogTool()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
         <button onclick="showModifyStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
 
-        <!-- Log Tool Entry Section -->
+        <!-- Log Tool Entry -->
         <div id="logTool" class="mt-6 hidden">
             <h3 class="text-xl font-bold mb-4">Log Tool Entry</h3>
+
             <label for="toolName" class="block text-sm font-medium mb-2">Tool Name</label>
             <input type="text" id="toolName" list="toolSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
             <datalist id="toolSuggestions"></datalist>
@@ -57,7 +58,7 @@
         </div>
     </div>
 
-    <!-- User Section (Initially Hidden) -->
+    <!-- User Section -->
     <div id="userSection" class="p-6 hidden">
         <h3 class="text-2xl font-bold mb-6">User Section</h3>
         <label for="filterUserArea" class="block text-sm font-medium mb-2">Filter by Area</label>
@@ -72,6 +73,7 @@
             <option>OPERATION</option>
         </select>
         <button onclick="fetchUserPendingTools()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Filter</button>
+
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="text-left border-b border-gray-700">
@@ -80,10 +82,42 @@
                     <th class="p-3">Status</th>
                 </tr>
             </thead>
-            <tbody id="userPendingToolsTable" class="text-gray-300">
-                <!-- Data will be populated dynamically -->
-            </tbody>
+            <tbody id="userPendingToolsTable" class="text-gray-300"></tbody>
         </table>
     </div>
+
+    <script>
+        function enterPassword() {
+            let password = prompt("Enter password for Store Section:");
+            if (password === "tool") {
+                showStoreSection();
+            } else {
+                alert("❌ Incorrect password! Access denied.");
+            }
+        }
+
+        function showStoreSection() {
+            document.getElementById("storeSection").style.display = "block";
+            document.getElementById("userSection").style.display = "none";
+        }
+
+        function showUser() {
+            document.getElementById("storeSection").style.display = "none";
+            document.getElementById("userSection").style.display = "block";
+        }
+
+        function showLogTool() {
+            document.getElementById("logTool").style.display = "block";
+        }
+
+        function logToolEntry() {
+            alert("Tool entry submitted! (This should send data to the backend)");
+        }
+
+        function fetchUserPendingTools() {
+            alert("Fetching pending tools based on area! (This should call backend API)");
+        }
+    </script>
 </body>
 </html>
+
