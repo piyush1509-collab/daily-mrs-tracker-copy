@@ -14,203 +14,70 @@
         <button onclick="showUser()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">User</button>
     </div>
 
-    <!-- Password Section -->
-    <div id="passwordSection" class="p-6" style="display: none;">
-        <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
-        <input type="password" id="storePassword" class="bg-gray-800 text-white p-2 rounded w-full mb-4" placeholder="Enter Password">
-        <button onclick="checkPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
-    </div>
-
     <!-- Store Section -->
     <div id="storeSection" class="p-6" style="display: none;">
         <h3 class="text-2xl font-bold mb-6">Store Section</h3>
-        <div class="flex gap-4">
-            <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
-            <button onclick="showModifyStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
-        </div>
-
-        <!-- Log Tool Entry Section -->
-        <div id="logToolEntry" style="display: none;" class="mt-6">
-            <h3 class="text-xl font-bold mb-4">Log Tool Entry</h3>
-            <label for="toolDate" class="block text-sm font-medium mb-2">Date</label>
-            <input type="date" id="toolDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-
-            <label for="toolName" class="block text-sm font-medium mb-2">Tool Name</label>
-            <input type="text" id="toolName" placeholder="Enter tool name" class="bg-gray-800 text-white p-2 rounded w-full">
-            <div id="suggestions" class="absolute bg-gray-800 text-white rounded shadow-lg w-full"></div>
-
-            <label for="toolArea" class="block text-sm font-medium mb-2 mt-4">Area</label>
-            <select id="toolArea" class="bg-gray-800 text-white p-2 rounded w-full">
-                <option value="PUMP HOUSE">PUMP HOUSE</option>
-                <option value="RO PLANT">RO PLANT</option>
-                <option value="GASZONE">GASZONE</option>
-                <option value="FURNACE">FURNACE</option>
-                <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
-                <option value="ELECTRICAL">ELECTRICAL</option>
-                <option value="OPERATION">OPERATION</option>
-            </select>
-
-            <label for="inCharge" class="block text-sm font-medium mb-2 mt-4">In-Charge</label>
-            <input type="text" id="inCharge" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="Enter In-Charge Name">
-
-            <label for="receiverName" class="block text-sm font-medium mb-2 mt-4">Receiver Name</label>
-            <input type="text" id="receiverName" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="Enter Receiver Name">
-
-            <label for="contractor" class="block text-sm font-medium mb-2 mt-4">Contractor</label>
-            <input type="text" id="contractor" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="Enter Contractor Name">
-
-            <button onclick="logToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600 mt-4">Submit</button>
-        </div>
+        <button onclick="showModifyStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
 
         <!-- Modify Tool Status Section -->
         <div id="modifyStatus" style="display: none;" class="mt-6">
             <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
-            <label for="modifyArea" class="block text-sm font-medium mb-2">Area</label>
-            <select id="modifyArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-                <option value="PUMP HOUSE">PUMP HOUSE</option>
-                <option value="RO PLANT">RO PLANT</option>
-                <option value="GASZONE">GASZONE</option>
-                <option value="FURNACE">FURNACE</option>
-                <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
-                <option value="ELECTRICAL">ELECTRICAL</option>
-                <option value="OPERATION">OPERATION</option>
+            
+            <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
+            <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+                <option value="">All Areas</option>
+                <option>PUMP HOUSE</option>
+                <option>RO PLANT</option>
+                <option>GASZONE</option>
+                <option>FURNACE</option>
+                <option>MATERIAL HANDLING</option>
+                <option>ELECTRICAL</option>
+                <option>OPERATION</option>
             </select>
 
-            <label for="newStatus" class="block text-sm font-medium mb-2 mt-4">New Status</label>
-            <select id="newStatus" class="bg-gray-800 text-white p-2 rounded w-full">
-                <option value="Pending">Pending</option>
-                <option value="Returned">Returned</option>
-            </select>
+            <button onclick="fetchPendingTools()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Filter</button>
 
-            <button onclick="modifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600 mt-4">Update Status</button>
+            <table class="min-w-full bg-gray-800 rounded-lg mt-4">
+                <thead>
+                    <tr class="text-left border-b border-gray-700">
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Tool Name</th>
+                        <th class="p-3">Area</th>
+                        <th class="p-3">In-Charge</th>
+                        <th class="p-3">Receiver Name</th>
+                        <th class="p-3">Contractor</th>
+                        <th class="p-3">Current Status</th>
+                        <th class="p-3">New Status</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingToolsTable" class="text-gray-300">
+                    <!-- Data will be populated dynamically -->
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- User Section -->
-    <div id="userSection" class="p-6" style="display: none;">
-        <h3 class="text-2xl font-bold mb-6">User Section - Pending Tools</h3>
-        <table class="min-w-full bg-gray-800 rounded-lg">
-            <thead>
-                <tr class="text-left border-b border-gray-700">
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Tool Name</th>
-                    <th class="p-3">Area</th>
-                    <th class="p-3">In-Charge</th>
-                    <th class="p-3">Receiver Name</th>
-                    <th class="p-3">Contractor</th>
-                    <th class="p-3">Status</th>
-                </tr>
-            </thead>
-            <tbody id="pendingToolsTable" class="text-gray-300">
-                <!-- Pending tools will be dynamically populated -->
-            </tbody>
-        </table>
-    </div>
-
     <script>
-        function showPasswordSection() {
-            document.getElementById("passwordSection").style.display = "block";
-            document.getElementById("storeSection").style.display = "none";
-            document.getElementById("userSection").style.display = "none";
-        }
-
-        function checkPassword() {
-            const password = document.getElementById("storePassword").value;
-            if (password === "tool") {
-                document.getElementById("passwordSection").style.display = "none";
-                document.getElementById("storeSection").style.display = "block";
-            } else {
-                alert("Incorrect Password");
-            }
-        }
-
-        function showUser() {
-            document.getElementById("userSection").style.display = "block";
-            document.getElementById("storeSection").style.display = "none";
-            document.getElementById("passwordSection").style.display = "none";
+        function showModifyStatus() {
+            document.getElementById("modifyStatus").style.display = "block";
             fetchPendingTools();
         }
 
-        function showLogToolEntry() {
-            document.getElementById("logToolEntry").style.display = "block";
-            document.getElementById("modifyStatus").style.display = "none";
-        }
-
-        function showModifyStatus() {
-            document.getElementById("modifyStatus").style.display = "block";
-            document.getElementById("logToolEntry").style.display = "none";
-        }
-
-        function fetchToolNames() {
-            fetch('/get-tools')
-                .then(response => response.json())
-                .then(tools => {
-                    const toolSearchBox = document.getElementById('toolName');
-                    const suggestions = document.getElementById('suggestions');
-
-                    toolSearchBox.addEventListener('input', function () {
-                        const query = this.value.toLowerCase();
-                        const matches = tools.filter(tool => tool.toLowerCase().includes(query));
-
-                        suggestions.innerHTML = matches
-                            .map(tool => `<p class="cursor-pointer text-indigo-400 hover:underline" onclick="selectTool('${tool}')">${tool}</p>`)
-                            .join('');
-                    });
-                })
-                .catch(error => console.error('Error fetching tools:', error));
-        }
-
-        function selectTool(tool) {
-            document.getElementById('toolName').value = tool;
-            document.getElementById('suggestions').innerHTML = '';
-        }
-
-        function logToolEntry() {
-            const data = {
-                "Date": document.getElementById('toolDate').value,
-                "Tool Name": document.getElementById('toolName').value,
-                "Area": document.getElementById('toolArea').value,
-                "In-Charge": document.getElementById('inCharge').value,
-                "Receiver Name": document.getElementById('receiverName').value,
-                "Contractor": document.getElementById('contractor').value
-            };
-
-            fetch('/log-tool-entry', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                alert(result.message);
-            });
-        }
-
-        function modifyToolStatus() {
-            const data = {
-                "Area": document.getElementById('modifyArea').value,
-                "Status": document.getElementById('newStatus').value
-            };
-
-            fetch('/modify-tool-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                alert(result.message);
-            });
-        }
-
         function fetchPendingTools() {
-            fetch('/get-pending-tools')
+            let area = document.getElementById("filterArea").value;
+            let url = "/get-pending-tools";
+            if (area) {
+                url += `?area=${encodeURIComponent(area)}`;
+            }
+
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const tableBody = document.getElementById("pendingToolsTable");
                     tableBody.innerHTML = '';
 
-                    data.forEach(tool => {
+                    data.forEach((tool, index) => {
                         const row = document.createElement('tr');
                         row.className = 'border-b border-gray-700';
 
@@ -222,15 +89,39 @@
                             <td class="p-3">${tool['Receiver Name']}</td>
                             <td class="p-3">${tool['Contractor']}</td>
                             <td class="p-3">${tool['Status']}</td>
+                            <td class="p-3">
+                                <select id="status-${index}" class="bg-gray-800 text-white p-2 rounded">
+                                    <option value="Returned">Returned</option>
+                                    <option value="Permanently Issued">Permanently Issued</option>
+                                </select>
+                            </td>
+                            <td class="p-3">
+                                <button onclick="modifyToolStatus('${tool['Area']}', 'status-${index}')" 
+                                    class="bg-blue-500 px-3 py-1 rounded hover:bg-blue-700">
+                                    Update
+                                </button>
+                            </td>
                         `;
                         tableBody.appendChild(row);
                     });
                 });
         }
 
-        window.onload = function () {
-            fetchToolNames();
-        };
+        function modifyToolStatus(area, statusId) {
+            let newStatus = document.getElementById(statusId).value;
+
+            fetch('/modify-tool-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "Area": area, "Status": newStatus })
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message);
+                fetchPendingTools(); // Refresh table
+            });
+        }
     </script>
 </body>
 </html>
+
