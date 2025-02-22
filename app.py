@@ -40,41 +40,19 @@ except Exception as e:
 inventory_sheet = sh.worksheet("Inventory")
 consumption_sheet = sh.worksheet("Consumption Log")
 tools_inventory_sheet = sh.worksheet("Tools Inventory")
-tools_pending_sheet = sh.worksheet("Tools Pending")  # Ensure this sheet exists
+tools_pending_sheet = sh.worksheet("Tools Pending")
+tools_safety_log_sheet = sh.worksheet("Tools & Safety Log")  # Ensure this sheet exists
 
 # Routes
 @app.route('/')
 def dashboard():
     return render_template("index.html")
 
-@app.route('/mrs')
-def mrs():
-    return render_template("mrs.html")
-
 @app.route('/tools')
 def tools():
     return render_template("tools.html")
 
-# Fetch item names and codes for MRS from the Inventory sheet
-@app.route('/get-mrs-items', methods=['GET'])
-def get_mrs_items():
-    try:
-        inventory_data = inventory_sheet.get_all_records()
-        items = [{"Item name": row["Item Name"], "Item code": row["Item Code"]} for row in inventory_data]
-        return jsonify(items)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Fetch consumption history for MRS
-@app.route('/get-consumption-history', methods=['GET'])
-def get_consumption_history():
-    try:
-        consumption_data = consumption_sheet.get_all_records()
-        return jsonify(consumption_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Fetch tool names for Tools section
+# Fetch tool names from Tools Inventory
 @app.route('/get-tools', methods=['GET'])
 def get_tools():
     try:
@@ -84,16 +62,14 @@ def get_tools():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Log tool entry into Tools Pending
+# Log tool entry into Tools Pending and Tools & Safety Log
 @app.route('/log-tool-entry', methods=['POST'])
 def log_tool_entry():
     try:
         data = request.json
-        tools_pending_sheet.append_row([
-            data['Date'], data['Tool Name'], data['Area'], 
-            data['In-Charge'], data['Receiver Name'], 
-            data['Contractor'], "Pending"
-        ])
+        entry = [data['Date'], data['Tool Name'], data['Area'], data['In-Charge'], data['Receiver Name'], data['Contractor'], "Pending"]
+        tools_pending_sheet.append_row(entry)
+        tools_safety_log_sheet.append_row(entry)  # Log in Tools & Safety Log
         return jsonify({"message": "Tool entry logged successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -107,20 +83,21 @@ def get_pending_tools():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Modify Tool Status in "Tools Pending"
+# Modify Tool Status with area-wise and date-wise filter
 @app.route('/modify-tool-status', methods=['POST'])
 def modify_tool_status():
     try:
         data = request.json
         area = data['Area']
+        date = data.get('Date', None)  # Optional date filter
         new_status = data['Status']
-        pending_tools = tools_pending_sheet.get_all_records()
         
-        for i, row in enumerate(pending_tools, start=2):  # Skip header row
-            if row["Area"] == area and row["Status"] == "Pending":
-                tools_pending_sheet.update_cell(i, 7, new_status)  # Update "Status" column
+        safety_log_data = tools_safety_log_sheet.get_all_records()
+        for i, row in enumerate(safety_log_data, start=2):  # Skip header row
+            if row["Area"] == area and row["Status"] == "Pending" and (date is None or row["Date"] == date):
+                tools_safety_log_sheet.update_cell(i, 7, new_status)  # Update "Status" column
                 return jsonify({"message": f"Status updated for tools in area '{area}' to {new_status}."})
-
+        
         return jsonify({"message": "No tools found in the specified area or already updated."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -129,3 +106,4 @@ def modify_tool_status():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use PORT from environment or default to 5000
     app.run(host="0.0.0.0", port=port)
+
