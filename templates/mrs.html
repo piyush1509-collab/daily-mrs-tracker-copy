@@ -3,177 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Material requisition slip</title>
+    <title>MRS - Material Requisition System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white">
-    <h2 class="text-center text-3xl font-bold my-6">Material Request System (MRS)</h2>
+    <h2 class="text-center text-3xl font-bold my-6">Material Requisition System (MRS)</h2>
 
-    <!-- Item Selection -->
     <div class="p-6">
-        <label for="searchBox" class="block text-sm font-medium mb-2">Search Item</label>
-        <div class="relative">
-            <input id="searchBox" type="text" placeholder="Enter item name" class="bg-gray-800 text-white p-2 rounded w-full">
-            <div id="suggestions" class="absolute bg-gray-800 text-white w-full rounded shadow-lg"></div>
-        </div>
-    </div>
-
-    <!-- Auto-Filled Item Code -->
-    <div class="p-6">
+        <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
+        <input type="text" id="searchBox" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        
         <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
-        <input id="itemCode" type="text" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="Auto-filled Item Code" readonly>
-    </div>
+        <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
 
-    <!-- Form for Manual Details -->
-    <div class="p-6">
         <label for="quantity" class="block text-sm font-medium mb-2">Quantity</label>
-        <input id="quantity" type="number" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="Enter quantity">
-
-        <label for="unit" class="block text-sm font-medium mb-2 mt-4">Unit</label>
-        <input id="unit" type="text" class="bg-gray-800 text-white p-2 rounded w-full" placeholder="e.g., PCS, LTR">
-
-        <label for="consumedArea" class="block text-sm font-medium mb-2 mt-4">Consumed Area</label>
-        <select id="consumedArea" class="bg-gray-800 text-white p-2 rounded w-full">
-            <option value="ALL">All Areas</option>
-            <option value="PUMP HOUSE">PUMP HOUSE</option>
-            <option value="RO PLANT">RO PLANT</option>
-            <option value="GASZONE">GASZONE</option>
-            <option value="FURNACE">FURNACE</option>
-            <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
-            <option value="ELECTRICAL">ELECTRICAL</option>
-            <option value="OPERATION">OPERATION</option>
+        <input type="number" id="quantity" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        
+        <label for="unit" class="block text-sm font-medium mb-2">Unit</label>
+        <select id="unit" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <option>Meter</option>
+            <option>Litre</option>
+            <option>Nos</option>
+            <option>KG</option>
         </select>
 
-        <label for="shift" class="block text-sm font-medium mb-2 mt-4">Shift</label>
-        <select id="shift" class="bg-gray-800 text-white p-2 rounded w-full">
-            <option value="G">G</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
+        <label for="consumedArea" class="block text-sm font-medium mb-2">Consumed Area</label>
+        <select id="consumedArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <option>PUMP HOUSE</option>
+            <option>RO PLANT</option>
+            <option>GASZONE</option>
+            <option>FURNACE</option>
+            <option>MATERIAL HANDLING</option>
+            <option>ELECTRICAL</option>
+            <option>OPERATION</option>
         </select>
 
-        <label for="date" class="block text-sm font-medium mb-2 mt-4">Date</label>
-        <input id="date" type="date" class="bg-gray-800 text-white p-2 rounded w-full">
-    </div>
-
-    <!-- Log Button -->
-    <div class="p-6">
-        <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-600">
-            Log Consumption
-        </button>
-    </div>
-
-    <!-- Filters for Consumption History -->
-    <div class="p-6">
-        <h3 class="text-xl font-semibold mb-4">Filter Consumption History</h3>
-
-        <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-        <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full">
-            <option value="ALL">All Areas</option>
-            <option value="PUMP HOUSE">PUMP HOUSE</option>
-            <option value="RO PLANT">RO PLANT</option>
-            <option value="GASZONE">GASZONE</option>
-            <option value="FURNACE">FURNACE</option>
-            <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
-            <option value="ELECTRICAL">ELECTRICAL</option>
-            <option value="OPERATION">OPERATION</option>
+        <label for="shift" class="block text-sm font-medium mb-2">Shift</label>
+        <select id="shift" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <option>G</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
         </select>
 
-        <label for="filterDate" class="block text-sm font-medium mb-2 mt-4">Filter by Date</label>
-        <input id="filterDate" type="date" class="bg-gray-800 text-white p-2 rounded w-full">
+        <label for="date" class="block text-sm font-medium mb-2">Date</label>
+        <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
-        <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-600 mt-4">
-            Apply Filters
-        </button>
-    </div>
-
-    <!-- Consumption History Table -->
-    <div class="p-6">
-        <h3 class="text-xl font-semibold mb-4">Consumption History</h3>
-        <table class="min-w-full bg-gray-800 rounded-lg">
-            <thead>
-                <tr class="text-left border-b border-gray-700">
-                    <th class="p-3">Item Name</th>
-                    <th class="p-3">Item Code</th>
-                    <th class="p-3">Quantity</th>
-                    <th class="p-3">Unit</th>
-                    <th class="p-3">Consumed Area</th>
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Shift</th>
-                </tr>
-            </thead>
-            <tbody id="historyTable" class="text-gray-300"></tbody>
-        </table>
+        <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
     </div>
 
     <script>
-        let itemMap = {}; 
+        function logConsumption() {
+            const itemName = document.getElementById("searchBox").value;
+            const itemCode = document.getElementById("itemCode").value;
+            const quantity = document.getElementById("quantity").value;
+            const unit = document.getElementById("unit").value;
+            const consumedArea = document.getElementById("consumedArea").value;
+            const shift = document.getElementById("shift").value;
+            const date = document.getElementById("date").value;
 
-        function fetchInventoryItems() {
-            fetch('/get-mrs-items')
-                .then(response => response.json())
-                .then(items => {
-                    const searchBox = document.getElementById('searchBox');
-                    const suggestions = document.getElementById('suggestions');
+            if (!itemName || !itemCode || !quantity || !unit || !consumedArea || !shift || !date) {
+                alert("⚠️ Please fill all fields before logging consumption.");
+                return;
+            }
 
-                    itemMap = {};  
-                    items.forEach(item => {
-                        itemMap[item["Item name"]] = item["Item code"];
-                    });
-
-                    searchBox.addEventListener('input', function () {
-                        const query = this.value.toLowerCase();
-                        const matches = Object.keys(itemMap).filter(item => item.toLowerCase().includes(query));
-
-                        suggestions.innerHTML = matches
-                            .map(item => `<div class="p-2 hover:bg-gray-700 cursor-pointer" onclick="selectItem('${item}')">${item}</div>`)
-                            .join('');
-                    });
+            fetch('/log-consumption', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "Item Name": itemName,
+                    "Item Code": itemCode,
+                    "Quantity": quantity,
+                    "Unit": unit,
+                    "Consumed Area": consumedArea,
+                    "Shift": shift,
+                    "Date": date
                 })
-                .catch(error => console.error('Error fetching items:', error));
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error logging consumption:', error);
+                alert("❌ Failed to log consumption.");
+            });
         }
-
-        function selectItem(itemName) {
-            document.getElementById('searchBox').value = itemName;
-            document.getElementById('itemCode').value = itemMap[itemName];
-            document.getElementById('suggestions').innerHTML = '';
-        }
-
-        function fetchConsumptionHistory() {
-            const selectedArea = document.getElementById("filterArea").value;
-            const selectedDate = document.getElementById("filterDate").value;
-
-            fetch('/get-consumption-history')
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById("historyTable");
-                    tableBody.innerHTML = '';
-
-                    data.forEach(entry => {
-                        if ((selectedArea === "ALL" || entry['Consumed Area'] === selectedArea) &&
-                            (selectedDate === "" || entry['Date'] === selectedDate)) {
-                            const row = document.createElement('tr');
-                            row.className = 'border-b border-gray-700';
-
-                            row.innerHTML = `
-                                <td class="p-3">${entry['Item name']}</td>
-                                <td class="p-3">${entry['Item code']}</td>
-                                <td class="p-3">${entry['QTY']}</td>
-                                <td class="p-3">${entry['Unit']}</td>
-                                <td class="p-3">${entry['Consumed Area']}</td>
-                                <td class="p-3">${entry['Date']}</td>
-                                <td class="p-3">${entry['Shift']}</td>
-                            `;
-                            tableBody.appendChild(row);
-                        }
-                    });
-                });
-        }
-
-        window.onload = function () {
-            fetchInventoryItems();
-            fetchConsumptionHistory();
-        };
     </script>
 </body>
 </html>
+
