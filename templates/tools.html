@@ -39,12 +39,20 @@
                 <option>OPERATION</option>
             </select>
 
-            <label for="status" class="block text-sm font-medium mb-2">Status</label>
-            <select id="status" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-                <option>Pending</option>
-                <option>Permanently Issued</option>
-                <option>Returned</option>
-            </select>
+            <label for="inCharge" class="block text-sm font-medium mb-2">In-Charge</label>
+            <input type="text" id="inCharge" list="inChargeSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="inChargeSuggestions"></datalist>
+
+            <label for="receiverName" class="block text-sm font-medium mb-2">Receiver Name</label>
+            <input type="text" id="receiverName" list="receiverSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="receiverSuggestions"></datalist>
+
+            <label for="contractorName" class="block text-sm font-medium mb-2">Contractor Name</label>
+            <input type="text" id="contractorName" list="contractorSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="contractorSuggestions"></datalist>
+
+            <label for="dateIssued" class="block text-sm font-medium mb-2">Date Issued</label>
+            <input type="date" id="dateIssued" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
             <button onclick="logToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit Entry</button>
         </div>
@@ -79,37 +87,36 @@
     </div>
 
     <script>
-        async function fetchToolNames() {
-            let response = await fetch("/get-tools");
-            let tools = await response.json();
-            let toolSuggestions = document.getElementById("toolSuggestions");
-            toolSuggestions.innerHTML = tools.map(tool => `<option value="${tool}"></option>`).join('');
+        function enterPassword() {
+            let password = prompt("Enter password for Store Section:");
+            if (password === "tool") {
+                showStoreSection();
+            } else {
+                alert("❌ Incorrect password! Access denied.");
+            }
         }
 
-        async function logToolEntry() {
-            let toolName = document.getElementById("toolName").value;
-            let area = document.getElementById("area").value;
-            let status = document.getElementById("status").value;
-            let response = await fetch("/log-tool-entry", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Date: new Date().toISOString().split('T')[0], "Tool Name": toolName, "Area": area, "Status": status })
-            });
-            let result = await response.json();
-            alert(result.message);
+        function showStoreSection() {
+            document.getElementById("storeSection").style.display = "block";
+            document.getElementById("userSection").style.display = "none";
         }
 
-        async function fetchUserPendingTools() {
-            let area = document.getElementById("filterUserArea").value;
-            let response = await fetch("/get-pending-tools");
-            let tools = await response.json();
-            let tableBody = document.getElementById("userPendingToolsTable");
-            tableBody.innerHTML = tools.filter(tool => area === "" || tool.Area === area)
-                                       .map(tool => `<tr><td class="p-3">${tool["Tool Name"]}</td><td class="p-3">${tool.Area}</td><td class="p-3">${tool.Status}</td></tr>`)
-                                       .join('');
+        function showUser() {
+            document.getElementById("storeSection").style.display = "none";
+            document.getElementById("userSection").style.display = "block";
         }
 
-        document.addEventListener("DOMContentLoaded", fetchToolNames);
+        function showLogTool() {
+            document.getElementById("logTool").style.display = "block";
+        }
+
+        function logToolEntry() {
+            alert("Tool entry submitted! (This should send data to the backend)");
+        }
+
+        function fetchUserPendingTools() {
+            alert("Fetching pending tools based on area! (This should call backend API)");
+        }
     </script>
 </body>
 </html>
