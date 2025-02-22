@@ -11,7 +11,8 @@
 
     <div class="p-6">
         <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
-        <input type="text" id="searchBox" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        <input type="text" id="searchBox" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4" oninput="autoFillItemCode()">
+        <datalist id="itemSuggestions"></datalist>
         
         <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
         <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
@@ -53,6 +54,36 @@
     </div>
 
     <script>
+        let itemsList = [];
+
+        function fetchItems() {
+            fetch('/get-items')
+                .then(response => response.json())
+                .then(data => {
+                    itemsList = data;
+                    let dataList = document.getElementById("itemSuggestions");
+                    dataList.innerHTML = "";
+                    itemsList.forEach(item => {
+                        let option = document.createElement("option");
+                        option.value = item["Item name"];
+                        dataList.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching items:", error));
+        }
+
+        function autoFillItemCode() {
+            let searchBox = document.getElementById("searchBox").value;
+            let itemCodeInput = document.getElementById("itemCode");
+            let selectedItem = itemsList.find(item => item["Item name"] === searchBox);
+            
+            if (selectedItem) {
+                itemCodeInput.value = selectedItem["Item code"];
+            } else {
+                itemCodeInput.value = "";
+            }
+        }
+
         function logConsumption() {
             const itemName = document.getElementById("searchBox").value;
             const itemCode = document.getElementById("itemCode").value;
@@ -89,7 +120,12 @@
                 alert("❌ Failed to log consumption.");
             });
         }
+
+        window.onload = function () {
+            fetchItems();
+        };
     </script>
 </body>
 </html>
+
 
