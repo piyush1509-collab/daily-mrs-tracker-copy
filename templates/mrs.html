@@ -51,39 +51,6 @@
         <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
         <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
-
-        <h3 class="text-xl font-bold mt-6">Consumption History</h3>
-
-        <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-        <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <option value="">All Areas</option>
-            <option>PUMP HOUSE</option>
-            <option>RO PLANT</option>
-            <option>GASZONE</option>
-            <option>FURNACE</option>
-            <option>MATERIAL HANDLING</option>
-            <option>ELECTRICAL</option>
-            <option>OPERATION</option>
-        </select>
-
-        <label for="filterDate" class="block text-sm font-medium mb-2">Filter by Date</label>
-        <input type="date" id="filterDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-
-        <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
-
-        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
-            <thead>
-                <tr class="text-left border-b border-gray-700">
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Item Name</th>
-                    <th class="p-3">Quantity</th>
-                    <th class="p-3">Unit</th>
-                    <th class="p-3">Consumed Area</th>
-                    <th class="p-3">Shift</th>
-                </tr>
-            </thead>
-            <tbody id="consumptionHistory" class="text-gray-300"></tbody>
-        </table>
     </div>
 
     <script>
@@ -119,52 +86,8 @@
             }
         }
 
-        function logConsumption() {
-            fetch('/log-consumption', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    "Item Name": document.getElementById("searchBox").value,
-                    "Item Code": document.getElementById("itemCode").value,
-                    "Quantity": document.getElementById("quantity").value,
-                    "Unit": document.getElementById("unit").value,
-                    "Consumed Area": document.getElementById("consumedArea").value,
-                    "Shift": document.getElementById("shift").value,
-                    "Date": document.getElementById("date").value
-                })
-            }).then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                fetchConsumptionHistory();
-            });
-        }
-
-        function fetchConsumptionHistory() {
-            let area = document.getElementById("filterArea").value;
-            let date = document.getElementById("filterDate").value;
-
-            fetch(`/consumption-history?area=${area}&date=${date}`)
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.getElementById("consumptionHistory");
-                    tableBody.innerHTML = "";
-                    data.forEach(row => {
-                        let newRow = `<tr>
-                            <td class="p-3">${row.Date}</td>
-                            <td class="p-3">${row["Item Name"]}</td>
-                            <td class="p-3">${row.Quantity}</td>
-                            <td class="p-3">${row.Unit}</td>
-                            <td class="p-3">${row["Consumed Area"]}</td>
-                            <td class="p-3">${row.Shift}</td>
-                        </tr>`;
-                        tableBody.innerHTML += newRow;
-                    });
-                });
-        }
-
         window.onload = function () {
             fetchItems();
-            fetchConsumptionHistory();
         };
     </script>
 </body>
