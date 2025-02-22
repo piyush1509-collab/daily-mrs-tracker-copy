@@ -65,7 +65,7 @@
                     dataList.innerHTML = "";
                     itemsList.forEach(item => {
                         let option = document.createElement("option");
-                        option.value = item["Item name"];
+                        option.value = item["Item Name"];
                         dataList.appendChild(option);
                     });
                 })
@@ -75,10 +75,10 @@
         function autoFillItemCode() {
             let searchBox = document.getElementById("searchBox").value;
             let itemCodeInput = document.getElementById("itemCode");
-            let selectedItem = itemsList.find(item => item["Item name"] === searchBox);
+            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
             
             if (selectedItem) {
-                itemCodeInput.value = selectedItem["Item code"];
+                itemCodeInput.value = selectedItem["Item Code"];
             } else {
                 itemCodeInput.value = "";
             }
@@ -127,5 +127,4 @@
     </script>
 </body>
 </html>
-
 
