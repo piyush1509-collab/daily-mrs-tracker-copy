@@ -53,6 +53,24 @@
         <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
 
         <h3 class="text-xl font-bold mt-6">Consumption History</h3>
+
+        <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
+        <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <option value="">All Areas</option>
+            <option>PUMP HOUSE</option>
+            <option>RO PLANT</option>
+            <option>GASZONE</option>
+            <option>FURNACE</option>
+            <option>MATERIAL HANDLING</option>
+            <option>ELECTRICAL</option>
+            <option>OPERATION</option>
+        </select>
+
+        <label for="filterDate" class="block text-sm font-medium mb-2">Filter by Date</label>
+        <input type="date" id="filterDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+
+        <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
+
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="text-left border-b border-gray-700">
@@ -75,10 +93,6 @@
             fetch('/get-items')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        console.error("Error fetching items:", data.error);
-                        return;
-                    }
                     itemsList = data;
                     let dataList = document.getElementById("itemSuggestions");
                     dataList.innerHTML = "";
@@ -106,45 +120,30 @@
         }
 
         function logConsumption() {
-            const itemName = document.getElementById("searchBox").value;
-            const itemCode = document.getElementById("itemCode").value;
-            const quantity = document.getElementById("quantity").value;
-            const unit = document.getElementById("unit").value;
-            const consumedArea = document.getElementById("consumedArea").value;
-            const shift = document.getElementById("shift").value;
-            const date = document.getElementById("date").value;
-
-            if (!itemName || !itemCode || !quantity || !unit || !consumedArea || !shift || !date) {
-                alert("⚠️ Please fill all fields before logging consumption.");
-                return;
-            }
-
             fetch('/log-consumption', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    "Item Name": itemName,
-                    "Item Code": itemCode,
-                    "Quantity": quantity,
-                    "Unit": unit,
-                    "Consumed Area": consumedArea,
-                    "Shift": shift,
-                    "Date": date
+                    "Item Name": document.getElementById("searchBox").value,
+                    "Item Code": document.getElementById("itemCode").value,
+                    "Quantity": document.getElementById("quantity").value,
+                    "Unit": document.getElementById("unit").value,
+                    "Consumed Area": document.getElementById("consumedArea").value,
+                    "Shift": document.getElementById("shift").value,
+                    "Date": document.getElementById("date").value
                 })
-            })
-            .then(response => response.json())
+            }).then(response => response.json())
             .then(data => {
                 alert(data.message);
                 fetchConsumptionHistory();
-            })
-            .catch(error => {
-                console.error('Error logging consumption:', error);
-                alert("❌ Failed to log consumption.");
             });
         }
 
         function fetchConsumptionHistory() {
-            fetch('/get-consumption-history')
+            let area = document.getElementById("filterArea").value;
+            let date = document.getElementById("filterDate").value;
+
+            fetch(`/consumption-history?area=${area}&date=${date}`)
                 .then(response => response.json())
                 .then(data => {
                     let tableBody = document.getElementById("consumptionHistory");
@@ -170,5 +169,4 @@
     </script>
 </body>
 </html>
-
 
