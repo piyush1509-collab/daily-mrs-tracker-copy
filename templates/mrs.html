@@ -13,7 +13,7 @@
         <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
         <input type="text" id="searchBox" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4" oninput="autoFillItemCode()">
         <datalist id="itemSuggestions"></datalist>
-        
+
         <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
         <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
 
@@ -51,6 +51,21 @@
         <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
         <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
+
+        <h3 class="text-xl font-bold mt-6">Consumption History</h3>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
+            <thead>
+                <tr class="text-left border-b border-gray-700">
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Item Name</th>
+                    <th class="p-3">Quantity</th>
+                    <th class="p-3">Unit</th>
+                    <th class="p-3">Consumed Area</th>
+                    <th class="p-3">Shift</th>
+                </tr>
+            </thead>
+            <tbody id="consumptionHistory" class="text-gray-300"></tbody>
+        </table>
     </div>
 
     <script>
@@ -60,13 +75,19 @@
             fetch('/get-items')
                 .then(response => response.json())
                 .then(data => {
+                    if (data.error) {
+                        console.error("Error fetching items:", data.error);
+                        return;
+                    }
                     itemsList = data;
                     let dataList = document.getElementById("itemSuggestions");
                     dataList.innerHTML = "";
                     itemsList.forEach(item => {
-                        let option = document.createElement("option");
-                        option.value = item["Item Name"];
-                        dataList.appendChild(option);
+                        if (item["Item Name"]) {
+                            let option = document.createElement("option");
+                            option.value = item["Item Name"];
+                            dataList.appendChild(option);
+                        }
                     });
                 })
                 .catch(error => console.error("Error fetching items:", error));
@@ -77,7 +98,7 @@
             let itemCodeInput = document.getElementById("itemCode");
             let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
             
-            if (selectedItem) {
+            if (selectedItem && selectedItem["Item Code"]) {
                 itemCodeInput.value = selectedItem["Item Code"];
             } else {
                 itemCodeInput.value = "";
@@ -114,6 +135,7 @@
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
+                fetchConsumptionHistory();
             })
             .catch(error => {
                 console.error('Error logging consumption:', error);
@@ -121,10 +143,32 @@
             });
         }
 
+        function fetchConsumptionHistory() {
+            fetch('/get-consumption-history')
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById("consumptionHistory");
+                    tableBody.innerHTML = "";
+                    data.forEach(row => {
+                        let newRow = `<tr>
+                            <td class="p-3">${row.Date}</td>
+                            <td class="p-3">${row["Item Name"]}</td>
+                            <td class="p-3">${row.Quantity}</td>
+                            <td class="p-3">${row.Unit}</td>
+                            <td class="p-3">${row["Consumed Area"]}</td>
+                            <td class="p-3">${row.Shift}</td>
+                        </tr>`;
+                        tableBody.innerHTML += newRow;
+                    });
+                });
+        }
+
         window.onload = function () {
             fetchItems();
+            fetchConsumptionHistory();
         };
     </script>
 </body>
 </html>
+
 
