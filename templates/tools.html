@@ -40,139 +40,85 @@
             </select>
 
             <label for="inCharge" class="block text-sm font-medium mb-2">In-Charge</label>
-            <input type="text" id="inCharge" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <input type="text" id="inCharge" list="inChargeSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="inChargeSuggestions"></datalist>
 
             <label for="receiverName" class="block text-sm font-medium mb-2">Receiver Name</label>
-            <input type="text" id="receiverName" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <input type="text" id="receiverName" list="receiverSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="receiverSuggestions"></datalist>
 
             <label for="contractorName" class="block text-sm font-medium mb-2">Contractor Name</label>
-            <input type="text" id="contractorName" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <input type="text" id="contractorName" list="contractorSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="contractorSuggestions"></datalist>
 
             <label for="dateIssued" class="block text-sm font-medium mb-2">Date Issued</label>
             <input type="date" id="dateIssued" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
             <button onclick="logToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit Entry</button>
         </div>
-
-        <!-- Modify Tool Status -->
-        <div id="modifyStatus" class="mt-6 hidden">
-            <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
-
-            <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-            <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4" onchange="fetchToolLog()">
-                <option value="">All Areas</option>
-                <option>PUMP HOUSE</option>
-                <option>RO PLANT</option>
-                <option>GASZONE</option>
-                <option>FURNACE</option>
-                <option>MATERIAL HANDLING</option>
-                <option>ELECTRICAL</option>
-                <option>OPERATION</option>
-            </select>
-
-            <table class="min-w-full bg-gray-800 rounded-lg mt-4">
-                <thead>
-                    <tr class="text-left border-b border-gray-700">
-                        <th class="p-3">Tool Name</th>
-                        <th class="p-3">Area</th>
-                        <th class="p-3">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="toolLogTable" class="text-gray-300"></tbody>
-            </table>
-
-            <button onclick="saveToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600 mt-4">Save</button>
-        </div>
     </div>
 
     <!-- User Section -->
     <div id="userSection" class="p-6 hidden">
         <h3 class="text-2xl font-bold mb-6">User Section</h3>
+        <label for="filterUserArea" class="block text-sm font-medium mb-2">Filter by Area</label>
+        <select id="filterUserArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <option value="">All Areas</option>
+            <option>PUMP HOUSE</option>
+            <option>RO PLANT</option>
+            <option>GASZONE</option>
+            <option>FURNACE</option>
+            <option>MATERIAL HANDLING</option>
+            <option>ELECTRICAL</option>
+            <option>OPERATION</option>
+        </select>
+        <button onclick="fetchUserPendingTools()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Filter</button>
+
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="text-left border-b border-gray-700">
                     <th class="p-3">Tool Name</th>
                     <th class="p-3">Area</th>
+                    <th class="p-3">Status</th>
                 </tr>
             </thead>
-            <tbody id="pendingToolsTable" class="text-gray-300"></tbody>
+            <tbody id="userPendingToolsTable" class="text-gray-300"></tbody>
         </table>
     </div>
 
     <script>
-        function fetchTools() {
-            fetch('/get-tools')
-                .then(response => response.json())
-                .then(data => {
-                    let dataList = document.getElementById("toolSuggestions");
-                    dataList.innerHTML = "";
-                    data.forEach(tool => {
-                        let option = document.createElement("option");
-                        option.value = tool;
-                        dataList.appendChild(option);
-                    });
-                });
-        }
-
-        function logToolEntry() {
-            let data = {
-                "Date": document.getElementById("dateIssued").value,
-                "Tool Name": document.getElementById("toolName").value,
-                "Area": document.getElementById("area").value,
-                "In-Charge": document.getElementById("inCharge").value,
-                "Receiver Name": document.getElementById("receiverName").value,
-                "Contractor": document.getElementById("contractorName").value
-            };
-
-            fetch('/log-tool-entry', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(response => {
-                alert(response.message);
-            });
-        }
-
-        function fetchToolLog() {
-            fetch('/get-tool-log')
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.getElementById("toolLogTable");
-                    tableBody.innerHTML = "";
-                    data.forEach(row => {
-                        let newRow = `<tr>
-                            <td class="p-3">${row["Tool Name"]}</td>
-                            <td class="p-3">${row["Area"]}</td>
-                            <td class="p-3">
-                                <select>
-                                    <option>Pending</option>
-                                    <option>Returned</option>
-                                    <option>Permanently Issued</option>
-                                </select>
-                            </td>
-                        </tr>`;
-                        tableBody.innerHTML += newRow;
-                    });
-                });
-        }
-
-        function saveToolStatus() {
-            alert("Tool status updated!");
-        }
-
         function enterPassword() {
             let password = prompt("Enter password for Store Section:");
             if (password === "tool") {
-                document.getElementById("storeSection").style.display = "block";
+                showStoreSection();
             } else {
                 alert("❌ Incorrect password! Access denied.");
             }
         }
 
-        window.onload = fetchTools;
+        function showStoreSection() {
+            document.getElementById("storeSection").style.display = "block";
+            document.getElementById("userSection").style.display = "none";
+        }
+
+        function showUser() {
+            document.getElementById("storeSection").style.display = "none";
+            document.getElementById("userSection").style.display = "block";
+        }
+
+        function showLogTool() {
+            document.getElementById("logTool").style.display = "block";
+        }
+
+        function logToolEntry() {
+            alert("Tool entry submitted! (This should send data to the backend)");
+        }
+
+        function fetchUserPendingTools() {
+            alert("Fetching pending tools based on area! (This should call backend API)");
+        }
     </script>
 </body>
 </html>
+
 
