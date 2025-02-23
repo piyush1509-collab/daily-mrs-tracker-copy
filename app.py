@@ -34,15 +34,12 @@ def get_items():
 def log_consumption():
     try:
         data = request.json
-        new_row = [
-            data.get("Date", ""),
-            data.get("Item Name", ""),
-            data.get("Item Code", ""),
-            data.get("Quantity", ""),
-            data.get("Unit", ""),
-            data.get("Consumed Area", ""),
-            data.get("Shift", "")
-        ]
+        required_fields = ["Date", "Item Name", "Item Code", "Quantity", "Unit", "Consumed Area", "Shift"]
+        
+        if not all(field in data and data[field] for field in required_fields):
+            return jsonify({"error": "Missing required fields or empty values"}), 400
+        
+        new_row = [data[field] for field in required_fields]
         consumption_sheet.append_row(new_row)
         return jsonify({"message": "Consumption logged successfully"})
     except Exception as e:
@@ -67,5 +64,6 @@ def consumption_history():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
 
 
