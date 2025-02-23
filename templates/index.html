@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Management Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -17,61 +18,92 @@
             margin: 0;
         }
         .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             background: #1e1e1e;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.3);
             text-align: center;
         }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: cyan;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 10px;
+        .card {
+            background: #252525;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
             text-align: center;
-            transition: 0.3s;
         }
-        .btn-mrs {
-            background: #007BFF;
-            color: white;
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
         }
-        .btn-mrs:hover {
-            background: #0056b3;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.8);
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
-        .btn-tools {
-            background: #28a745;
-            color: white;
-            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
-        .btn-tools:hover {
-            background: #1e7e34;
-            box-shadow: 0 0 20px rgba(40, 167, 69, 0.8);
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 255, 255, 0.3);
+            border-top: 5px solid cyan;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Inventory Management</h1>
-        <a href="/mrs" class="btn btn-mrs">Material Requisition System (MRS)</a>
-        <a href="/tools" class="btn btn-tools">Tools & Safety Item In/Out</a>
-        <a href="/AP-item-stocklist" class="btn btn-tools">AP Item stock list</a>
-         <a href="/Consumption-Reoport" class="btn btn-tools">Consumption Report</a>
-        <a href="/Store-Map" class="btn btn-tools">Store Map</a>
+    <div class="loading-screen" id="loading">
+        <div class="spinner"></div>
     </div>
+    <div class="container" id="content" style="display:none;">
+        <div class="card">
+            <i class="fas fa-clipboard-list"></i>
+            <a href="/mrs" class="block text-lg font-bold text-white">Material Requisition System (MRS)</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-tools"></i>
+            <a href="/tools" class="block text-lg font-bold text-white">Tools & Safety Item In/Out</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-warehouse"></i>
+            <a href="/AP-item-stocklist" class="block text-lg font-bold text-white">AP Item Stock List</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-chart-line"></i>
+            <a href="/Consumption-Report" class="block text-lg font-bold text-white">Consumption Report</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-map-marked-alt"></i>
+            <a href="/Store-Map" class="block text-lg font-bold text-white">Store Map</a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("content").style.display = "grid";
+            }, 1500);
+        });
+    </script>
 </body>
 </html>
-
-
 
 
