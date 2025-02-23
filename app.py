@@ -145,6 +145,9 @@ def get_pending_tools():
         return jsonify(pending_tools)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/')
+def home():
+    return render_template("index.html")
 
 # Run Flask app
 if __name__ == "__main__":
