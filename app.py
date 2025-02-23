@@ -56,9 +56,9 @@ def consumption_history():
         records = consumption_sheet.get_all_records()
         
         if area:
-            records = [r for r in records if r["Consumed Area"] == area]
+            records = [r for r in records if r.get("Consumed Area") == area]
         if date:
-            records = [r for r in records if r["Date"] == date]
+            records = [r for r in records if r.get("Date") == date]
 
         return jsonify(records)
     except Exception as e:
@@ -66,5 +66,6 @@ def consumption_history():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
 
 
