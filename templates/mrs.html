@@ -92,6 +92,10 @@
             fetch('/get-items')
                 .then(response => response.json())
                 .then(data => {
+                    if (!Array.isArray(data)) {
+                        console.error("Error fetching items:", data);
+                        return;
+                    }
                     itemsList = data;
                     let dataList = document.getElementById("itemSuggestions");
                     dataList.innerHTML = "";
@@ -104,18 +108,6 @@
                     });
                 })
                 .catch(error => console.error("Error fetching items:", error));
-        }
-
-        function autoFillItemCode() {
-            let searchBox = document.getElementById("searchBox").value;
-            let itemCodeInput = document.getElementById("itemCode");
-            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
-            
-            if (selectedItem && selectedItem["Item Code"]) {
-                itemCodeInput.value = selectedItem["Item Code"];
-            } else {
-                itemCodeInput.value = "";
-            }
         }
 
         function fetchConsumptionHistory() {
@@ -148,5 +140,3 @@
     </script>
 </body>
 </html>
-
-
