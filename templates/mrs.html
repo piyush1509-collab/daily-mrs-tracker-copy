@@ -5,30 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MRS - Material Requisition System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.3);
+            width: 80%;
+            max-width: 900px;
+        }
+        .btn-primary {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
+        }
+        .table-container {
+            margin-top: 20px;
+            background: #252525;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body>
     <h2 class="text-center text-3xl font-bold my-6">Material Requisition System (MRS)</h2>
-
-    <div class="p-6">
-        <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
+    <div class="container">
+        <label>Item Name</label>
         <input type="text" id="searchBox" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4" oninput="autoFillItemCode()">
         <datalist id="itemSuggestions"></datalist>
-
-        <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
+        
+        <label>Item Code</label>
         <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
-
-        <label for="quantity" class="block text-sm font-medium mb-2">Quantity</label>
+        
+        <label>Quantity</label>
         <input type="number" id="quantity" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
         
-        <label for="unit" class="block text-sm font-medium mb-2">Unit</label>
+        <label>Unit</label>
         <select id="unit" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
             <option>Meter</option>
             <option>Litre</option>
             <option>Nos</option>
             <option>KG</option>
         </select>
-
-        <label for="consumedArea" class="block text-sm font-medium mb-2">Consumed Area</label>
+        
+        <label>Consumed Area</label>
         <select id="consumedArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
             <option>PUMP HOUSE</option>
             <option>RO PLANT</option>
@@ -38,88 +78,74 @@
             <option>ELECTRICAL</option>
             <option>OPERATION</option>
         </select>
-
-        <label for="shift" class="block text-sm font-medium mb-2">Shift</label>
+        
+        <label>Shift</label>
         <select id="shift" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
             <option>G</option>
             <option>A</option>
             <option>B</option>
             <option>C</option>
         </select>
-
-        <label for="date" class="block text-sm font-medium mb-2">Date</label>
+        
+        <label>Date</label>
         <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-
-        <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
+        
+        <button onclick="logConsumption()" class="btn-primary">Log Consumption</button>
     </div>
 
-    <h3 class="text-xl font-bold mt-6">Consumption History</h3>
-    <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-    <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-        <option value="">All Areas</option>
-        <option>PUMP HOUSE</option>
-        <option>RO PLANT</option>
-        <option>GASZONE</option>
-        <option>FURNACE</option>
-        <option>MATERIAL HANDLING</option>
-        <option>ELECTRICAL</option>
-        <option>OPERATION</option>
-    </select>
-
-    <label for="filterDate" class="block text-sm font-medium mb-2">Filter by Date</label>
-    <input type="date" id="filterDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-
-    <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
-
-    <table class="min-w-full bg-gray-800 rounded-lg mt-4">
-        <thead>
-            <tr class="text-left border-b border-gray-700">
-                <th class="p-3">Date</th>
-                <th class="p-3">Item Name</th>
-                <th class="p-3">Item Code</th>
-                <th class="p-3">Quantity</th>
-                <th class="p-3">Unit</th>
-                <th class="p-3">Consumed Area</th>
-                <th class="p-3">Shift</th>
-            </tr>
-        </thead>
-        <tbody id="consumptionHistory" class="text-gray-300"></tbody>
-    </table>
+    <div class="table-container">
+        <h3 class="text-xl font-bold">Consumption History</h3>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
+            <thead>
+                <tr class="text-left border-b border-gray-700">
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Item Name</th>
+                    <th class="p-3">Item Code</th>
+                    <th class="p-3">Quantity</th>
+                    <th class="p-3">Unit</th>
+                    <th class="p-3">Consumed Area</th>
+                    <th class="p-3">Shift</th>
+                </tr>
+            </thead>
+            <tbody id="consumptionHistory" class="text-gray-300"></tbody>
+        </table>
+    </div>
 
     <script>
-        let itemsList = [];
+        function logConsumption() {
+            let data = {
+                Date: document.getElementById("date").value,
+                "Item Name": document.getElementById("searchBox").value,
+                "Item Code": document.getElementById("itemCode").value,
+                Quantity: document.getElementById("quantity").value,
+                Unit: document.getElementById("unit").value,
+                "Consumed Area": document.getElementById("consumedArea").value,
+                Shift: document.getElementById("shift").value
+            };
+            fetch('/log-consumption', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message);
+                fetchConsumptionHistory();
+            });
+        }
 
-        function fetchItems() {
-            fetch('/get-items')
+        function fetchConsumptionHistory() {
+            fetch('/consumption-history')
                 .then(response => response.json())
                 .then(data => {
-                    itemsList = data;
-                    let dataList = document.getElementById("itemSuggestions");
-                    dataList.innerHTML = "";
-                    itemsList.forEach(item => {
-                        if (item["Item Name"] && item["Item Code"]) {
-                            let option = document.createElement("option");
-                            option.value = item["Item Name"];
-                            option.dataset.code = item["Item Code"];
-                            dataList.appendChild(option);
-                        }
+                    let tbody = document.getElementById("consumptionHistory");
+                    tbody.innerHTML = "";
+                    data.forEach(row => {
+                        let tr = `<tr><td>${row.Date}</td><td>${row["Item Name"]}</td><td>${row["Item Code"]}</td><td>${row.Quantity}</td><td>${row.Unit}</td><td>${row["Consumed Area"]}</td><td>${row.Shift}</td></tr>`;
+                        tbody.innerHTML += tr;
                     });
                 });
         }
-
-        function autoFillItemCode() {
-            let searchBox = document.getElementById("searchBox").value;
-            let itemCodeInput = document.getElementById("itemCode");
-            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
-            if (selectedItem) {
-                itemCodeInput.value = selectedItem["Item Code"];
-            }
-        }
-
-        window.onload = function () {
-            fetchItems();
-            fetchConsumptionHistory();
-        };
     </script>
 </body>
 </html>
