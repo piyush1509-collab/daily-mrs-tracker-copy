@@ -54,23 +54,6 @@
     </div>
 
     <h3 class="text-xl font-bold mt-6">Consumption History</h3>
-    <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-    <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-        <option value="">All Areas</option>
-        <option>PUMP HOUSE</option>
-        <option>RO PLANT</option>
-        <option>GASZONE</option>
-        <option>FURNACE</option>
-        <option>MATERIAL HANDLING</option>
-        <option>ELECTRICAL</option>
-        <option>OPERATION</option>
-    </select>
-
-    <label for="filterDate" class="block text-sm font-medium mb-2">Filter by Date</label>
-    <input type="date" id="filterDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-
-    <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
-
     <table class="min-w-full bg-gray-800 rounded-lg mt-4">
         <thead>
             <tr class="text-left border-b border-gray-700">
@@ -92,10 +75,6 @@
             fetch('/get-items')
                 .then(response => response.json())
                 .then(data => {
-                    if (!Array.isArray(data)) {
-                        console.error("Error fetching items:", data);
-                        return;
-                    }
                     itemsList = data;
                     let dataList = document.getElementById("itemSuggestions");
                     dataList.innerHTML = "";
@@ -110,11 +89,40 @@
                 .catch(error => console.error("Error fetching items:", error));
         }
 
-        function fetchConsumptionHistory() {
-            let area = document.getElementById("filterArea").value;
-            let date = document.getElementById("filterDate").value;
+        function autoFillItemCode() {
+            let searchBox = document.getElementById("searchBox").value;
+            let itemCodeInput = document.getElementById("itemCode");
+            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
             
-            fetch(`/consumption-history?area=${area}&date=${date}`)
+            itemCodeInput.value = selectedItem ? selectedItem["Item Code"] : "";
+        }
+
+        function logConsumption() {
+            let data = {
+                "Date": document.getElementById("date").value,
+                "Item Name": document.getElementById("searchBox").value,
+                "Item Code": document.getElementById("itemCode").value,
+                "Quantity": document.getElementById("quantity").value,
+                "Unit": document.getElementById("unit").value,
+                "Consumed Area": document.getElementById("consumedArea").value,
+                "Shift": document.getElementById("shift").value
+            };
+
+            fetch('/log-consumption', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(response => {
+                alert(response.message);
+                fetchConsumptionHistory();
+            })
+            .catch(error => console.error("Error logging consumption:", error));
+        }
+
+        function fetchConsumptionHistory() {
+            fetch('/get-consumption-history')
                 .then(response => response.json())
                 .then(data => {
                     let tableBody = document.getElementById("consumptionHistory");
