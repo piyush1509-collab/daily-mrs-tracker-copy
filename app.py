@@ -35,13 +35,13 @@ def log_consumption():
     try:
         data = request.json
         new_row = [
-            data.get("Date"),
-            data.get("Item Name"),
-            data.get("Item Code"),
-            data.get("Quantity"),
-            data.get("Unit"),
-            data.get("Consumed Area"),
-            data.get("Shift")
+            data.get("Date", ""),
+            data.get("Item Name", ""),
+            data.get("Item Code", ""),
+            data.get("Quantity", ""),
+            data.get("Unit", ""),
+            data.get("Consumed Area", ""),
+            data.get("Shift", "")
         ]
         consumption_sheet.append_row(new_row)
         return jsonify({"message": "Consumption logged successfully"})
@@ -51,15 +51,15 @@ def log_consumption():
 @app.route('/consumption-history', methods=['GET'])
 def consumption_history():
     try:
-        area = request.args.get('area', '')
-        date = request.args.get('date', '')
+        area = request.args.get('area', '').strip()
+        date = request.args.get('date', '').strip()
         records = consumption_sheet.get_all_records()
         
         filtered_records = records
         if area:
-            filtered_records = [r for r in records if r.get("Consumed Area") == area]
+            filtered_records = [r for r in records if r.get("Consumed Area", "").strip() == area]
         if date:
-            filtered_records = [r for r in filtered_records if r.get("Date") == date]
+            filtered_records = [r for r in filtered_records if r.get("Date", "").strip() == date]
 
         return jsonify(filtered_records)
     except Exception as e:
@@ -67,7 +67,5 @@ def consumption_history():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
-
-
 
 
