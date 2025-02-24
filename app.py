@@ -137,15 +137,22 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
+# Ensure app is initialized only once
+app = Flask(__name__)
+
+# Route to render Store section
 @app.route('/store')
 def store():
     return render_template('store.html')
 
+# Route to render User section
 @app.route('/user')
 def user():
     return render_template('user.html')
 
+# Run the Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+
 
 
