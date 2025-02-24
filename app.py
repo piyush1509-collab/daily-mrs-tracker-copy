@@ -106,34 +106,6 @@ def modify_tool_status():
     
     return jsonify({"message": "Tool status updated successfully!"})
 
-
-# Modify Tool Status
-@app.route('/modify-tool-status', methods=['POST'])
-def modify_tool_status():
-    data = request.json
-    tool_name = data["Tool Name"]
-    status = data["Status"]
-    
-    log_sheet = sh.worksheet("Tools & Safety Log")
-    pending_sheet = sh.worksheet("Tools Pending")
-    
-    # Update status in Tools & Safety Log
-    records = log_sheet.get_all_records()
-    for i, record in enumerate(records, start=2):
-        if record["Tool Name"] == tool_name and record["Status"] == "Pending":
-            log_sheet.update_cell(i, 7, status)  # Column 7 is Status
-            break
-    
-    # Remove from Tools Pending if status is Returned
-    if status == "Returned":
-        pending_records = pending_sheet.get_all_records()
-        for i, record in enumerate(pending_records, start=2):
-            if record["Tool Name"] == tool_name:
-                pending_sheet.delete_rows(i)
-                break
-    
-    return jsonify({"message": "Tool status updated successfully!"})
-
 # Fetch Pending Tools
 @app.route('/get-pending-tools', methods=['GET'])
 def get_pending_tools():
