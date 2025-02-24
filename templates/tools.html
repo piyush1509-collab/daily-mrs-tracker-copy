@@ -187,6 +187,11 @@ function closePasswordModal() {
     document.getElementById("passwordModal").classList.add("hidden");
 }
 
+// Function to show the Log Tool Entry section
+function showLogToolEntry() {
+    document.getElementById("selectionSection").style.display = "none";
+    document.getElementById("logTool").style.display = "block";
+}
 
 // Ensure data loads when the page opens
 window.onload = function () {
