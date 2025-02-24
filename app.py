@@ -133,6 +133,22 @@ def fetch_tools_inventory():
 def get_tools():
     return jsonify(fetch_tools_inventory())
 
+@app.route('/log-consumption', methods=['POST'])
+def log_consumption():
+    try:
+        data = request.json
+        consumption_entry = [
+            data["Item Name"], data["Item Code"], data["Consumed Area"],
+            data["Date"], data["Shift"], data["Quantity"], data["Unit"]
+        ]
+        
+        consumption_sheet.append_row(consumption_entry)  # Save to Google Sheet
+        
+        return jsonify({"message": "Consumption logged successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # Run the Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
