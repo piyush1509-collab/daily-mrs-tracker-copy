@@ -115,6 +115,30 @@
             }
         }
 
+        function logConsumption() {
+            let data = {
+                "Date": document.getElementById("date").value,
+                "Item Name": document.getElementById("searchBox").value,
+                "Item Code": document.getElementById("itemCode").value,
+                "Quantity": document.getElementById("quantity").value,
+                "Unit": document.getElementById("unit").value,
+                "Consumed Area": document.getElementById("consumedArea").value,
+                "Shift": document.getElementById("shift").value
+            };
+            
+            fetch('/log-consumption', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchConsumptionHistory();
+            })
+            .catch(error => console.error("Error logging consumption:", error));
+        }
+
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
