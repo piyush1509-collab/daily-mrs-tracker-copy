@@ -125,9 +125,15 @@ def get_pending_tools():
     try:
         sheet = sh.worksheet("Tools Pending")
         records = sheet.get_all_records()
-        return jsonify(records)
+
+        # Ensure records are returned as a valid JSON array
+        if not isinstance(records, list):
+            return jsonify([])
+
+        return jsonify(records)  # ✅ Now returns all columns, including In-Charge, Receiver Name, etc.
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Fetch Tools Inventory for Suggestions
 def fetch_tools_inventory():
