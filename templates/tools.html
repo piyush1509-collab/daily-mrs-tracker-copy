@@ -250,8 +250,14 @@ function showModifyStatus() {
 }
 
 function fetchUserPendingTools() {
-    fetch('/get-pending-tools')
-    .then(response => response.json())
+   fetch('/get-pending-tools')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Server returned an error");
+        }
+        return response.json();
+    })
+
     .then(data => {
         let tableBody = document.getElementById("userPendingToolsTable");
         tableBody.innerHTML = "";
@@ -315,6 +321,8 @@ function showUserSection() {
     document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status for users
 }
 </script>
+
+       
 </body>
 </html>
 
