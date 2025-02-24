@@ -41,7 +41,7 @@ def log_consumption():
         
         new_row = [data[field] for field in required_fields]
         consumption_sheet.append_row(new_row)
-        return jsonify({"message": "Consumption logged successfully"})
+        return jsonify({"message": "Consumption logged successfully", "data": new_row})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -64,6 +64,5 @@ def consumption_history():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
-
 
 
