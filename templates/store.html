@@ -74,15 +74,18 @@
 
 
     <script>
-        function enterPassword() {
-            let password = document.getElementById("password").value;
-            if (password === "tool") {
-                document.getElementById("passwordModal").style.display = "none";
-                document.getElementById("storeOptions").classList.remove("hidden");
-            } else {
-                alert("Incorrect password!");
-            }
-        }
+      function enterPassword() {
+    let passwordInput = document.getElementById("password");
+    let password = passwordInput.value;
+    
+    if (password === "tool") {
+        document.getElementById("passwordModal").style.display = "none";
+        document.getElementById("storeOptions").classList.remove("hidden");
+    } else {
+        alert("Incorrect password!");
+        passwordInput.value = ""; // ✅ Clear input field
+    }
+}
 
         // Function to show the Log Tool Entry section
 function showLogToolEntry() {
@@ -113,21 +116,6 @@ function showModifyToolStatus() {
         console.error("Missing elements: storeOptions, logToolSection, or modifyToolStatusSection");
     }
 }
-
-
-function showModifyToolStatus() {
-    let storeOptions = document.getElementById("storeOptions");
-    let modifyToolStatusSection = document.getElementById("modifyToolStatusSection");
-
-    if (storeOptions && modifyToolStatusSection) {
-        storeOptions.style.display = "none";
-        modifyToolStatusSection.style.display = "block";
-        fetchStorePendingTools();
-    } else {
-        console.error("Missing elements: storeOptions or modifyToolStatusSection");
-    }
-}
-
 
 // Function to fetch pending tools for Store section
 function fetchStorePendingTools() {
