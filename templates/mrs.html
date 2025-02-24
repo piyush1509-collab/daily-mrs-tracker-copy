@@ -87,7 +87,7 @@
     </table>
 
     <script>
-       let itemsList = [];
+      let itemsList = [];
 
 function fetchItems() {
     fetch('/get-items')
@@ -140,11 +140,36 @@ function fetchConsumptionHistory() {
         .catch(error => console.error("Error fetching consumption history:", error));
 }
 
-// ✅ Ensure all functions run when the page loads
-window.onload = function () {
+function logConsumption() {
+    let data = {
+        "Date": document.getElementById("date").value,
+        "Item Name": document.getElementById("searchBox").value,
+        "Item Code": document.getElementById("itemCode").value,
+        "Quantity": document.getElementById("quantity").value,
+        "Unit": document.getElementById("unit").value,
+        "Consumed Area": document.getElementById("consumedArea").value,
+        "Shift": document.getElementById("shift").value
+    };
+
+    fetch('/log-consumption', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchConsumptionHistory(); // Refresh history after logging
+    })
+    .catch(error => console.error("Error logging consumption:", error));
+}
+
+// ✅ Ensure all functions run when the page loads (without overwriting)
+window.addEventListener("load", function () {
     fetchItems();
     fetchConsumptionHistory();
-};
+});
+
 
     </script>
 </body>
