@@ -99,12 +99,15 @@ def modify_tool_status():
         
         log_sheet = sh.worksheet("Tools & Safety Log")
         pending_sheet = sh.worksheet("Tools Pending")
-        
+
+        # Debugging: Print tool name and status
+        print(f"Modifying Tool: {tool_name}, New Status: {status}")
+
         # Update status in Tools & Safety Log
         records = log_sheet.get_all_records()
         for i, record in enumerate(records, start=2):
             if record["Tool Name"] == tool_name and record["Status"] == "Pending":
-                log_sheet.update_cell(i, 7, status)  # Column 7 is Status
+                log_sheet.update_cell(i, 7, status)  # Column 7 is "Status"
                 break
         
         # Remove from Tools Pending if status is Returned
@@ -117,6 +120,7 @@ def modify_tool_status():
         
         return jsonify({"message": "Tool status updated successfully!"})
     except Exception as e:
+        print("Error modifying tool status:", str(e))
         return jsonify({"error": str(e)}), 500
 
 # Fetch Pending Tools
