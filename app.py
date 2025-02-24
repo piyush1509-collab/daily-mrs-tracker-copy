@@ -123,21 +123,16 @@ def modify_tool_status():
 @app.route('/get-pending-tools', methods=['GET'])
 def get_pending_tools():
     try:
-        area_filter = request.args.get('area', '').strip()
         sheet = sh.worksheet("Tools Pending")
         records = sheet.get_all_records()
 
-        # Ensure records are returned as a valid JSON array
-        if not isinstance(records, list):
-            return jsonify([])
+        # Debugging: Print the API response
+        print("Pending Tools Data:", records)
 
-        # Apply area filter if selected
-        if area_filter:
-            records = [record for record in records if record.get("Area", "").strip() == area_filter]
-
-        return jsonify(records)
+        return jsonify(records if isinstance(records, list) else [])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Fetch Tools Inventory for Suggestions
