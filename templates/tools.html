@@ -14,11 +14,23 @@
         <button onclick="showUser()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">User</button>
     </div>
 
+    <!-- Password Section -->
+    <div id="passwordSection">
+        <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
+        <input type="password" id="password" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
+    </div>
+
+    <!-- Selection Section -->
+    <div id="selectionSection" style="display: none;">
+        <h3 class="text-xl font-bold mb-4">Select an Option</h3>
+        <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
+        <button onclick="showModifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
+    </div>
+
     <!-- Store Section -->
     <div id="storeSection" class="p-6 hidden">
         <h3 class="text-2xl font-bold mb-6">Store Section</h3>
-        <button onclick="showLogTool()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
-        <button onclick="showModifyStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
 
         <!-- Log Tool Entry -->
         <div id="logTool" class="mt-6 hidden">
@@ -26,8 +38,7 @@
 
             <label for="toolName" class="block text-sm font-medium mb-2">Tool Name</label>
             <input type="text" id="toolName" list="toolSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-<datalist id="toolSuggestions"></datalist>
-
+            <datalist id="toolSuggestions"></datalist>
 
             <label for="area" class="block text-sm font-medium mb-2">Area</label>
             <select id="area" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -57,60 +68,38 @@
 
             <button onclick="logToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit Entry</button>
         </div>
+
+        <!-- Modify Tool Status -->
+        <div id="modifyToolStatusSection" class="mt-6 hidden">
+            <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="p-3">Tool Name</th>
+                        <th class="p-3">Area</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingToolsTable"></tbody>
+            </table>
+
+            <label for="modifyToolName" class="block text-sm font-medium mb-2">Select Tool</label>
+            <input type="text" id="modifyToolName" list="pendingToolsList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+            <datalist id="pendingToolsList"></datalist>
+
+            <label for="toolStatus" class="block text-sm font-medium mb-2">Change Status</label>
+            <select id="toolStatus" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+                <option>Returned</option>
+                <option>Permanently Issued</option>
+            </select>
+
+            <button onclick="modifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Update Status</button>
+        </div>
     </div>
-    <!-- Modify Tool Status -->
-<div id="modifyToolStatusSection" style="display: none;">
-    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
-
-    <!-- Show Tools Pending Table -->
-    <table class="w-full text-left border-collapse">
-        <thead>
-            <tr>
-                <th class="p-3">Tool Name</th>
-                <th class="p-3">Area</th>
-                <th class="p-3">In-Charge</th>
-                <th class="p-3">Receiver</th>
-                <th class="p-3">Contractor</th>
-                <th class="p-3">Date Issued</th>
-                <th class="p-3">Status</th>
-            </tr>
-        </thead>
-        <tbody id="pendingToolsTable"></tbody>
-    </table>
-
-    <!-- Modify Tool Status Dropdown -->
-    <label for="modifyToolName" class="block text-sm font-medium mb-2">Select Tool</label>
-    <input type="text" id="modifyToolName" list="pendingToolsList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-    <datalist id="pendingToolsList"></datalist>
-
-    <label for="toolStatus" class="block text-sm font-medium mb-2">Change Status</label>
-    <select id="toolStatus" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-        <option>Returned</option>
-        <option>Permanently Issued</option>
-    </select>
-
-    <button onclick="modifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Update Status</button>
-</div>
-
-
-
 
     <!-- User Section -->
     <div id="userSection" class="p-6 hidden">
         <h3 class="text-2xl font-bold mb-6">User Section</h3>
-        <label for="filterUserArea" class="block text-sm font-medium mb-2">Filter by Area</label>
-        <select id="filterUserArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <option value="">All Areas</option>
-            <option>PUMP HOUSE</option>
-            <option>RO PLANT</option>
-            <option>GASZONE</option>
-            <option>FURNACE</option>
-            <option>MATERIAL HANDLING</option>
-            <option>ELECTRICAL</option>
-            <option>OPERATION</option>
-        </select>
-        <button onclick="fetchUserPendingTools()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Filter</button>
-
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="text-left border-b border-gray-700">
@@ -122,187 +111,28 @@
             <tbody id="userPendingToolsTable" class="text-gray-300"></tbody>
         </table>
     </div>
-<div id="passwordSection">
-    <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
-    <input type="password" id="password" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-    <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
-</div>
-
-    <div id="selectionSection" style="display: none;">
-    <h3 class="text-xl font-bold mb-4">Select an Option</h3>
-    <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">
-        Log Tool Entry
-    </button>
-    <button onclick="showModifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">
-        Modify Tool Status
-    </button>
-</div>
 
     <script>
-        
-function showLogToolEntry() {
-    document.getElementById("selectionSection").style.display = "none";
-    document.getElementById("logToolSection").style.display = "block";
-}
-
-
-        function showStoreSection() {
-            document.getElementById("storeSection").style.display = "block";
-            document.getElementById("userSection").style.display = "none";
+        function enterPassword() {
+            let password = document.getElementById("password").value;
+            if (password === "tool") {
+                document.getElementById("passwordSection").style.display = "none";
+                document.getElementById("selectionSection").style.display = "block";
+            } else {
+                alert("Incorrect password!");
+            }
         }
 
-        function showStoreSection() {
-    document.getElementById("storeSection").style.display = "block";
-    document.getElementById("userSection").style.display = "none";
-    document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status initially
-}
-
-        }
-        
-function showModifyToolStatus() {
-    document.getElementById("selectionSection").style.display = "none";
-    document.getElementById("modifyToolStatusSection").style.display = "block";
-}
-
-        function showLogTool() {
+        function showLogToolEntry() {
+            document.getElementById("selectionSection").style.display = "none";
             document.getElementById("logTool").style.display = "block";
         }
 
-        function logToolEntry() {
-    let data = {
-        "Tool Name": document.getElementById("toolName").value,
-        "Area": document.getElementById("area").value,
-        "In-Charge": document.getElementById("inCharge").value,
-        "Receiver Name": document.getElementById("receiverName").value,
-        "Contractor Name": document.getElementById("contractorName").value,
-        "Date Issued": document.getElementById("dateIssued").value
-    };
-
-    fetch('/log-tool', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        fetchUserPendingTools(); 
-fetchStorePendingTools(); // Ensure store sees the updated tools list
-
-    })
-    .catch(error => console.error("Error logging tool:", error));
-}
-
-function fetchUserPendingTools() {
-   fetch('/get-pending-tools')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Server returned an error");
+        function showModifyToolStatus() {
+            document.getElementById("selectionSection").style.display = "none";
+            document.getElementById("modifyToolStatusSection").style.display = "block";
         }
-        return response.json();
-    })
+    </script>
 
-    .then(data => {
-        let tableBody = document.getElementById("userPendingToolsTable");
-        tableBody.innerHTML = "";
-
-        data.forEach(row => {
-            let newRow = `<tr>
-                <td class="p-3">${row["Tool Name"]}</td>
-                <td class="p-3">${row["Area"]}</td>
-                <td class="p-3">${row["In-Charge"]}</td>
-                <td class="p-3">${row["Receiver Name"]}</td>
-                <td class="p-3">${row["Contractor Name"]}</td>
-                <td class="p-3">${row["Date Issued"]}</td>
-                <td class="p-3">${row["Status"]}</td>
-            </tr>`;
-            tableBody.innerHTML += newRow;
-        });
-    })
-    .catch(error => console.error("Error fetching pending tools:", error));
-}
-        function modifyToolStatus() {
-    let data = {
-        "Tool Name": document.getElementById("modifyToolName").value,
-        "Status": document.getElementById("toolStatus").value
-    };
-
-    fetch('/modify-tool-status', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        fetchUserPendingTools(); // Refresh pending tools list
-    })
-    .catch(error => console.error("Error modifying tool status:", error));
-}
-
-function fetchToolSuggestions() {
-    fetch('/get-tools')
-    .then(response => response.json())
-    .then(data => {
-        let dataList = document.getElementById("toolSuggestions");
-        dataList.innerHTML = "";
-        data.forEach(tool => {
-            let option = document.createElement("option");
-            option.value = tool;
-            dataList.appendChild(option);
-        });
-    })
-    .catch(error => console.error("Error fetching tool suggestions:", error));
-}
-
-window.onload = function () {
-    fetchUserPendingTools();
-    fetchStorePendingTools(); // ✅ Added this function to fetch store pending tools
-};
-
-};
-function showUserSection() {
-    document.getElementById("passwordSection").style.display = "none";
-    document.getElementById("userSection").style.display = "block";
-    document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status for users
-}
-
-function enterPassword() {
-    let password = document.getElementById("password").value;
-    if (password === "tool") {
-        document.getElementById("passwordSection").style.display = "none";
-        document.getElementById("selectionSection").style.display = "block"; // Show selection menu
-    } else {
-        alert("Incorrect password!");
-    }
-}
-
-function fetchStorePendingTools() {
-    fetch('/get-pending-tools')
-    .then(response => response.json())
-    .then(data => {
-        let tableBody = document.getElementById("pendingToolsTable"); // Make sure this ID exists
-        tableBody.innerHTML = "";
-        data.forEach(row => {
-            let newRow = `<tr>
-                <td class="p-3">${row["Tool Name"]}</td>
-                <td class="p-3">${row["Area"]}</td>
-                <td class="p-3">${row["In-Charge"]}</td>
-                <td class="p-3">${row["Receiver Name"]}</td>
-                <td class="p-3">${row["Contractor Name"]}</td>
-                <td class="p-3">${row["Date Issued"]}</td>
-                <td class="p-3">${row["Status"]}</td>
-            </tr>`;
-            tableBody.innerHTML += newRow;
-        });
-    })
-    .catch(error => console.error("Error fetching store pending tools:", error));
-}
-
-</script>
-
-       
 </body>
 </html>
-
-
