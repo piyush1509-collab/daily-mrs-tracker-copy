@@ -24,10 +24,31 @@
 <!-- Log Tool Entry Section (Initially Hidden) -->
 <div id="logToolSection" class="hidden mt-6">
     <h2 class="text-xl font-bold">Log Tool Entry</h2>
-    <!-- Add your input fields here -->
+    <form id="logToolForm" class="mt-4">
+        <label class="block">Tool Name:</label>
+        <input type="text" id="toolName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <label class="block">Area:</label>
+        <input type="text" id="area" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <label class="block">In-Charge:</label>
+        <input type="text" id="inCharge" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <label class="block">Receiver Name:</label>
+        <input type="text" id="receiverName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <label class="block">Contractor Name:</label>
+        <input type="text" id="contractorName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <label class="block">Date Issued:</label>
+        <input type="date" id="dateIssued" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+
+        <button type="button" onclick="logTool()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool</button>
+    </form>
 </div>
 
-<!-- Modify Tool Status Section (Initially Hidden) -->
+
+<!-- Modify Tool Status Section -->
 <div id="modifyToolStatusSection" class="hidden mt-6">
     <h2 class="text-xl font-bold">Modify Tool Status</h2>
     <table id="pendingToolsTable" class="min-w-full bg-gray-800 rounded-lg mt-4">
@@ -36,6 +57,7 @@
                 <th class="p-3">Tool Name</th>
                 <th class="p-3">Area</th>
                 <th class="p-3">Status</th>
+                <th class="p-3">Modify Status</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -104,7 +126,7 @@ function fetchStorePendingTools() {
     fetch('/get-pending-tools')
     .then(response => response.json())
     .then(data => {
-        console.log("Fetched Pending Tools:", data);  // ✅ Debugging
+        console.log("Fetched Pending Tools:", data);
         let tableBody = document.getElementById("pendingToolsTable");
         tableBody.innerHTML = "";
 
@@ -117,12 +139,56 @@ function fetchStorePendingTools() {
                 <td class="p-3">${toolName}</td>
                 <td class="p-3">${area}</td>
                 <td class="p-3">${status}</td>
+                <td class="p-3">
+                    <select onchange="modifyToolStatus('${toolName}', this.value)" class="bg-gray-700 text-white p-2 rounded">
+                        <option value="Pending" ${status === "Pending" ? "selected" : ""}>Pending</option>
+                        <option value="Returned">Returned</option>
+                        <option value="Permanently Issued">Permanently Issued</option>
+                    </select>
+                </td>
             </tr>`;
             tableBody.innerHTML += newRow;
         });
     })
     .catch(error => console.error("Error fetching store pending tools:", error));
 }
+function logTool() {
+    let toolData = {
+        "Tool Name": document.getElementById("toolName").value,
+        "Area": document.getElementById("area").value,
+        "In-Charge": document.getElementById("inCharge").value,
+        "Receiver Name": document.getElementById("receiverName").value,
+        "Contractor Name": document.getElementById("contractorName").value,
+        "Date Issued": document.getElementById("dateIssued").value
+    };
+
+    fetch('/log-tool', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toolData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        document.getElementById("logToolForm").reset();
+    })
+    .catch(error => console.error("Error logging tool:", error));
+}
+
+function modifyToolStatus(toolName, newStatus) {
+    fetch('/modify-tool-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "Tool Name": toolName, "Status": newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchStorePendingTools();  // Refresh the table
+    })
+    .catch(error => console.error("Error modifying tool status:", error));
+}
+
 
 
     </script>
