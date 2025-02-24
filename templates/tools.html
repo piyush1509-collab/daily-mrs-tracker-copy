@@ -118,6 +118,10 @@
             document.getElementById("storeSection").style.display = "block";
             document.getElementById("userSection").style.display = "none";
         }
+        
+function showModifyStatus() {
+    document.getElementById("modifyToolStatus").style.display = "block";
+}
 
         function showUser() {
             document.getElementById("storeSection").style.display = "none";
@@ -197,7 +201,7 @@
     .then(response => response.json())
     .then(data => {
         alert(data.message);
-        fetchUserPendingTools(); // Refresh list after update
+        fetchUserPendingTools(); // Refresh pending tools list
     })
     .catch(error => console.error("Error modifying tool status:", error));
 }
