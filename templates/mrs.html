@@ -87,63 +87,36 @@
     </table>
 
     <script>
-        let itemsList = [];
-
-        function fetchItems() {
-            fetch('/get-items')
+        function fetchConsumptionHistory() {
+            let area = document.getElementById("filterArea").value;
+            let date = document.getElementById("filterDate").value;
+            
+            fetch(`/consumption-history?area=${encodeURIComponent(area)}&date=${encodeURIComponent(date)}`)
                 .then(response => response.json())
                 .then(data => {
-                    itemsList = data;
-                    let dataList = document.getElementById("itemSuggestions");
-                    dataList.innerHTML = "";
-                    itemsList.forEach(item => {
-                        if (item["Item Name"] && item["Item Code"]) {
-                            let option = document.createElement("option");
-                            option.value = item["Item Name"];
-                            dataList.appendChild(option);
-                        }
+                    let tableBody = document.getElementById("consumptionHistory");
+                    tableBody.innerHTML = "";
+                    data.forEach(row => {
+                        let newRow = `<tr>
+                            <td class="p-3">${row.Date}</td>
+                            <td class="p-3">${row["Item Name"]}</td>
+                            <td class="p-3">${row["Item Code"]}</td>
+                            <td class="p-3">${row.Quantity}</td>
+                            <td class="p-3">${row.Unit}</td>
+                            <td class="p-3">${row["Consumed Area"]}</td>
+                            <td class="p-3">${row.Shift}</td>
+                        </tr>`;
+                        tableBody.innerHTML += newRow;
                     });
-                });
-        }
-
-        function autoFillItemCode() {
-            let searchBox = document.getElementById("searchBox").value;
-            let itemCodeInput = document.getElementById("itemCode");
-            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
-            if (selectedItem) {
-                itemCodeInput.value = selectedItem["Item Code"];
-            }
-        }
-
-        function logConsumption() {
-            let data = {
-                "Date": document.getElementById("date").value,
-                "Item Name": document.getElementById("searchBox").value,
-                "Item Code": document.getElementById("itemCode").value,
-                "Quantity": document.getElementById("quantity").value,
-                "Unit": document.getElementById("unit").value,
-                "Consumed Area": document.getElementById("consumedArea").value,
-                "Shift": document.getElementById("shift").value
-            };
-            
-            fetch('/log-consumption', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                fetchConsumptionHistory();
-            })
-            .catch(error => console.error("Error logging consumption:", error));
+                })
+                .catch(error => console.error("Error fetching consumption history:", error));
         }
 
         window.onload = function () {
-            fetchItems();
             fetchConsumptionHistory();
         };
     </script>
 </body>
 </html>
+
 
