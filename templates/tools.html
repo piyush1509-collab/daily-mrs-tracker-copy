@@ -26,7 +26,8 @@
 
             <label for="toolName" class="block text-sm font-medium mb-2">Tool Name</label>
             <input type="text" id="toolName" list="toolSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <datalist id="toolSuggestions"></datalist>
+<datalist id="toolSuggestions"></datalist>
+
 
             <label for="area" class="block text-sm font-medium mb-2">Area</label>
             <select id="area" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -111,12 +112,98 @@
         }
 
         function logToolEntry() {
-            alert("Tool entry submitted! (This should send data to the backend)");
-        }
+    let data = {
+        "Tool Name": document.getElementById("toolName").value,
+        "Area": document.getElementById("area").value,
+        "In-Charge": document.getElementById("inCharge").value,
+        "Receiver Name": document.getElementById("receiverName").value,
+        "Contractor Name": document.getElementById("contractorName").value,
+        "Date Issued": document.getElementById("dateIssued").value
+    };
 
-        function fetchUserPendingTools() {
-            alert("Fetching pending tools based on area! (This should call backend API)");
-        }
+    fetch('/log-tool', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchUserPendingTools(); // Refresh pending tools
+    })
+    .catch(error => console.error("Error logging tool:", error));
+}
+
+
+       function fetchUserPendingTools() {
+    fetch('/get-pending-tools')
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("pendingToolsTable");
+        tableBody.innerHTML = "";
+        let dataList = document.getElementById("pendingToolsList");
+        dataList.innerHTML = ""; // Clear suggestions
+
+        data.forEach(row => {
+            let newRow = `<tr>
+                <td class="p-3">${row["Tool Name"]}</td>
+                <td class="p-3">${row["Area"]}</td>
+                <td class="p-3">${row["In-Charge"]}</td>
+                <td class="p-3">${row["Receiver Name"]}</td>
+                <td class="p-3">${row["Contractor Name"]}</td>
+                <td class="p-3">${row["Date Issued"]}</td>
+                <td class="p-3">${row["Status"]}</td>
+            </tr>`;
+            tableBody.innerHTML += newRow;
+
+            // Add to dropdown suggestions
+            let option = document.createElement("option");
+            option.value = row["Tool Name"];
+            dataList.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching pending tools:", error));
+}
+
+        function modifyToolStatus() {
+    let data = {
+        "Tool Name": document.getElementById("modifyToolName").value,
+        "Status": document.getElementById("toolStatus").value
+    };
+
+    fetch('/modify-tool-status', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchUserPendingTools(); // Refresh list after update
+    })
+    .catch(error => console.error("Error modifying tool status:", error));
+}
+
+function fetchToolSuggestions() {
+    fetch('/get-tools')
+    .then(response => response.json())
+    .then(data => {
+        let dataList = document.getElementById("toolSuggestions");
+        dataList.innerHTML = "";
+        data.forEach(tool => {
+            let option = document.createElement("option");
+            option.value = tool;
+            dataList.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching tool suggestions:", error));
+}
+
+window.onload = function () {
+    fetchToolSuggestions();
+    fetchUserPendingTools();
+};
+
     </script>
 </body>
 </html>
