@@ -77,14 +77,15 @@ def log_tool():
         data["Date Issued"], "Pending"
     ]
     
- log_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools & Safety Log")
-pending_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools Pending")
+    # ✅ Correct indentation
+    log_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools & Safety Log")
+    pending_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools Pending")
+    
     log_sheet.append_row(tool_entry)
     pending_sheet.append_row(tool_entry)  # Also add to pending tools
     
     return jsonify({"message": "Tool logged successfully!"})
 
-# Modify Tool Status
 @app.route('/modify-tool-status', methods=['POST'])
 def modify_tool_status():
     data = request.json
