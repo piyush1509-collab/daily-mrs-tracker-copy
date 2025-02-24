@@ -10,15 +10,20 @@
     <h2 class="text-center text-3xl font-bold my-6">Tools & Safety Item Logbook</h2>
 
     <div class="flex justify-center gap-6 my-6">
-        <button onclick="showPasswordSection()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Store</button>
+        <button onclick="openPasswordModal()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Store</button>
         <button onclick="showUser()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">User</button>
     </div>
 
-    <!-- Password Section (only shown when clicking Store) -->
-    <div id="passwordSection" style="display: none;">
-        <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
-        <input type="password" id="password" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-        <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
+    <!-- Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+            <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
+            <input type="password" id="password" class="bg-gray-700 text-white p-2 rounded w-full mb-4">
+            <div class="flex justify-between">
+                <button onclick="closePasswordModal()" class="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600">Cancel</button>
+                <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
+            </div>
+        </div>
     </div>
 
     <!-- Selection Section (Shown after entering password) -->
@@ -39,17 +44,6 @@
             <label for="toolName" class="block text-sm font-medium mb-2">Tool Name</label>
             <input type="text" id="toolName" list="toolSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
             <datalist id="toolSuggestions"></datalist>
-
-            <label for="area" class="block text-sm font-medium mb-2">Area</label>
-            <select id="area" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-                <option>PUMP HOUSE</option>
-                <option>RO PLANT</option>
-                <option>GASZONE</option>
-                <option>FURNACE</option>
-                <option>MATERIAL HANDLING</option>
-                <option>ELECTRICAL</option>
-                <option>OPERATION</option>
-            </select>
 
             <label for="dateIssued" class="block text-sm font-medium mb-2">Date Issued</label>
             <input type="date" id="dateIssued" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -101,15 +95,18 @@
     </div>
 
     <script>
-        function showPasswordSection() {
-            document.getElementById("passwordSection").style.display = "block";
-            document.getElementById("selectionSection").style.display = "none";
+        function openPasswordModal() {
+            document.getElementById("passwordModal").classList.remove("hidden");
+        }
+
+        function closePasswordModal() {
+            document.getElementById("passwordModal").classList.add("hidden");
         }
 
         function enterPassword() {
             let password = document.getElementById("password").value;
             if (password === "tool") {
-                document.getElementById("passwordSection").style.display = "none";
+                closePasswordModal();
                 document.getElementById("selectionSection").style.display = "block";
             } else {
                 alert("Incorrect password!");
