@@ -177,6 +177,7 @@ function fetchStorePendingTools() {
     })
     .catch(error => console.error("Error fetching store pending tools:", error));
 }
+
         // Function to show the password modal
 function openPasswordModal() {
     document.getElementById("passwordModal").classList.remove("hidden");
@@ -260,6 +261,23 @@ function fetchStorePendingTools() {
         });
     })
     .catch(error => console.error("Error fetching store pending tools:", error));
+}
+// Function to modify tool status (Returned/Permanently Issued)
+function modifyToolStatus() {
+    let toolName = document.getElementById("modifyToolName").value;
+    let newStatus = document.getElementById("toolStatus").value;
+
+    fetch('/modify-tool-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "Tool Name": toolName, "Status": newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchStorePendingTools();  // Refresh pending tools list
+    })
+    .catch(error => console.error("Error modifying tool status:", error));
 }
 
 // Ensure data loads when the page opens
