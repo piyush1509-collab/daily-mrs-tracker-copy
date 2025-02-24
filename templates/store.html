@@ -74,18 +74,19 @@
 
 
     <script>
-      function enterPassword() {
+    function enterPassword() {
     let passwordInput = document.getElementById("password");
-    let password = passwordInput.value;
-    
+    let password = passwordInput.value.trim();  // Trim spaces to avoid input errors
+
     if (password === "tool") {
-        document.getElementById("passwordModal").style.display = "none";
-        document.getElementById("storeOptions").classList.remove("hidden");
+        document.getElementById("passwordModal").style.display = "none";  // Hide modal
+        document.getElementById("storeOptions").classList.remove("hidden");  // Show store options
     } else {
         alert("Incorrect password!");
-        passwordInput.value = ""; // ✅ Clear input field
+        passwordInput.value = ""; // Clear input field after wrong attempt
     }
 }
+
 
         // Function to show the Log Tool Entry section
 function showLogToolEntry() {
