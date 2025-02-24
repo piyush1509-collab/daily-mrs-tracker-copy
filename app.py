@@ -133,6 +133,18 @@ def fetch_tools_inventory():
 def get_tools():
     return jsonify(fetch_tools_inventory())
 
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/store')
+def store():
+    return render_template('store.html')
+
+@app.route('/user')
+def user():
+    return render_template('user.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
 
