@@ -10,18 +10,18 @@
     <h2 class="text-center text-3xl font-bold my-6">Tools & Safety Item Logbook</h2>
 
     <div class="flex justify-center gap-6 my-6">
-        <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Store</button>
+        <button onclick="showPasswordSection()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Store</button>
         <button onclick="showUser()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">User</button>
     </div>
 
-    <!-- Password Section -->
-    <div id="passwordSection">
+    <!-- Password Section (only shown when clicking Store) -->
+    <div id="passwordSection" style="display: none;">
         <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
         <input type="password" id="password" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
         <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
     </div>
 
-    <!-- Selection Section -->
+    <!-- Selection Section (Shown after entering password) -->
     <div id="selectionSection" style="display: none;">
         <h3 class="text-xl font-bold mb-4">Select an Option</h3>
         <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
@@ -50,18 +50,6 @@
                 <option>ELECTRICAL</option>
                 <option>OPERATION</option>
             </select>
-
-            <label for="inCharge" class="block text-sm font-medium mb-2">In-Charge</label>
-            <input type="text" id="inCharge" list="inChargeSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <datalist id="inChargeSuggestions"></datalist>
-
-            <label for="receiverName" class="block text-sm font-medium mb-2">Receiver Name</label>
-            <input type="text" id="receiverName" list="receiverSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <datalist id="receiverSuggestions"></datalist>
-
-            <label for="contractorName" class="block text-sm font-medium mb-2">Contractor Name</label>
-            <input type="text" id="contractorName" list="contractorSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-            <datalist id="contractorSuggestions"></datalist>
 
             <label for="dateIssued" class="block text-sm font-medium mb-2">Date Issued</label>
             <input type="date" id="dateIssued" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -113,6 +101,11 @@
     </div>
 
     <script>
+        function showPasswordSection() {
+            document.getElementById("passwordSection").style.display = "block";
+            document.getElementById("selectionSection").style.display = "none";
+        }
+
         function enterPassword() {
             let password = document.getElementById("password").value;
             if (password === "tool") {
@@ -131,6 +124,14 @@
         function showModifyToolStatus() {
             document.getElementById("selectionSection").style.display = "none";
             document.getElementById("modifyToolStatusSection").style.display = "block";
+            fetchStorePendingTools();
+        }
+
+        function showUser() {
+            document.getElementById("storeSection").style.display = "none";
+            document.getElementById("userSection").style.display = "block";
+            document.getElementById("modifyToolStatusSection").style.display = "none";
+            fetchUserPendingTools();
         }
     </script>
 
