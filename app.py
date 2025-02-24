@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Google Sheets API Setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
+sh = client.open(SPREADSHEET_NAME)
 
 # Open the necessary sheets
 SPREADSHEET_NAME = "items"
@@ -77,8 +77,8 @@ def log_tool():
         data["Date Issued"], "Pending"
     ]
     
-    log_sheet = sh.worksheet("Tools & Safety Log")
-    pending_sheet = sh.worksheet("Tools Pending")
+ log_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools & Safety Log")
+pending_sheet = client.open(SPREADSHEET_NAME).worksheet("Tools Pending")
     log_sheet.append_row(tool_entry)
     pending_sheet.append_row(tool_entry)  # Also add to pending tools
     
@@ -114,9 +114,10 @@ def modify_tool_status():
 # Fetch Pending Tools
 @app.route('/get-pending-tools', methods=['GET'])
 def get_pending_tools():
-    sheet = sh.worksheet("Tools Pending")
+    sheet = client.open(SPREADSHEET_NAME).worksheet("Tools Pending")  # ✅ Correct version
     records = sheet.get_all_records()
     return jsonify(records)
+
 
 # Fetch Tools Inventory for Suggestions
 def fetch_tools_inventory():
