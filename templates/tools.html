@@ -140,10 +140,56 @@
             fetchUserPendingTools();
         }
 
+        // Function to fetch pending tools for Users
+function fetchUserPendingTools() {
+    fetch('/get-pending-tools')
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("userPendingToolsTable");
+        tableBody.innerHTML = "";
+        data.forEach(row => {
+            let newRow = `<tr>
+                <td class="p-3">${row["Tool Name"]}</td>
+                <td class="p-3">${row["Area"]}</td>
+                <td class="p-3">${row["Status"]}</td>
+            </tr>`;
+            tableBody.innerHTML += newRow;
+        });
+    })
+    .catch(error => console.error("Error fetching user pending tools:", error));
+}
+
+// Function to fetch pending tools for Store
+function fetchStorePendingTools() {
+    fetch('/get-pending-tools')
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("pendingToolsTable");
+        tableBody.innerHTML = "";
+        data.forEach(row => {
+            let newRow = `<tr>
+                <td class="p-3">${row["Tool Name"]}</td>
+                <td class="p-3">${row["Area"]}</td>
+                <td class="p-3">${row["Status"]}</td>
+            </tr>`;
+            tableBody.innerHTML += newRow;
+        });
+    })
+    .catch(error => console.error("Error fetching store pending tools:", error));
+}
+
+// Ensure data loads when the page opens
+window.onload = function () {
+    fetchUserPendingTools();
+    fetchStorePendingTools();
+};
+
+
         window.onload = function () {
            fetchUserPendingTools();  // ✅ Ensures pending tools load in the User section
            fetchStorePendingTools(); // ✅ Ensures pending tools load in the Store section
         };
+        
 
 </script>
 </body>
