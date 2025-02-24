@@ -62,6 +62,11 @@ def consumption_history():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/tools')
+def tools():
+    return render_template('tools.html')
+
+
 # Log Tool Entry (Default: Pending Status)
 @app.route('/log-tool', methods=['POST'])
 def log_tool():
