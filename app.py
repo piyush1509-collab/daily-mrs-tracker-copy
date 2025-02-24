@@ -154,6 +154,10 @@ def user():
 def home():
     return render_template('index.html')  # Ensure 'index.html' exists in the templates folder
 
+@app.route('/mrs')
+def mrs():
+    return render_template('mrs.html')  # Ensure 'mrs.html' exists in the templates folder
+
 # Run the Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
