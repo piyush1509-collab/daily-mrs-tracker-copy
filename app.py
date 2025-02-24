@@ -123,6 +123,7 @@ def modify_tool_status():
 @app.route('/get-pending-tools', methods=['GET'])
 def get_pending_tools():
     try:
+        area_filter = request.args.get('area', '').strip()
         sheet = sh.worksheet("Tools Pending")
         records = sheet.get_all_records()
 
@@ -130,7 +131,11 @@ def get_pending_tools():
         if not isinstance(records, list):
             return jsonify([])
 
-        return jsonify(records)  # ✅ Now returns all columns, including In-Charge, Receiver Name, etc.
+        # Apply area filter if selected
+        if area_filter:
+            records = [record for record in records if record.get("Area", "").strip() == area_filter]
+
+        return jsonify(records)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
