@@ -59,9 +59,86 @@
         </div>
     </div>
     <!-- Modify Tool Status -->
-<div id="modifyToolStatus" class="mt-6 hidden">
+<div id="modifyToolStatusSection" style="display: none;">
     <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
 
+    <!-- Show Tools Pending Table -->
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr>
+                <th class="p-3">Tool Name</th>
+                <th class="p-3">Area</th>
+                <th class="p-3">In-Charge</th>
+                <th class="p-3">Receiver</th>
+                <th class="p-3">Contractor</th>
+                <th class="p-3">Date Issued</th>
+                <th class="p-3">Status</th>
+            </tr>
+        </thead>
+        <tbody id="pendingToolsTable"></tbody>
+    </table>
+
+    <!-- Modify Tool Status Dropdown -->
+   <div id="modifyToolStatusSection" style="display: none;">
+    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
+
+    <!-- Show Tools Pending Table -->
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr>
+                <th class="p-3">Tool Name</th>
+                <th class="p-3">Area</th>
+                <th class="p-3">In-Charge</th>
+                <th class="p-3">Receiver</th>
+                <th class="p-3">Contractor</th>
+                <th class="p-3">Date Issued</th>
+                <th class="p-3">Status</th>
+            </tr>
+        </thead>
+        <tbody id="pendingToolsTable"></tbody>
+    </table>
+
+    <!-- Modify Tool Status Dropdown -->
+   <div id="modifyToolStatusSection" style="display: none;">
+    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
+
+    <!-- Show Tools Pending Table -->
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr>
+                <th class="p-3">Tool Name</th>
+                <th class="p-3">Area</th>
+                <th class="p-3">In-Charge</th>
+                <th class="p-3">Receiver</th>
+                <th class="p-3">Contractor</th>
+                <th class="p-3">Date Issued</th>
+                <th class="p-3">Status</th>
+            </tr>
+        </thead>
+        <tbody id="pendingToolsTable"></tbody>
+    </table>
+
+    <!-- Modify Tool Status Dropdown -->
+   <div id="modifyToolStatusSection" style="display: none;">
+    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
+
+    <!-- Show Tools Pending Table -->
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr>
+                <th class="p-3">Tool Name</th>
+                <th class="p-3">Area</th>
+                <th class="p-3">In-Charge</th>
+                <th class="p-3">Receiver</th>
+                <th class="p-3">Contractor</th>
+                <th class="p-3">Date Issued</th>
+                <th class="p-3">Status</th>
+            </tr>
+        </thead>
+        <tbody id="pendingToolsTable"></tbody>
+    </table>
+
+    <!-- Modify Tool Status Dropdown -->
     <label for="modifyToolName" class="block text-sm font-medium mb-2">Select Tool</label>
     <input type="text" id="modifyToolName" list="pendingToolsList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
     <datalist id="pendingToolsList"></datalist>
@@ -74,6 +151,8 @@
 
     <button onclick="modifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Update Status</button>
 </div>
+
+
 
 
     <!-- User Section -->
@@ -105,14 +184,33 @@
     </div>
 
     <script>
-        function enterPassword() {
-            let password = prompt("Enter password for Store Section:");
-            if (password === "tool") {
-                showStoreSection();
-            } else {
-                alert("❌ Incorrect password! Access denied.");
-            }
-        }
+ function enterPassword() {
+    let password = document.getElementById("password").value;
+    if (password === "tool") {
+        document.getElementById("passwordSection").style.display = "none";
+        document.getElementById("selectionSection").style.display = "block"; // Show selection menu
+    } else {
+        alert("Incorrect password!");
+    }
+}
+        <div id="selectionSection" style="display: none;">
+    <h3 class="text-xl font-bold mb-4">Select an Option</h3>
+    <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">
+        Log Tool Entry
+    </button>
+    <button onclick="showModifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">
+        Modify Tool Status
+    </button>
+</div>
+function showLogToolEntry() {
+    document.getElementById("selectionSection").style.display = "none";
+    document.getElementById("logToolSection").style.display = "block";
+}
+
+function showModifyToolStatus() {
+    document.getElementById("selectionSection").style.display = "none";
+    document.getElementById("modifyToolStatusSection").style.display = "block";
+}
 
         function showStoreSection() {
             document.getElementById("storeSection").style.display = "block";
@@ -155,16 +253,12 @@ function showModifyStatus() {
     .catch(error => console.error("Error logging tool:", error));
 }
 
-
-       function fetchUserPendingTools() {
+function fetchUserPendingTools() {
     fetch('/get-pending-tools')
     .then(response => response.json())
     .then(data => {
-       let tableBody = document.getElementById("userPendingToolsTable");
-
+        let tableBody = document.getElementById("userPendingToolsTable");
         tableBody.innerHTML = "";
-        let dataList = document.getElementById("pendingToolsList");
-        dataList.innerHTML = ""; // Clear suggestions
 
         data.forEach(row => {
             let newRow = `<tr>
@@ -177,16 +271,10 @@ function showModifyStatus() {
                 <td class="p-3">${row["Status"]}</td>
             </tr>`;
             tableBody.innerHTML += newRow;
-
-            // Add to dropdown suggestions
-            let option = document.createElement("option");
-            option.value = row["Tool Name"];
-            dataList.appendChild(option);
         });
     })
     .catch(error => console.error("Error fetching pending tools:", error));
 }
-
         function modifyToolStatus() {
     let data = {
         "Tool Name": document.getElementById("modifyToolName").value,
@@ -225,7 +313,11 @@ window.onload = function () {
     fetchToolSuggestions();
     fetchUserPendingTools();
 };
-
+function showUserSection() {
+    document.getElementById("passwordSection").style.display = "none";
+    document.getElementById("userSection").style.display = "block";
+    document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status for users
+}
     </script>
 </body>
 </html>
