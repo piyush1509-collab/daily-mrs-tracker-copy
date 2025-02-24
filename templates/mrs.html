@@ -126,23 +126,24 @@ function fetchConsumptionHistory() {
             tableBody.innerHTML = "";
 
             data.forEach(row => {
-                let itemName = row["Item Name"] || "N/A"; // Ensure valid name
-                let itemCode = row["Item Code"] || "N/A"; // Ensure valid code
-                
+                let itemName = row["Item name"] || "Not Found"; // Correct key
+                let itemCode = row["Item code"] || "Not Found"; // Correct key
+
                 let newRow = `<tr>
-                    <td class="p-3">${row.Date || "N/A"}</td>
+                    <td class="p-3">${row.Date || "Not Found"}</td>
                     <td class="p-3">${itemName}</td>
                     <td class="p-3">${itemCode}</td>
-                    <td class="p-3">${row.Quantity || "N/A"}</td>
-                    <td class="p-3">${row.Unit || "N/A"}</td>
-                    <td class="p-3">${row["Consumed Area"] || "N/A"}</td>
-                    <td class="p-3">${row.Shift || "N/A"}</td>
+                    <td class="p-3">${row.Quantity || "Not Found"}</td>
+                    <td class="p-3">${row.Unit || "Not Found"}</td>
+                    <td class="p-3">${row["Consumed Area"] || "Not Found"}</td>
+                    <td class="p-3">${row.Shift || "Not Found"}</td>
                 </tr>`;
                 tableBody.innerHTML += newRow;
             });
         })
         .catch(error => console.error("Error fetching consumption history:", error));
 }
+
 
 
 function logConsumption() {
