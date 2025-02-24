@@ -32,6 +32,39 @@
                 alert("Incorrect password!");
             }
         }
+
+        // Function to show the Log Tool Entry section
+function showLogToolEntry() {
+    document.getElementById("storeOptions").style.display = "none";
+    document.getElementById("logToolSection").style.display = "block";
+}
+
+// Function to show the Modify Tool Status section
+function showModifyToolStatus() {
+    document.getElementById("storeOptions").style.display = "none";
+    document.getElementById("modifyToolStatusSection").style.display = "block";
+    fetchStorePendingTools();  // Load pending tools
+}
+
+// Function to fetch pending tools for Store section
+function fetchStorePendingTools() {
+    fetch('/get-pending-tools')
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("pendingToolsTable");
+        tableBody.innerHTML = "";
+        data.forEach(row => {
+            let newRow = `<tr>
+                <td class="p-3">${row["Tool Name"]}</td>
+                <td class="p-3">${row["Area"]}</td>
+                <td class="p-3">${row["Status"]}</td>
+            </tr>`;
+            tableBody.innerHTML += newRow;
+        });
+    })
+    .catch(error => console.error("Error fetching store pending tools:", error));
+}
+
     </script>
 </body>
 </html>
