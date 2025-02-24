@@ -177,6 +177,16 @@ function fetchStorePendingTools() {
     })
     .catch(error => console.error("Error fetching store pending tools:", error));
 }
+        // Function to show the password modal
+function openPasswordModal() {
+    document.getElementById("passwordModal").classList.remove("hidden");
+}
+
+// Function to hide the password modal
+function closePasswordModal() {
+    document.getElementById("passwordModal").classList.add("hidden");
+}
+
 
 // Ensure data loads when the page opens
 window.onload = function () {
@@ -184,12 +194,6 @@ window.onload = function () {
     fetchStorePendingTools();
 };
 
-
-        window.onload = function () {
-           fetchUserPendingTools();  // ✅ Ensures pending tools load in the User section
-           fetchStorePendingTools(); // ✅ Ensures pending tools load in the Store section
-        };
-        
 
 </script>
 </body>
