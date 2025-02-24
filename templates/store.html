@@ -16,7 +16,7 @@
             <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
         </div>
         
-       <div id="storeOptions" class="mt-6">
+      <div id="storeOptions" class="mt-6 hidden">
     <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool Entry</button>
     <button onclick="showModifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Modify Tool Status</button>
 </div>
@@ -58,14 +58,32 @@
 function showLogToolEntry() {
     let storeOptions = document.getElementById("storeOptions");
     let logToolSection = document.getElementById("logToolSection");
+    let modifyToolStatusSection = document.getElementById("modifyToolStatusSection");
 
-    if (storeOptions && logToolSection) {
+    if (storeOptions && logToolSection && modifyToolStatusSection) {
         storeOptions.style.display = "none";
+        modifyToolStatusSection.style.display = "none";  // Hide modify tool section
         logToolSection.style.display = "block";
     } else {
-        console.error("Missing elements: storeOptions or logToolSection");
+        console.error("Missing elements: storeOptions, logToolSection, or modifyToolStatusSection");
     }
 }
+
+function showModifyToolStatus() {
+    let storeOptions = document.getElementById("storeOptions");
+    let logToolSection = document.getElementById("logToolSection");
+    let modifyToolStatusSection = document.getElementById("modifyToolStatusSection");
+
+    if (storeOptions && logToolSection && modifyToolStatusSection) {
+        storeOptions.style.display = "none";
+        logToolSection.style.display = "none";  // Hide log tool section
+        modifyToolStatusSection.style.display = "block";
+        fetchStorePendingTools();
+    } else {
+        console.error("Missing elements: storeOptions, logToolSection, or modifyToolStatusSection");
+    }
+}
+
 
 function showModifyToolStatus() {
     let storeOptions = document.getElementById("storeOptions");
