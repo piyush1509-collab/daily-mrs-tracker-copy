@@ -43,13 +43,16 @@
 
     <script>
       function fetchUserPendingTools() {
-    fetch('/get-pending-tools')
+    let area = document.getElementById("areaFilter").value;
+
+    fetch(`/get-pending-tools?area=${encodeURIComponent(area)}`)
     .then(response => response.json())
     .then(data => {
         let tableBody = document.getElementById("userPendingToolsTable");
         tableBody.innerHTML = "";
 
         data.forEach(row => {
+            let status = row["Status"] || "N/A";  // ✅ Ensure status is not undefined
             let newRow = `<tr>
                 <td class="p-3">${row["Tool Name"]}</td>
                 <td class="p-3">${row["Area"]}</td>
@@ -57,7 +60,7 @@
                 <td class="p-3">${row["Receiver Name"]}</td>
                 <td class="p-3">${row["Contractor Name"]}</td>
                 <td class="p-3">${row["Date Issued"]}</td>
-                <td class="p-3">${row["Status"]}</td>
+                <td class="p-3">${status}</td>
             </tr>`;
             tableBody.innerHTML += newRow;
         });
@@ -65,8 +68,12 @@
     .catch(error => console.error("Error fetching user pending tools:", error));
 }
 
+// Reload tools list when the filter is changed
+document.getElementById("areaFilter").addEventListener("change", fetchUserPendingTools);
+
 // Load pending tools when the page opens
 window.onload = fetchUserPendingTools;
+
 
     </script>
 </body>
