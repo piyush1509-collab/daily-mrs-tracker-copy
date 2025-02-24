@@ -51,16 +51,22 @@ def consumption_history():
         area = request.args.get('area', '').strip()
         date = request.args.get('date', '').strip()
         records = consumption_sheet.get_all_records()
+
+        # Ensure we always return an array, even if empty
+        if not isinstance(records, list):
+            return jsonify([])  # Return an empty list instead of an error
         
-        filtered_records = records
+        filtered_records = records if records else []
+
         if area:
-            filtered_records = [r for r in records if r.get("Consumed Area", "").strip() == area]
+            filtered_records = [r for r in filtered_records if r.get("Consumed Area", "").strip() == area]
         if date:
             filtered_records = [r for r in filtered_records if r.get("Date", "").strip() == date]
 
-        return jsonify(filtered_records)
+        return jsonify(filtered_records)  # ✅ Always return an array
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify([])  # ✅ Return an empty array on error to prevent forEach error
+
 
 # Log Tool Entry (Default: Pending Status)
 @app.route('/log-tool', methods=['POST'])
