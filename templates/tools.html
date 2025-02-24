@@ -58,6 +58,23 @@
             <button onclick="logToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit Entry</button>
         </div>
     </div>
+    <!-- Modify Tool Status -->
+<div id="modifyToolStatus" class="mt-6 hidden">
+    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
+
+    <label for="modifyToolName" class="block text-sm font-medium mb-2">Select Tool</label>
+    <input type="text" id="modifyToolName" list="pendingToolsList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+    <datalist id="pendingToolsList"></datalist>
+
+    <label for="toolStatus" class="block text-sm font-medium mb-2">Change Status</label>
+    <select id="toolStatus" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        <option>Returned</option>
+        <option>Permanently Issued</option>
+    </select>
+
+    <button onclick="modifyToolStatus()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Update Status</button>
+</div>
+
 
     <!-- User Section -->
     <div id="userSection" class="p-6 hidden">
@@ -139,7 +156,8 @@
     fetch('/get-pending-tools')
     .then(response => response.json())
     .then(data => {
-        let tableBody = document.getElementById("pendingToolsTable");
+       let tableBody = document.getElementById("userPendingToolsTable");
+
         tableBody.innerHTML = "";
         let dataList = document.getElementById("pendingToolsList");
         dataList.innerHTML = ""; // Clear suggestions
