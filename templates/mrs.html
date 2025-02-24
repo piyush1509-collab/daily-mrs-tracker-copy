@@ -143,6 +143,37 @@
             fetchItems();
             fetchConsumptionHistory();
         };
+
+        function fetchConsumptionHistory() {
+    let area = document.getElementById("filterArea").value;
+    let date = document.getElementById("filterDate").value;
+
+    fetch(`/consumption-history?area=${encodeURIComponent(area)}&date=${encodeURIComponent(date)}`)
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("consumptionHistory");
+            tableBody.innerHTML = "";
+            data.forEach(row => {
+                let newRow = `<tr>
+                    <td class="p-3">${row.Date}</td>
+                    <td class="p-3">${row["Item Name"]}</td>
+                    <td class="p-3">${row["Item Code"]}</td>
+                    <td class="p-3">${row.Quantity}</td>
+                    <td class="p-3">${row.Unit}</td>
+                    <td class="p-3">${row["Consumed Area"]}</td>
+                    <td class="p-3">${row.Shift}</td>
+                </tr>`;
+                tableBody.innerHTML += newRow;
+            });
+        })
+        .catch(error => console.error("Error fetching consumption history:", error));
+}
+
+// Ensure the function is available when the page loads
+window.onload = function () {
+    fetchConsumptionHistory();
+};
+
     </script>
 </body>
 </html>
