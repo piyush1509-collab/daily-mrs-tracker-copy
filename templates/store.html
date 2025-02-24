@@ -28,8 +28,16 @@
         <label class="block">Tool Name:</label>
         <input type="text" id="toolName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
 
-        <label class="block">Area:</label>
-        <input type="text" id="area" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+       <label class="block">Area:</label>
+<select id="area" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+    <option value="PUMP HOUSE">PUMP HOUSE</option>
+    <option value="RO PLANT">RO PLANT</option>
+    <option value="GASZONE">GASZONE</option>
+    <option value="FURNACE">FURNACE</option>
+    <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
+    <option value="ELECTRICAL">ELECTRICAL</option>
+    <option value="OPERATION">OPERATION</option>
+</select>
 
         <label class="block">In-Charge:</label>
         <input type="text" id="inCharge" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
@@ -189,8 +197,29 @@ function modifyToolStatus(toolName, newStatus) {
     .catch(error => console.error("Error modifying tool status:", error));
 }
 
+<script>
+function fetchToolNames() {
+    fetch('/get-tools')  // This API should return a list of tool names
+    .then(response => response.json())
+    .then(data => {
+        let toolInput = document.getElementById("toolName");  
+        toolInput.innerHTML = ""; // Clear previous options
 
+        data.forEach(tool => {
+            let option = document.createElement("option");
+            option.value = tool;
+            option.textContent = tool;
+            toolInput.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error fetching tool names:", error));
+}
 
-    </script>
+// Load tool names when the page loads
+window.onload = function() {
+    fetchToolNames();
+};
+        
+</script>
 </body>
 </html>
