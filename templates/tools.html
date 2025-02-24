@@ -78,54 +78,6 @@
         <tbody id="pendingToolsTable"></tbody>
     </table>
 
-    <!-- Show Tools Pending Table -->
-    <table class="w-full text-left border-collapse">
-        <thead>
-            <tr>
-                <th class="p-3">Tool Name</th>
-                <th class="p-3">Area</th>
-                <th class="p-3">In-Charge</th>
-                <th class="p-3">Receiver</th>
-                <th class="p-3">Contractor</th>
-                <th class="p-3">Date Issued</th>
-                <th class="p-3">Status</th>
-            </tr>
-        </thead>
-        <tbody id="pendingToolsTable"></tbody>
-    </table>
-
-    <!-- Show Tools Pending Table -->
-    <table class="w-full text-left border-collapse">
-        <thead>
-            <tr>
-                <th class="p-3">Tool Name</th>
-                <th class="p-3">Area</th>
-                <th class="p-3">In-Charge</th>
-                <th class="p-3">Receiver</th>
-                <th class="p-3">Contractor</th>
-                <th class="p-3">Date Issued</th>
-                <th class="p-3">Status</th>
-            </tr>
-        </thead>
-        <tbody id="pendingToolsTable"></tbody>
-    </table>
-
-    <!-- Show Tools Pending Table -->
-    <table class="w-full text-left border-collapse">
-        <thead>
-            <tr>
-                <th class="p-3">Tool Name</th>
-                <th class="p-3">Area</th>
-                <th class="p-3">In-Charge</th>
-                <th class="p-3">Receiver</th>
-                <th class="p-3">Contractor</th>
-                <th class="p-3">Date Issued</th>
-                <th class="p-3">Status</th>
-            </tr>
-        </thead>
-        <tbody id="pendingToolsTable"></tbody>
-    </table>
-
     <!-- Modify Tool Status Dropdown -->
     <label for="modifyToolName" class="block text-sm font-medium mb-2">Select Tool</label>
     <input type="text" id="modifyToolName" list="pendingToolsList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -170,6 +122,11 @@
             <tbody id="userPendingToolsTable" class="text-gray-300"></tbody>
         </table>
     </div>
+<div id="passwordSection">
+    <h3 class="text-xl font-bold mb-4">Enter Store Password</h3>
+    <input type="password" id="password" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+    <button onclick="enterPassword()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Submit</button>
+</div>
 
     <div id="selectionSection" style="display: none;">
     <h3 class="text-xl font-bold mb-4">Select an Option</h3>
@@ -194,9 +151,12 @@ function showLogToolEntry() {
             document.getElementById("userSection").style.display = "none";
         }
 
-         function showUser() {
-            document.getElementById("storeSection").style.display = "none";
-            document.getElementById("userSection").style.display = "block";
+        function showStoreSection() {
+    document.getElementById("storeSection").style.display = "block";
+    document.getElementById("userSection").style.display = "none";
+    document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status initially
+}
+
         }
         
 function showModifyToolStatus() {
@@ -226,7 +186,9 @@ function showModifyToolStatus() {
     .then(response => response.json())
     .then(data => {
         alert(data.message);
-        fetchUserPendingTools(); // Refresh pending tools
+        fetchUserPendingTools(); 
+fetchStorePendingTools(); // Ensure store sees the updated tools list
+
     })
     .catch(error => console.error("Error logging tool:", error));
 }
@@ -294,8 +256,10 @@ function fetchToolSuggestions() {
 }
 
 window.onload = function () {
-    fetchToolSuggestions();
     fetchUserPendingTools();
+    fetchStorePendingTools(); // ✅ Added this function to fetch store pending tools
+};
+
 };
 function showUserSection() {
     document.getElementById("passwordSection").style.display = "none";
@@ -311,6 +275,28 @@ function enterPassword() {
     } else {
         alert("Incorrect password!");
     }
+}
+
+function fetchStorePendingTools() {
+    fetch('/get-pending-tools')
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("pendingToolsTable"); // Make sure this ID exists
+        tableBody.innerHTML = "";
+        data.forEach(row => {
+            let newRow = `<tr>
+                <td class="p-3">${row["Tool Name"]}</td>
+                <td class="p-3">${row["Area"]}</td>
+                <td class="p-3">${row["In-Charge"]}</td>
+                <td class="p-3">${row["Receiver Name"]}</td>
+                <td class="p-3">${row["Contractor Name"]}</td>
+                <td class="p-3">${row["Date Issued"]}</td>
+                <td class="p-3">${row["Status"]}</td>
+            </tr>`;
+            tableBody.innerHTML += newRow;
+        });
+    })
+    .catch(error => console.error("Error fetching store pending tools:", error));
 }
 
 </script>
