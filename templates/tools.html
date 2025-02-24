@@ -95,9 +95,16 @@
     </div>
 
     <script>
-        function openPasswordModal() {
-            document.getElementById("passwordModal").classList.remove("hidden");
-        }
+       function enterPassword() {
+    let password = document.getElementById("password").value;
+    if (password === "tool") {
+        closePasswordModal();
+        document.getElementById("selectionSection").style.display = "block";
+    } else {
+        alert("Incorrect password!");
+    }
+}
+
 
         function closePasswordModal() {
             document.getElementById("passwordModal").classList.add("hidden");
@@ -113,10 +120,12 @@
             }
         }
 
-        function showLogToolEntry() {
-            document.getElementById("selectionSection").style.display = "none";
-            document.getElementById("logTool").style.display = "block";
-        }
+     function showModifyToolStatus() {
+    document.getElementById("selectionSection").style.display = "none";
+    document.getElementById("modifyToolStatusSection").style.display = "block";
+    fetchStorePendingTools(); // ✅ Fetch pending tools when opening Modify Tool Status
+}
+
 
         function showModifyToolStatus() {
             document.getElementById("selectionSection").style.display = "none";
@@ -130,7 +139,12 @@
             document.getElementById("modifyToolStatusSection").style.display = "none";
             fetchUserPendingTools();
         }
-    </script>
 
+        window.onload = function () {
+           fetchUserPendingTools();  // ✅ Ensures pending tools load in the User section
+           fetchStorePendingTools(); // ✅ Ensures pending tools load in the Store section
+        };
+
+</script>
 </body>
 </html>
