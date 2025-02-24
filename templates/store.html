@@ -208,6 +208,17 @@ function fetchToolNames() {
 window.onload = function() {
     fetchToolNames();
 };
+
+     function enterPassword() {
+    let password = document.getElementById("password").value.trim();  
+    if (password === "tool") {
+        document.getElementById("passwordModal").style.display = "none";  
+        document.getElementById("storeOptions").classList.remove("hidden");  
+    } else {
+        alert("Incorrect password!");  
+        document.getElementById("password").value = "";  
+    }
+}
         
 </script>
 </body>
