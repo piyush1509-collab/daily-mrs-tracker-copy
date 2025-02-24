@@ -94,10 +94,6 @@
         <tbody id="pendingToolsTable"></tbody>
     </table>
 
-    <!-- Modify Tool Status Dropdown -->
-   <div id="modifyToolStatusSection" style="display: none;">
-    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
-
     <!-- Show Tools Pending Table -->
     <table class="w-full text-left border-collapse">
         <thead>
@@ -113,10 +109,6 @@
         </thead>
         <tbody id="pendingToolsTable"></tbody>
     </table>
-
-    <!-- Modify Tool Status Dropdown -->
-   <div id="modifyToolStatusSection" style="display: none;">
-    <h3 class="text-xl font-bold mb-4">Modify Tool Status</h3>
 
     <!-- Show Tools Pending Table -->
     <table class="w-full text-left border-collapse">
@@ -179,17 +171,7 @@
         </table>
     </div>
 
-    <script>
- function enterPassword() {
-    let password = document.getElementById("password").value;
-    if (password === "tool") {
-        document.getElementById("passwordSection").style.display = "none";
-        document.getElementById("selectionSection").style.display = "block"; // Show selection menu
-    } else {
-        alert("Incorrect password!");
-    }
-}
-        <div id="selectionSection" style="display: none;">
+    <div id="selectionSection" style="display: none;">
     <h3 class="text-xl font-bold mb-4">Select an Option</h3>
     <button onclick="showLogToolEntry()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">
         Log Tool Entry
@@ -198,29 +180,29 @@
         Modify Tool Status
     </button>
 </div>
+
+    <script>
+        
 function showLogToolEntry() {
     document.getElementById("selectionSection").style.display = "none";
     document.getElementById("logToolSection").style.display = "block";
 }
 
-function showModifyToolStatus() {
-    document.getElementById("selectionSection").style.display = "none";
-    document.getElementById("modifyToolStatusSection").style.display = "block";
-}
 
         function showStoreSection() {
             document.getElementById("storeSection").style.display = "block";
             document.getElementById("userSection").style.display = "none";
         }
-        
-function showModifyStatus() {
-    document.getElementById("modifyToolStatus").style.display = "block";
-}
 
-        function showUser() {
+         function showUser() {
             document.getElementById("storeSection").style.display = "none";
             document.getElementById("userSection").style.display = "block";
         }
+        
+function showModifyToolStatus() {
+    document.getElementById("selectionSection").style.display = "none";
+    document.getElementById("modifyToolStatusSection").style.display = "block";
+}
 
         function showLogTool() {
             document.getElementById("logTool").style.display = "block";
@@ -320,6 +302,17 @@ function showUserSection() {
     document.getElementById("userSection").style.display = "block";
     document.getElementById("modifyToolStatusSection").style.display = "none"; // Hide modify tool status for users
 }
+
+function enterPassword() {
+    let password = document.getElementById("password").value;
+    if (password === "tool") {
+        document.getElementById("passwordSection").style.display = "none";
+        document.getElementById("selectionSection").style.display = "block"; // Show selection menu
+    } else {
+        alert("Incorrect password!");
+    }
+}
+
 </script>
 
        
