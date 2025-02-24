@@ -116,6 +116,27 @@
             }
         }
 
+        function fetchConsumptionHistory() {
+            fetch('/consumption-history')
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById("consumptionHistory");
+                    tableBody.innerHTML = "";
+                    data.forEach(row => {
+                        let newRow = `<tr>
+                            <td class="p-3">${row.Date}</td>
+                            <td class="p-3">${row["Item Name"]}</td>
+                            <td class="p-3">${row["Item Code"]}</td>
+                            <td class="p-3">${row.Quantity}</td>
+                            <td class="p-3">${row.Unit}</td>
+                            <td class="p-3">${row["Consumed Area"]}</td>
+                            <td class="p-3">${row.Shift}</td>
+                        </tr>`;
+                        tableBody.innerHTML += newRow;
+                    });
+                });
+        }
+
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
@@ -123,3 +144,4 @@
     </script>
 </body>
 </html>
+
