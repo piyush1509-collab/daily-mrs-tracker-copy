@@ -183,8 +183,8 @@ def add_inventory():
 @app.route('/view-low-stock')
 def view_low_stock():
     return render_template('view_low_stock.html')
-@app.route('/area-wise-consumption', methods=['GET'])
-def area_wise_consumption():
+@app.route('/new-area-wise-consumption', methods=['GET'])
+def new_area_wise_consumption():
     try:
         start_date = request.args.get('start_date', '').strip()
         end_date = request.args.get('end_date', '').strip()
