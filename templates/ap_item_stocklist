@@ -1,0 +1,20 @@
+<!-- ap_item_stocklist.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Item Stock List</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white">
+    <h2 class="text-center text-3xl font-bold my-6">AP Item Stock List</h2>
+    <div class="container mx-auto p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <a href="inventory_stock_list.html" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">Inventory Stock List</a>
+            <a href="add_inventory.html" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</a>
+            <a href="view_low_stock.html" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">View Low Stock Items</a>
+        </div>
+    </div>
+</body>
+</html>
