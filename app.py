@@ -169,7 +169,21 @@ def log_consumption():
         return jsonify({"message": "Consumption logged successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/AP-item-stocklist')
+def ap_item_stocklist():
+    return render_template('ap_item_stocklist.html')
 
+@app.route('/inventory-stock-list')
+def inventory_stock_list():
+    return render_template('inventory_stock_list.html')
+
+@app.route('/add-inventory')
+def add_inventory():
+    return render_template('add_inventory.html')
+
+@app.route('/view-low-stock')
+def view_low_stock():
+    return render_template('view_low_stock.html')
 
 # Run the Flask app
 if __name__ == '__main__':
