@@ -171,7 +171,7 @@ def log_consumption():
         return jsonify({"error": str(e)}), 500
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
-    return render_template('ap_item_stocklist.html')
+    return render_template('AP-item-stocklist')
 
 @app.route('/inventory-stock-list')
 def inventory_stock_list():
