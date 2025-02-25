@@ -164,14 +164,17 @@ function fetchConsumptionHistory() {
 
         if (Array.isArray(data)) {
             data.forEach(entry => {
+                let itemName = entry["Item Name"] || "N/A";
+                let itemCode = entry["Item Code"] || "N/A";
+
                 let newRow = `<tr>
-                    <td class="p-3">${entry.Date}</td>
-                    <td class="p-3">${entry["Item Name"]}</td>
-                    <td class="p-3">${entry["Item Code"]}</td>
-                    <td class="p-3">${entry.Quantity}</td>
-                    <td class="p-3">${entry.Unit}</td>
-                    <td class="p-3">${entry["Consumed Area"]}</td>
-                    <td class="p-3">${entry.Shift}</td>
+                    <td class="p-3">${entry.Date || "N/A"}</td>
+                    <td class="p-3">${itemName}</td>
+                    <td class="p-3">${itemCode}</td>
+                    <td class="p-3">${entry.Quantity || "N/A"}</td>
+                    <td class="p-3">${entry.Unit || "N/A"}</td>
+                    <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
+                    <td class="p-3">${entry.Shift || "N/A"}</td>
                 </tr>`;
                 historyTable.innerHTML += newRow;
             });
@@ -181,8 +184,7 @@ function fetchConsumptionHistory() {
     })
     .catch(error => console.error("Error fetching consumption history:", error));
 }
-
-
+        
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
