@@ -67,8 +67,6 @@ def get_consumption_history():
         print("Error fetching consumption history:", str(e))
         return jsonify({"error": str(e)}), 500
 
-
-
 # Log Tool Entry (Default: Pending Status)
 @app.route('/log-tool', methods=['POST'])
 def log_tool():
@@ -214,6 +212,36 @@ def area_wise_consumption():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/area-wise-consumption', methods=['GET'])
+def area_wise_consumption():
+    try:
+        start_date = request.args.get('start_date', '').strip()
+        end_date = request.args.get('end_date', '').strip()
+        item_filter = request.args.get('item', '').strip().lower()
+
+        records = consumption_sheet.get_all_records()
+        consumption_data = {}
+
+        for record in records:
+            record_date = record.get("Date", "").strip()
+            if start_date <= record_date <= end_date:
+                area = record.get("Consumed Area", "").strip()
+                quantity = int(record.get("Quantity", 0))
+
+                # If searching by item name, filter it
+                item_name = record.get("Item Name", "").strip().lower()
+                if item_filter and item_filter not in item_name:
+                    continue  
+
+                if area in consumption_data:
+                    consumption_data[area] += quantity
+                else:
+                    consumption_data[area] = quantity
+
+        return jsonify(consumption_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # Run the Flask app
 if __name__ == '__main__':
