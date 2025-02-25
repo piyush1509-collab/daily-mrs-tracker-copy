@@ -22,39 +22,43 @@
 </div>
 
 <!-- Log Tool Entry Section (Initially Hidden) -->
-<div id="logToolSection" class="hidden mt-6">
-    <h2 class="text-xl font-bold">Log Tool Entry</h2>
-    <form id="logToolForm" class="mt-4">
-       <label class="block">Tool Name:</label>
-<input type="text" id="toolName" class="bg-gray-700 text-white p-2 rounded w-full mb-2" oninput="suggestTools()" list="toolSuggestions">
-<datalist id="toolSuggestions"></datalist>
-</select>
+<div id="modifyToolStatusSection" class="hidden mt-6">
+    <h2 class="text-xl font-bold">Modify Tool Status</h2>
 
-       <label class="block">Area:</label>
-<select id="area" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
-    <option value="PUMP HOUSE">PUMP HOUSE</option>
-    <option value="RO PLANT">RO PLANT</option>
-    <option value="GASZONE">GASZONE</option>
-    <option value="FURNACE">FURNACE</option>
-    <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
-    <option value="ELECTRICAL">ELECTRICAL</option>
-    <option value="OPERATION">OPERATION</option>
-</select>
+    <!-- Area Filter -->
+    <label class="block">Filter by Area:</label>
+    <select id="areaFilter" class="bg-gray-700 text-white p-2 rounded w-full mb-4" onchange="fetchStorePendingTools()">
+        <option value="">All Areas</option>
+        <option value="PUMP HOUSE">PUMP HOUSE</option>
+        <option value="RO PLANT">RO PLANT</option>
+        <option value="GASZONE">GASZONE</option>
+        <option value="FURNACE">FURNACE</option>
+        <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
+        <option value="ELECTRICAL">ELECTRICAL</option>
+        <option value="OPERATION">OPERATION</option>
+    </select>
 
-        <label class="block">In-Charge:</label>
-        <input type="text" id="inCharge" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-gray-800 rounded-lg">
+            <thead class="sticky top-0 bg-gray-900">
+                <tr class="text-left border-b border-gray-700 text-white">
+                    <th class="p-3">Tool Name</th>
+                    <th class="p-3">Area</th>
+                    <th class="p-3">In-Charge</th>
+                    <th class="p-3">Receiver Name</th>
+                    <th class="p-3">Contractor Name</th>
+                    <th class="p-3">Date Issued</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3">Return Date</th>
+                    <th class="p-3">Modify Status</th>
+                    <th class="p-3">Action</th>
+                </tr>
+            </thead>
+            <tbody id="pendingToolsTable"></tbody>
+        </table>
+    </div>
 
-        <label class="block">Receiver Name:</label>
-        <input type="text" id="receiverName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
-
-        <label class="block">Contractor Name:</label>
-        <input type="text" id="contractorName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
-
-        <label class="block">Date Issued:</label>
-        <input type="date" id="dateIssued" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
-
-        <button type="button" onclick="logTool()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Tool</button>
-    </form>
+    <button type="button" onclick="goBackToStoreOptions()" class="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 mt-4">Back</button> <!-- Added Back Button -->
 </div>
 
 
@@ -99,17 +103,31 @@
 
 
     <script>
-    function enterPassword() {
-    let passwordInput = document.getElementById("password");
-    let password = passwordInput.value.trim();  // Trim spaces to avoid input errors
-
+   function enterPassword() {
+    let password = document.getElementById("password").value.trim();  
     if (password === "tool") {
-        document.getElementById("passwordModal").style.display = "none";  // Hide modal
-        document.getElementById("storeOptions").classList.remove("hidden");  // Show store options
+        localStorage.setItem("storeUnlocked", "true");  // ✅ Save login state
+        document.getElementById("passwordModal").style.display = "none";  
+        document.getElementById("storeOptions").classList.remove("hidden");  
     } else {
-        alert("Incorrect password!");
-        passwordInput.value = ""; // Clear input field after wrong attempt
+        alert("Incorrect password!");  
+        document.getElementById("password").value = "";  
     }
+}
+function showPasswordModal() {
+    if (localStorage.getItem("storeUnlocked") === "true") {  
+        document.getElementById("passwordModal").style.display = "none";  
+        document.getElementById("storeOptions").classList.remove("hidden");  
+    } else {
+        document.getElementById("passwordModal").style.display = "block";  
+        document.getElementById("storeOptions").classList.add("hidden");  
+    }
+}
+       
+function goBackToStoreOptions() {
+    document.getElementById("storeOptions").classList.remove("hidden");  
+    document.getElementById("logToolSection").classList.add("hidden");  
+    document.getElementById("modifyToolStatusSection").classList.add("hidden");  
 }
 
 
