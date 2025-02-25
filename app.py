@@ -159,39 +159,16 @@ def get_tools():
 def log_consumption():
     try:
         data = request.json
-        item_name = data["Item Name"]
-        consumed_quantity = int(data["Quantity"])
-
-        # Fetch current stock from Inventory
-        records = inventory_sheet.get_all_records()
-        for i, record in enumerate(records, start=2):  # Start from row 2 to skip headers
-            if record["Item Name"] == item_name:
-                current_stock = int(record.get("Physical Stock", 0))
-
-                # Check if requested quantity exceeds available stock
-                if consumed_quantity > current_stock:
-                    return jsonify({"error": "Not enough stock available"}), 400  # 🚨 Prevent over-consumption
-
-                min_stock = int(record.get("Minimum Stock", 0))
-                new_stock = max(current_stock - consumed_quantity, 0)  # Prevent negative stock
-                inventory_sheet.update_cell(i, 4, new_stock)  # Update Physical Stock (Assumed Column 4)
-
-                # Flag Low Stock
-                if new_stock < min_stock:
-                    inventory_sheet.update_cell(i, 5, "LOW STOCK")  # Update Minimum Stock (Assumed Column 5)
-                break
-
-        # Log consumption in Consumption Log **only if stock is sufficient**
         consumption_entry = [
-            item_name, data["Item Code"], data["Consumed Area"],
-            data["Date"], data["Shift"], consumed_quantity, data["Unit"]
+            data["Item Name"], data["Item Code"], data["Consumed Area"],
+            data["Date"], data["Shift"], data["Quantity"], data["Unit"]
         ]
-        consumption_sheet.append_row(consumption_entry)
-
+        
+        consumption_sheet.append_row(consumption_entry)  # Save to Google Sheet
+        
         return jsonify({"message": "Consumption logged successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
     return render_template('AP-item-stocklist')
