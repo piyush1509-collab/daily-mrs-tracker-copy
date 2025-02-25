@@ -25,9 +25,9 @@
 <div id="logToolSection" class="hidden mt-6">
     <h2 class="text-xl font-bold">Log Tool Entry</h2>
     <form id="logToolForm" class="mt-4">
-        <label class="block">Tool Name:</label>
-<select id="toolName" class="bg-gray-700 text-white p-2 rounded w-full mb-2">
-    <!-- Tool names will be dynamically loaded here -->
+       <label class="block">Tool Name:</label>
+<input type="text" id="toolName" class="bg-gray-700 text-white p-2 rounded w-full mb-2" oninput="suggestTools()" list="toolSuggestions">
+<datalist id="toolSuggestions"></datalist>
 </select>
 
        <label class="block">Area:</label>
