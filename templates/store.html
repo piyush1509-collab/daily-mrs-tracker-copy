@@ -60,24 +60,41 @@
 
 <!-- Modify Tool Status Section -->
 <div id="modifyToolStatusSection" class="hidden mt-6">
-    <h2 class="text-xl font-bold">Modify Tool Status</h2>
-    <table id="pendingToolsTable" class="min-w-full bg-gray-800 rounded-lg mt-4">
-        <thead>
-            <tr class="text-left border-b border-gray-700">
-                <th class="p-3">Tool Name</th>
-                <th class="p-3">Area</th>
-                <th class="p-3">In-Charge</th>
-                <th class="p-3">Receiver Name</th>
-                <th class="p-3">Contractor Name</th>
-                <th class="p-3">Date Issued</th>
-                <th class="p-3">Status</th>
-                <th class="p-3">Return Date</th>
-                <th class="p-3">Modify Status</th>
-                <th class="p-3">Action</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <h2 class="text-2xl font-bold text-white mb-4">Modify Tool Status</h2>
+
+    <!-- Area Filter -->
+    <label class="block text-white font-bold">Filter by Area:</label>
+    <select id="areaFilter" class="bg-gray-700 text-white p-2 rounded w-full mb-4" onchange="fetchStorePendingTools()">
+        <option value="">All Areas</option>
+        <option value="PUMP HOUSE">PUMP HOUSE</option>
+        <option value="RO PLANT">RO PLANT</option>
+        <option value="GASZONE">GASZONE</option>
+        <option value="FURNACE">FURNACE</option>
+        <option value="MATERIAL HANDLING">MATERIAL HANDLING</option>
+        <option value="ELECTRICAL">ELECTRICAL</option>
+        <option value="OPERATION">OPERATION</option>
+    </select>
+
+    <!-- Table Starts Here -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-gray-800 rounded-lg">
+            <thead class="sticky top-0 bg-gray-900">
+                <tr class="text-left border-b border-gray-700 text-white">
+                    <th class="p-3">Tool Name</th>
+                    <th class="p-3">Area</th>
+                    <th class="p-3">In-Charge</th>
+                    <th class="p-3">Receiver Name</th>
+                    <th class="p-3">Contractor Name</th>
+                    <th class="p-3">Date Issued</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3">Return Date</th>
+                    <th class="p-3">Modify Status</th>
+                    <th class="p-3">Action</th>
+                </tr>
+            </thead>
+            <tbody id="pendingToolsTable"></tbody>
+        </table>
+    </div>
 </div>
 
 
@@ -128,6 +145,8 @@ function showModifyToolStatus() {
 
 // Function to fetch pending tools for Store section
 function fetchStorePendingTools() {
+    let selectedArea = document.getElementById("areaFilter").value;  // Get selected area
+
     fetch('/get-pending-tools')
     .then(response => response.json())
     .then(data => {
@@ -142,6 +161,11 @@ function fetchStorePendingTools() {
             let contractorName = row["Contractor Name"] || "N/A";
             let dateIssued = row["Date Issued"] || "N/A";
             let status = row["Status"] || "N/A";
+
+            // Apply area filter
+            if (selectedArea && area !== selectedArea) {
+                return;  // Skip tools that don't match the selected area
+            }
 
             let newRow = `<tr>
                 <td class="p-3">${toolName}</td>
@@ -165,6 +189,7 @@ function fetchStorePendingTools() {
     })
     .catch(error => console.error("Error fetching store pending tools:", error));
 }
+
 
 // Save status and return date when button is clicked
 function saveToolStatus(toolName, button) {
