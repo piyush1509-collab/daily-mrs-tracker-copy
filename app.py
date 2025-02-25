@@ -96,21 +96,20 @@ def modify_tool_status():
         data = request.json
         tool_name = data["Tool Name"]
         status = data["Status"]
-        
+        return_date = data.get("Return Date", "")  # Get return date or empty if not provided
+
         log_sheet = sh.worksheet("Tools & Safety Log")
         pending_sheet = sh.worksheet("Tools Pending")
 
-        # Debugging: Print tool name and status
-        print(f"Modifying Tool: {tool_name}, New Status: {status}")
-
-        # Update status in Tools & Safety Log
+        # Update status & return date in Tools & Safety Log
         records = log_sheet.get_all_records()
         for i, record in enumerate(records, start=2):
             if record["Tool Name"] == tool_name and record["Status"] == "Pending":
-                log_sheet.update_cell(i, 7, status)  # Column 7 is "Status"
+                log_sheet.update(f"G{i}", [[status]])  # Column G is "Status"
+                log_sheet.update(f"H{i}", [[return_date]])  # Column H is "Return Date"
                 break
         
-        # Remove from Tools Pending if status is Returned
+        # Remove from Tools Pending if status is "Returned"
         if status == "Returned":
             pending_records = pending_sheet.get_all_records()
             for i, record in enumerate(pending_records, start=2):
