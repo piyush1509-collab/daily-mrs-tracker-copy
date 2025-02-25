@@ -185,8 +185,7 @@ function modifyToolStatus(toolName, newStatus) {
     })
     .catch(error => console.error("Error modifying tool status:", error));
 }
-
-<script>
+        
 function fetchToolNames() {
     fetch('/get-tools')  // This API should return a list of tool names
     .then(response => response.json())
@@ -207,19 +206,8 @@ function fetchToolNames() {
 // Load tool names when the page loads
 window.onload = function() {
     fetchToolNames();
-};
-
-     function enterPassword() {
-    let password = document.getElementById("password").value.trim();  
-    if (password === "tool") {
-        document.getElementById("passwordModal").style.display = "none";  
-        document.getElementById("storeOptions").classList.remove("hidden");  
-    } else {
-        alert("Incorrect password!");  
-        document.getElementById("password").value = "";  
-    }
-}
-        
+};     
 </script>
+        
 </body>
 </html>
