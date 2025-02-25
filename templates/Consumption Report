@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumption Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        canvas {
+            max-width: 600px;
+            margin: auto;
+        }
+        .filters {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Consumption Report</h2>
+        <div class="filters">
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date">
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date">
+            <label for="search-item">Search Item:</label>
+            <input type="text" id="search-item" placeholder="Enter Item Name">
+            <button onclick="updateChart()">Generate Report</button>
+        </div>
+        <canvas id="consumptionChart"></canvas>
+    </div>
+
+    <script>
+        let chart;
+        function updateChart() {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            const searchItem = document.getElementById('search-item').value.toLowerCase();
+            
+            fetch(`/get-consumption-data?start=${startDate}&end=${endDate}&item=${searchItem}`)
+                .then(response => response.json())
+                .then(data => {
+                    const areas = Object.keys(data);
+                    const quantities = Object.values(data);
+                    
+                    if (chart) chart.destroy();
+                    chart = new Chart(document.getElementById('consumptionChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: areas,
+                            datasets: [{
+                                data: quantities,
+                                backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#FF5722', '#9C27B0'],
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                        }
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
