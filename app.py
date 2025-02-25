@@ -46,26 +46,27 @@ def get_items():
 
 # API to get consumption history
 @app.route('/consumption-history', methods=['GET'])
-def consumption_history():
+def get_consumption_history():
     try:
-        area = request.args.get('area', '').strip()
-        date = request.args.get('date', '').strip()
-        records = consumption_sheet.get_all_records()
+        sheet = sh.worksheet("Consumption Log")  # Ensure correct sheet name
+        records = sheet.get_all_records()
 
-        # Ensure we always return an array, even if empty
-        if not isinstance(records, list):
-            return jsonify([])  # Return an empty list instead of an error
-        
-        filtered_records = records if records else []
+        # Extract query parameters
+        area_filter = request.args.get("area", "").strip()
+        date_filter = request.args.get("date", "").strip()
 
-        if area:
-            filtered_records = [r for r in filtered_records if r.get("Consumed Area", "").strip() == area]
-        if date:
-            filtered_records = [r for r in filtered_records if r.get("Date", "").strip() == date]
+        # Filter records based on area & date
+        filtered_records = [
+            record for record in records
+            if (not area_filter or record.get("Consumed Area", "").strip() == area_filter)
+            and (not date_filter or record.get("Date", "").strip() == date_filter)
+        ]
 
-        return jsonify(filtered_records)  # ✅ Always return an array
+        return jsonify(filtered_records)
     except Exception as e:
-        return jsonify([])  # ✅ Return an empty array on error to prevent forEach error
+        print("Error fetching consumption history:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 
 
 # Log Tool Entry (Default: Pending Status)
@@ -160,7 +161,7 @@ def log_consumption():
     try:
         data = request.json
         consumption_entry = [
-            data["Item Name"], data["Item Code"], data["Consumed Area"],
+            data["Item name"], data["Item Code"], data["Consumed Area"],
             data["Date"], data["Shift"], data["Quantity"], data["Unit"]
         ]
         
