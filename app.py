@@ -147,7 +147,14 @@ def fetch_tools_inventory():
 
 @app.route('/get-tools', methods=['GET'])
 def get_tools():
-    return jsonify(fetch_tools_inventory())
+    try:
+        sheet = sh.worksheet("Tools Inventory")  # Ensure "Tools Inventory" exists in your spreadsheet
+        tools = sheet.col_values(1)[1:]  # Get all tool names (skip header)
+        return jsonify(tools)
+    except Exception as e:
+        print("Error fetching tool names:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
