@@ -185,6 +185,35 @@ def add_inventory():
 @app.route('/view-low-stock')
 def view_low_stock():
     return render_template('view_low_stock.html')
+@app.route('/area-wise-consumption', methods=['GET'])
+def area_wise_consumption():
+    try:
+        start_date = request.args.get('start_date', '').strip()
+        end_date = request.args.get('end_date', '').strip()
+
+        records = consumption_sheet.get_all_records()
+        filtered_records = []
+
+        for record in records:
+            record_date = record.get("Date", "").strip()
+            if start_date <= record_date <= end_date:
+                filtered_records.append(record)
+
+        # Group by Area and Sum Consumption
+        consumption_data = {}
+        for record in filtered_records:
+            area = record.get("Consumed Area", "").strip()
+            quantity = int(record.get("Quantity", 0))
+
+            if area in consumption_data:
+                consumption_data[area] += quantity
+            else:
+                consumption_data[area] = quantity
+
+        return jsonify(consumption_data)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Run the Flask app
 if __name__ == '__main__':
