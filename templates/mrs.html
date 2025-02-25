@@ -147,37 +147,45 @@ function fetchConsumptionHistory() {
 
 
 function logConsumption() {
-    let data = {
-        "Date": document.getElementById("date").value,
-        "Item Name": document.getElementById("searchBox").value,
-        "Item Code": document.getElementById("itemCode").value,
-        "Quantity": document.getElementById("quantity").value,
-        "Unit": document.getElementById("unit").value,
-        "Consumed Area": document.getElementById("consumedArea").value,
-        "Shift": document.getElementById("shift").value
-    };
+    let itemName = document.getElementById("searchBox").value;
+    let itemCode = document.getElementById("itemCode").value;
+    let consumedArea = document.getElementById("consumedArea").value;
+    let date = document.getElementById("date").value;
+    let shift = document.getElementById("shift").value;
+    let quantity = parseInt(document.getElementById("quantity").value, 10);
+    let unit = document.getElementById("unit").value;
 
-    fetch('/log-consumption', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
+    fetch("/log-consumption", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "Item Name": itemName,
+            "Item Code": itemCode,
+            "Consumed Area": consumedArea,
+            "Date": date,
+            "Shift": shift,
+            "Quantity": quantity,
+            "Unit": unit
+        })
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
-        fetchConsumptionHistory(); // Refresh history after logging
+        if (data.error) {
+            alert("Error: " + data.error); // 🚨 Show alert if not enough stock
+        } else {
+            alert("Consumption logged successfully!");
+            location.reload(); // Refresh the page to show updated stock
+        }
     })
-    .catch(error => console.error("Error logging consumption:", error));
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred while logging consumption.");
+    });
 }
-
-// ✅ Ensure all functions run when the page loads (without overwriting)
-window.addEventListener("load", function () {
-    fetchItems();
-    fetchConsumptionHistory();
-});
-
-
-    </script>
+</script>
+    
 </body>
 </html>
 
