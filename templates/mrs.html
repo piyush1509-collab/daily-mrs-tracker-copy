@@ -162,10 +162,12 @@ function fetchConsumptionHistory() {
         let historyTable = document.getElementById("consumptionHistory");
         historyTable.innerHTML = "";  // Clear previous data
 
+        console.log("Fetched history data:", data);  // Debugging
+
         if (Array.isArray(data)) {
             data.forEach(entry => {
-                let itemName = entry["Item Name"] || "N/A";
-                let itemCode = entry["Item Code"] || "N/A";
+                let itemName = entry["Item name"] || entry["Item Name"] || "N/A";  // 🔍 Fix field names
+                let itemCode = entry["Item code"] || entry["Item Code"] || "N/A";  // 🔍 Fix field names
 
                 let newRow = `<tr>
                     <td class="p-3">${entry.Date || "N/A"}</td>
