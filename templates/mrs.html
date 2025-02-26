@@ -129,18 +129,18 @@ function logConsumption() {
         return;
     }
 
-    // Check available stock before logging
+    // ✅ Check available stock before logging
     fetch(`/check-stock?itemCode=${itemCode}`)
     .then(response => response.json())
     .then(stockData => {
-        let availableStock = stockData["Physical Stock"];
+        let availableStock = stockData["Physical Stock"] || 0;
 
         if (quantity > availableStock) {
             alert(`Error: Requested quantity (${quantity}) exceeds available stock (${availableStock}).`);
             return;
         }
 
-        // Proceed with logging consumption
+        // ✅ Proceed with logging consumption
         fetch('/log-consumption', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -156,11 +156,16 @@ function logConsumption() {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
-            fetchConsumptionHistory();  // Reload history after logging
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert(data.message);
+                fetchConsumptionHistory();  // ✅ Reload history after logging
+            }
         })
         .catch(error => console.error("Error logging consumption:", error));
-    });
+    })
+    .catch(error => console.error("Error checking stock:", error));
 }
 
 function fetchConsumptionHistory() {
