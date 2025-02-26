@@ -14,7 +14,10 @@
           <button onclick="window.location.href='/inventory'" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">
     Inventory Stock List
 </button>
-            <button onclick="showAddInventory()" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</button>
+           <button onclick="window.location.href='/add-inventory'" 
+        class="bg-green-500 p-4 rounded-lg hover:bg-green-600">
+    Add Inventory
+</button>
            <button onclick="window.location.href='/view-low-stock'" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">
     View Low Stock Items
 </button>
