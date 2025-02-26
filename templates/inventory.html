@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">Inventory Management</h1>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button onclick="showSection('inventoryStockList')" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Inventory Stock List</button>
+            <button onclick="showSection('addInventory')" class="bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600">Add Inventory</button>
+            <button onclick="showSection('lowStockItems')" class="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600">View Low Stock Items</button>
+        </div>
+
+        <!-- Inventory Stock List Section -->
+        <div id="inventoryStockList" class="hidden">
+            <h2 class="text-xl font-bold mb-4">Inventory Stock List</h2>
+
+            <table class="min-w-full bg-gray-800 rounded-lg">
+                <thead class="sticky top-0 bg-gray-900">
+                    <tr class="text-left border-b border-gray-700">
+                        <th class="p-3">Item Code</th>
+                        <th class="p-3">Item Name</th>
+                        <th class="p-3">Physical Stock</th>
+                        <th class="p-3">Minimum Stock</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+            </table>
+        </div>
+
+        <!-- Add Inventory Section -->
+        <div id="addInventory" class="hidden">
+            <h2 class="text-xl font-bold mb-4">Add Inventory</h2>
+            <form id="addInventoryForm" class="space-y-4">
+                <label class="block">Item Code:</label>
+                <input type="text" id="newItemCode" class="bg-gray-700 text-white p-2 rounded w-full">
+
+                <label class="block">Item Name:</label>
+                <input type="text" id="newItemName" class="bg-gray-700 text-white p-2 rounded w-full">
+
+                <label class="block">Physical Stock:</label>
+                <input type="number" id="newPhysicalStock" class="bg-gray-700 text-white p-2 rounded w-full">
+
+                <label class="block">Minimum Stock:</label>
+                <input type="number" id="newMinimumStock" class="bg-gray-700 text-white p-2 rounded w-full">
+
+                <button type="button" onclick="addInventory()" class="bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600">Add Item</button>
+            </form>
+        </div>
+
+        <!-- Low Stock Items Section -->
+        <div id="lowStockItems" class="hidden">
+            <h2 class="text-xl font-bold mb-4">Low Stock Items</h2>
+
+            <table class="min-w-full bg-gray-800 rounded-lg">
+                <thead class="sticky top-0 bg-gray-900">
+                    <tr class="text-left border-b border-gray-700">
+                        <th class="p-3">Item Code</th>
+                        <th class="p-3">Item Name</th>
+                        <th class="p-3">Physical Stock</th>
+                        <th class="p-3">Minimum Stock</th>
+                    </tr>
+                </thead>
+                <tbody id="lowStockTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Show selected section
+        function showSection(sectionId) {
+            document.getElementById("inventoryStockList").classList.add("hidden");
+            document.getElementById("addInventory").classList.add("hidden");
+            document.getElementById("lowStockItems").classList.add("hidden");
+            document.getElementById(sectionId).classList.remove("hidden");
+
+            if (sectionId === "inventoryStockList") fetchInventoryStock();
+            if (sectionId === "lowStockItems") fetchLowStockItems();
+        }
+
+        // Fetch Inventory Stock Data
+        function fetchInventoryStock() {
+            fetch('/get-inventory')
+            .then(response => response.json())
+            .then(data => {
+                let inventoryTable = document.getElementById("inventoryTable");
+                inventoryTable.innerHTML = "";  // Clear previous data
+
+                data.forEach(item => {
+                    let stockLevel = parseInt(item["Physical Stock"]);
+                    let minStock = parseInt(item["Minimum Stock"]);
+                    let stockClass = stockLevel <= minStock ? "text-red-500" : "text-white";  // Warn if stock is low
+
+                    let newRow = `<tr>
+                        <td class="p-3">${item["Item Code"]}</td>
+                        <td class="p-3">${item["Item Name"]}</td>
+                        <td class="p-3 ${stockClass}">${stockLevel}</td>
+                        <td class="p-3">${minStock}</td>
+                    </tr>`;
+                    inventoryTable.innerHTML += newRow;
+                });
+            })
+            .catch(error => console.error("Error fetching inventory stock:", error));
+        }
+
+        // Fetch Low Stock Items
+        function fetchLowStockItems() {
+            fetch('/get-inventory')
+            .then(response => response.json())
+            .then(data => {
+                let lowStockTable = document.getElementById("lowStockTable");
+                lowStockTable.innerHTML = "";  // Clear previous data
+
+                let lowStockItems = data.filter(item => parseInt(item["Physical Stock"]) <= parseInt(item["Minimum Stock"]));
+                
+                lowStockItems.forEach(item => {
+                    let newRow = `<tr>
+                        <td class="p-3">${item["Item Code"]}</td>
+                        <td class="p-3">${item["Item Name"]}</td>
+                        <td class="p-3 text-red-500">${item["Physical Stock"]}</td>
+                        <td class="p-3">${item["Minimum Stock"]}</td>
+                    </tr>`;
+                    lowStockTable.innerHTML += newRow;
+                });
+
+                if (lowStockItems.length === 0) {
+                    lowStockTable.innerHTML = "<tr><td colspan='4' class='text-center p-3'>No low stock items</td></tr>";
+                }
+            })
+            .catch(error => console.error("Error fetching low stock items:", error));
+        }
+
+        // Add Inventory Item
+        function addInventory() {
+            let newItem = {
+                "Item Code": document.getElementById("newItemCode").value,
+                "Item Name": document.getElementById("newItemName").value,
+                "Physical Stock": document.getElementById("newPhysicalStock").value,
+                "Minimum Stock": document.getElementById("newMinimumStock").value
+            };
+
+            fetch('/add-inventory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newItem)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchInventoryStock();  // Refresh inventory stock list
+            })
+            .catch(error => console.error("Error adding inventory item:", error));
+        }
+
+        // Load inventory on page load
+        window.onload = function() {
+            showSection('inventoryStockList');  // Show stock list by default
+        };
+    </script>
+</body>
+</html>
+
+
