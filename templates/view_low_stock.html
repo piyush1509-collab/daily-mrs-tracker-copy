@@ -10,17 +10,19 @@
     <h2 class="text-center text-3xl font-bold my-6">Low Stock Items</h2>
 
     <div class="container mx-auto p-6">
-        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
-            <thead>
-                <tr class="border-b border-gray-700">
-                    <th class="p-3">Item Code</th>
-                    <th class="p-3">Item Name</th>
-                    <th class="p-3">Physical Stock</th>
-                    <th class="p-3">Minimum Stock</th>
-                </tr>
-            </thead>
-            <tbody id="lowStockTable"></tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-gray-800 rounded-lg mt-4 border border-gray-700">
+                <thead>
+                    <tr class="border-b border-gray-700 text-left">
+                        <th class="p-3 w-1/4">Item Code</th>
+                        <th class="p-3 w-1/4">Item Name</th>
+                        <th class="p-3 w-1/4 text-red-500">Physical Stock</th>
+                        <th class="p-3 w-1/4">Minimum Stock</th>
+                    </tr>
+                </thead>
+                <tbody id="lowStockTable"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -37,11 +39,11 @@
                 }
 
                 data.forEach(item => {
-                    let newRow = `<tr>
-                        <td class="p-3">${item["Item Code"]}</td>
-                        <td class="p-3">${item["Item Name"]}</td>
-                        <td class="p-3 text-red-500">${item["Physical Stock"]}</td>
-                        <td class="p-3">${item["Minimum Stock"]}</td>
+                    let newRow = `<tr class="border-b border-gray-700">
+                        <td class="p-3 w-1/4">${item["Item Code"]}</td>
+                        <td class="p-3 w-1/4">${item["Item Name"]}</td>
+                        <td class="p-3 w-1/4 text-red-500">${item["Physical Stock"]}</td>
+                        <td class="p-3 w-1/4">${item["Minimum Stock"]}</td>
                     </tr>`;
                     lowStockTable.innerHTML += newRow;
                 });
@@ -49,8 +51,9 @@
             .catch(error => console.error("Error fetching low stock items:", error));
         }
 
-        // Call the function when page loads
+        // Fetch items when the page loads
         window.onload = fetchLowStockItems;
     </script>
 </body>
 </html>
+
