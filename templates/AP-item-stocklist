@@ -1,20 +1,64 @@
-<!-- ap_item_stocklist.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP Item Stock List</title>
+    <title>Realtime inventory Stock list</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white">
     <h2 class="text-center text-3xl font-bold my-6">AP Item Stock List</h2>
+    
     <div class="container mx-auto p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <a href="inventory_stock_list.html" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">Inventory Stock List</a>
-            <a href="add_inventory.html" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</a>
-            <a href="view_low_stock.html" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">View Low Stock Items</a>
+            <button onclick="fetchInventoryStock()" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">Inventory Stock List</button>
+            <button onclick="showAddInventory()" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</button>
+            <button onclick="fetchLowStockItems()" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">View Low Stock Items</button>
         </div>
     </div>
+
+    <div id="inventoryStockList" class="hidden mt-6">
+        <h3 class="text-xl font-bold text-center">Inventory Stock List</h3>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
+            <thead>
+                <tr class="text-left border-b border-gray-700">
+                    <th class="p-3">Item Code</th>
+                    <th class="p-3">Item Name</th>
+                    <th class="p-3">Physical Stock</th>
+                    <th class="p-3">Minimum Stock</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function fetchInventoryStock() {
+            fetch('/get-inventory')
+            .then(response => response.json())
+            .then(data => {
+                let inventoryTable = document.getElementById("inventoryTable");
+                inventoryTable.innerHTML = "";
+
+                data.forEach(item => {
+                    let stockLevel = parseInt(item["Physical Stock"]);
+                    let minStock = parseInt(item["Minimum Stock"]);
+                    let stockClass = stockLevel <= minStock ? "text-red-500" : "text-white";
+
+                    let newRow = `<tr>
+                        <td class="p-3">${item["Item Code"]}</td>
+                        <td class="p-3">${item["Item Name"]}</td>
+                        <td class="p-3 ${stockClass}">${stockLevel}</td>
+                        <td class="p-3">${minStock}</td>
+                    </tr>`;
+                    inventoryTable.innerHTML += newRow;
+                });
+
+                document.getElementById("inventoryStockList").classList.remove("hidden");
+            })
+            .catch(error => console.error("Error fetching inventory stock:", error));
+        }
+    </script>
 </body>
 </html>
+
