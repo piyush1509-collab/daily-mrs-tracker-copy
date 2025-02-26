@@ -10,6 +10,11 @@
     <h2 class="text-center text-3xl font-bold my-6">Inventory Stock List</h2>
 
     <div class="container mx-auto p-6">
+        <!-- Search Bar -->
+        <input type="text" id="searchInput" oninput="searchInventory()" 
+               placeholder="Search by Item Name or Item Code..."
+               class="bg-gray-700 text-white p-2 rounded w-full mb-4">
+
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="border-b border-gray-700">
@@ -24,33 +29,49 @@
     </div>
 
     <script>
+        let inventoryData = []; // Store inventory data globally
+
         function fetchInventoryStock() {
             fetch('/get-inventory')
             .then(response => response.json())
             .then(data => {
-                let inventoryTable = document.getElementById("inventoryTable");
-                inventoryTable.innerHTML = "";  // Clear previous data
-
-                if (!Array.isArray(data) || data.length === 0) {
-                    inventoryTable.innerHTML = "<tr><td colspan='4' class='text-center p-3 text-red-500'>No inventory items found</td></tr>";
-                    return;
-                }
-
-                data.forEach(item => {
-                    let stockLevel = parseInt(item["Physical Stock"]);
-                    let minStock = parseInt(item["Minimum Stock"]);
-                    let stockClass = stockLevel <= minStock ? "text-red-500" : "text-white";
-
-                    let newRow = `<tr>
-                        <td class="p-3">${item["Item Code"]}</td>
-                        <td class="p-3">${item["Item Name"]}</td>
-                        <td class="p-3 ${stockClass}">${stockLevel}</td>
-                        <td class="p-3">${minStock}</td>
-                    </tr>`;
-                    inventoryTable.innerHTML += newRow;
-                });
+                inventoryData = data; // Store data for searching
+                displayInventory(data);
             })
             .catch(error => console.error("Error fetching inventory stock:", error));
+        }
+
+        function displayInventory(data) {
+            let inventoryTable = document.getElementById("inventoryTable");
+            inventoryTable.innerHTML = "";  // Clear previous data
+
+            if (!Array.isArray(data) || data.length === 0) {
+                inventoryTable.innerHTML = "<tr><td colspan='4' class='text-center p-3 text-red-500'>No inventory items found</td></tr>";
+                return;
+            }
+
+            data.forEach(item => {
+                let stockLevel = parseInt(item["Physical Stock"]);
+                let minStock = parseInt(item["Minimum Stock"]);
+                let stockClass = stockLevel <= minStock ? "text-red-500" : "text-white";
+
+                let newRow = `<tr>
+                    <td class="p-3">${item["Item Code"]}</td>
+                    <td class="p-3">${item["Item Name"]}</td>
+                    <td class="p-3 ${stockClass}">${stockLevel}</td>
+                    <td class="p-3">${minStock}</td>
+                </tr>`;
+                inventoryTable.innerHTML += newRow;
+            });
+        }
+
+        function searchInventory() {
+            let searchValue = document.getElementById("searchInput").value.toLowerCase();
+            let filteredData = inventoryData.filter(item =>
+                item["Item Name"].toLowerCase().includes(searchValue) ||
+                item["Item Code"].toString().includes(searchValue)
+            );
+            displayInventory(filteredData);
         }
 
         // ✅ Fetch inventory stock when page loads
@@ -58,4 +79,3 @@
     </script>
 </body>
 </html>
-
