@@ -129,32 +129,53 @@ function logConsumption() {
         return;
     }
 
-    fetch('/log-consumption', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            "Item Name": itemName,
-            "Item Code": itemCode,
-            "Quantity": quantity,
-            "Unit": unit,
-            "Consumed Area": consumedArea,
-            "Shift": shift,
-            "Date": date
-        })
-    })
+    // ✅ Check stock before proceeding
+    fetch(`/check-stock?itemCode=${itemCode}`)
     .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert("Error: " + data.error);
-        } else {
-            alert(data.message);  // ✅ Show success message instead of "undefined undefined"
-            fetchConsumptionHistory();  // ✅ Reload history after logging
+    .then(stockData => {
+        let availableStock = stockData["Physical Stock"];
+        let minStock = stockData["Minimum Stock"];
+
+        if (quantity > availableStock) {
+            alert(`Error: Requested quantity (${quantity}) exceeds available stock (${availableStock}).`);
+            return;
         }
+
+        // ✅ If stock is low, ask for confirmation before proceeding
+        if (availableStock <= minStock) {
+            let confirmLowStock = confirm(`Warning: You are issuing a low stock item (${availableStock} left). Do you want to proceed?`);
+            if (!confirmLowStock) return;
+        }
+
+        // ✅ Proceed with logging consumption
+        fetch('/log-consumption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                "Item Name": itemName,
+                "Item Code": itemCode,
+                "Quantity": quantity,
+                "Unit": unit,
+                "Consumed Area": consumedArea,
+                "Shift": shift,
+                "Date": date
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert(data.message);
+                fetchConsumptionHistory();  // ✅ Reload history after logging
+            }
+        })
+        .catch(error => {
+            console.error("Error logging consumption:", error);
+            alert("Failed to log consumption. Please try again.");
+        });
     })
-    .catch(error => {
-        console.error("Error logging consumption:", error);
-        alert("Failed to log consumption. Please try again.");
-    });
+    .catch(error => console.error("Error checking stock:", error));
 }
 
 function fetchConsumptionHistory() {
