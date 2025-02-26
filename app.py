@@ -158,16 +158,43 @@ def get_tools():
 def log_consumption():
     try:
         data = request.json
-        consumption_entry = [
-            data["Item name"], data["Item Code"], data["Consumed Area"],
-            data["Date"], data["Shift"], data["Quantity"], data["Unit"]
-        ]
-        
-        consumption_sheet.append_row(consumption_entry)  # Save to Google Sheet
-        
+        item_code = data["Item Code"]
+        quantity = int(data["Quantity"])
+
+        # Open the Inventory sheet
+        inventory_sheet = sh.worksheet("Inventory")
+        inventory_data = inventory_sheet.get_all_records()
+
+        # Find the item in Inventory
+        for idx, row in enumerate(inventory_data):
+            if str(row["Item Code"]) == str(item_code):  # Match item code
+                physical_stock = int(row["Physical Stock"])  # Current stock
+                minimum_stock = int(row["Minimum Stock"])  # Minimum stock level
+                
+                # Check if requested quantity is available
+                if quantity > physical_stock:
+                    return jsonify({"error": "Requested quantity exceeds physical stock!"}), 400
+                
+                # Deduct quantity from physical stock
+                new_stock = max(0, physical_stock - quantity)  # Ensure stock doesn't go negative
+                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update "Physical Stock" column
+                
+                # Show warning if stock is below minimum
+                if new_stock <= minimum_stock:
+                    return jsonify({"warning": f"Stock is low ({new_stock} left)!"})
+                
+                break
+
+        # Log the consumption in Consumption Log
+        log_sheet = sh.worksheet("Consumption Log")
+        log_entry = [data["Date"], data["Item Name"], item_code, quantity, data["Unit"], data["Consumed Area"], data["Shift"]]
+        log_sheet.append_row(log_entry)
+
         return jsonify({"message": "Consumption logged successfully!"})
     except Exception as e:
+        print("Error logging consumption:", str(e))
         return jsonify({"error": str(e)}), 500
+
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
     return render_template('AP-item-stocklist')
