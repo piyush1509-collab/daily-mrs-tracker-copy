@@ -159,42 +159,39 @@ def log_consumption():
     try:
         data = request.json
         item_code = data["Item Code"]
+        item_name = data["Item Name"]
         quantity = int(data["Quantity"])
+        unit = data["Unit"]
+        consumed_area = data["Consumed Area"]
+        shift = data["Shift"]
+        date = data["Date"]
 
-        # ✅ Open the Inventory sheet
+        # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
+        consumption_sheet = sh.worksheet("Consumption Log")
         inventory_data = inventory_sheet.get_all_records()
 
-        # ✅ Find the item in Inventory
+        # ✅ Find and update Physical Stock in Inventory
         for idx, row in enumerate(inventory_data):
-            if str(row["Item Code"]) == str(item_code):  # Match item code
+            if str(row["Item Code"]) == str(item_code):
                 physical_stock = int(row["Physical Stock"])  # Current stock
-                minimum_stock = int(row["Minimum Stock"])  # Minimum stock level
                 
-                # ✅ Check if requested quantity is available
+                # ✅ Check stock before deducting
                 if quantity > physical_stock:
                     return jsonify({"error": "Requested quantity exceeds physical stock!"}), 400
-                
-                # ✅ Deduct quantity from physical stock
-                new_stock = max(0, physical_stock - quantity)  # Ensure stock doesn't go negative
-                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # ✅ Update "Physical Stock" column
-                
-                # ✅ Show warning if stock is below minimum
-                if new_stock <= minimum_stock:
-                    return jsonify({"warning": f"Stock is low ({new_stock} left)!"})
-                
+
+                new_stock = max(0, physical_stock - quantity)
+                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update Physical Stock column
                 break
 
-        # ✅ Log the consumption in "Consumption Log"
-        log_sheet = sh.worksheet("Consumption Log")
-        log_entry = [data["Date"], data["Item Name"], item_code, quantity, data["Unit"], data["Consumed Area"], data["Shift"]]
-        log_sheet.append_row(log_entry)
+        # ✅ Append entry to Consumption Log
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift]
+        consumption_sheet.append_row(log_entry)
 
-        return jsonify({"message": "Consumption logged successfully!"})
+        return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
     except Exception as e:
         print("Error logging consumption:", str(e))
         return jsonify({"error": str(e)}), 500
-
 
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
