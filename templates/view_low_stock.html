@@ -1,58 +1,66 @@
-<!-- view_low_stock.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Low Stock Items</title>
+    <title>AP Item Stock List</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white">
-    <h2 class="text-center text-3xl font-bold my-6">Low Stock Items</h2>
+    <h2 class="text-center text-3xl font-bold my-6">AP Item Stock List</h2>
+    
+    <div class="container mx-auto p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <button onclick="fetchInventoryStock()" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">Inventory Stock List</button>
+            <button onclick="showAddInventory()" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</button>
+            <button onclick="fetchLowStockItems()" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">View Low Stock Items</button>
+        </div>
+    </div>
 
-    <div class="p-6">
-        <table class="min-w-full bg-gray-800 rounded-lg">
+    <!-- Low Stock Items Section -->
+    <div id="lowStockItems" class="hidden mt-6">
+        <h3 class="text-xl font-bold text-center">Low Stock Items</h3>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
-                <tr class="border-b border-gray-700">
-                    <th class="p-3">Item Name</th>
+                <tr class="text-left border-b border-gray-700">
                     <th class="p-3">Item Code</th>
+                    <th class="p-3">Item Name</th>
                     <th class="p-3">Physical Stock</th>
                     <th class="p-3">Minimum Stock</th>
                 </tr>
             </thead>
-            <tbody id="lowStockTable" class="text-gray-300"></tbody>
+            <tbody id="lowStockTable"></tbody>
         </table>
     </div>
 
     <script>
         function fetchLowStockItems() {
-            fetch('/get-items')
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.getElementById("lowStockTable");
-                    tableBody.innerHTML = ""; // Clear old data
+            fetch('/get-low-stock')
+            .then(response => response.json())
+            .then(data => {
+                let lowStockTable = document.getElementById("lowStockTable");
+                lowStockTable.innerHTML = "";  // Clear previous data
 
-                    data.forEach(item => {
-                        if (parseInt(item["Physical Stock"]) < parseInt(item["Minimum Stock"])) {
-                            let row = document.createElement("tr");
-                            row.innerHTML = `
-                                <td class="p-3">${item["Item Name"]}</td>
-                                <td class="p-3">${item["Item Code"]}</td>
-                                <td class="p-3 text-red-500">${item["Physical Stock"]}</td>
-                                <td class="p-3">${item["Minimum Stock"]}</td>
-                            `;
-                            tableBody.appendChild(row);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error fetching low stock items:", error));
+                if (!Array.isArray(data) || data.length === 0) {
+                    lowStockTable.innerHTML = "<tr><td colspan='4' class='text-center p-3 text-red-500'>No low stock items</td></tr>";
+                    return;
+                }
+
+                data.forEach(item => {
+                    let newRow = `<tr>
+                        <td class="p-3">${item["Item Code"]}</td>
+                        <td class="p-3">${item["Item Name"]}</td>
+                        <td class="p-3 text-red-500">${item["Physical Stock"]}</td>
+                        <td class="p-3">${item["Minimum Stock"]}</td>
+                    </tr>`;
+                    lowStockTable.innerHTML += newRow;
+                });
+
+                document.getElementById("lowStockItems").classList.remove("hidden");
+            })
+            .catch(error => console.error("Error fetching low stock items:", error));
         }
-
-        // Fetch low stock items on page load and refresh every 10 seconds
-        window.onload = function () {
-            fetchLowStockItems();
-            setInterval(fetchLowStockItems, 10000);
-        };
     </script>
 </body>
 </html>
+
