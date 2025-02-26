@@ -268,34 +268,33 @@ def new_area_wise_consumption():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-@app.route('/area-wise-consumption', methods=['GET'])
+@app.route('/area-wise-consumption')
 def area_wise_consumption():
     try:
-        start_date = request.args.get('start_date', '').strip()
-        end_date = request.args.get('end_date', '').strip()
-        item_filter = request.args.get('item', '').strip().lower()
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        item_name = request.args.get('item', '').strip().lower()
 
-        records = consumption_sheet.get_all_records()
-        consumption_data = {}
+        consumption_sheet = sh.worksheet("Consumption Log")
+        consumption_data = consumption_sheet.get_all_records()
 
-        for record in records:
-            record_date = record.get("Date", "").strip()
-            if start_date <= record_date <= end_date:
-                area = record.get("Consumed Area", "").strip()
-                quantity = int(record.get("Quantity", 0))
+        filtered_data = {}
+        for row in consumption_data:
+            if start_date and row["Date"] < start_date:
+                continue
+            if end_date and row["Date"] > end_date:
+                continue
+            if item_name and item_name not in row["Item name"].strip().lower():
+                continue
 
-                # If searching by item name, filter it
-                item_name = record.get("Item Name", "").strip().lower()
-                if item_filter and item_filter not in item_name:
-                    continue  
+            area = row["Consumed Area"]
+            qty = int(row["Quantity"])
+            filtered_data[area] = filtered_data.get(area, 0) + qty
 
-                if area in consumption_data:
-                    consumption_data[area] += quantity
-                else:
-                    consumption_data[area] = quantity
+        return jsonify(filtered_data)
 
-        return jsonify(consumption_data)
     except Exception as e:
+        print("Error fetching consumption data:", str(e))
         return jsonify({"error": str(e)}), 500
         
 @app.route('/get-inventory', methods=['GET'])
