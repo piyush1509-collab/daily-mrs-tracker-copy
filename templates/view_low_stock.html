@@ -3,26 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP Item Stock List</title>
+    <title>Low Stock Items</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white">
-    <h2 class="text-center text-3xl font-bold my-6">AP Item Stock List</h2>
-    
-    <div class="container mx-auto p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <button onclick="fetchInventoryStock()" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">Inventory Stock List</button>
-            <button onclick="showAddInventory()" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</button>
-            <button onclick="fetchLowStockItems()" class="bg-red-500 p-4 rounded-lg hover:bg-red-600">View Low Stock Items</button>
-        </div>
-    </div>
+    <h2 class="text-center text-3xl font-bold my-6">Low Stock Items</h2>
 
-    <!-- Low Stock Items Section -->
-    <div id="lowStockItems" class="hidden mt-6">
-        <h3 class="text-xl font-bold text-center">Low Stock Items</h3>
+    <div class="container mx-auto p-6">
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
-                <tr class="text-left border-b border-gray-700">
+                <tr class="border-b border-gray-700">
                     <th class="p-3">Item Code</th>
                     <th class="p-3">Item Name</th>
                     <th class="p-3">Physical Stock</th>
@@ -55,12 +45,12 @@
                     </tr>`;
                     lowStockTable.innerHTML += newRow;
                 });
-
-                document.getElementById("lowStockItems").classList.remove("hidden");
             })
             .catch(error => console.error("Error fetching low stock items:", error));
         }
+
+        // Call the function when page loads
+        window.onload = fetchLowStockItems;
     </script>
 </body>
 </html>
-
