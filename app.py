@@ -300,6 +300,27 @@ def check_stock():
     except Exception as e:
         print("Error checking stock:", str(e))
         return jsonify({"error": str(e)}), 500
+@app.route('/get-low-stock', methods=['GET'])
+def get_low_stock():
+    try:
+        inventory_sheet = sh.worksheet("Inventory")
+        inventory_data = inventory_sheet.get_all_records()
+
+        low_stock_items = []
+        for item in inventory_data:
+            try:
+                physical_stock = int(item.get("Physical Stock", 0))
+                min_stock = int(item.get("Minimum Stock", 0))
+
+                if physical_stock < min_stock:
+                    low_stock_items.append(item)
+            except ValueError:
+                print(f"Skipping invalid stock data: {item}")  # Logs if stock data is missing
+
+        return jsonify(low_stock_items)
+    except Exception as e:
+        print("Error fetching low stock items:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 # Run the Flask app
 if __name__ == '__main__':
