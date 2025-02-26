@@ -13,6 +13,7 @@
         <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
         <input type="text" id="searchBox" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4" oninput="autoFillItemCode()">
         <datalist id="itemSuggestions"></datalist>
+        <datalist id="codeSuggestions"></datalist>
 
         <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
         <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
@@ -89,33 +90,43 @@
     <script>
         let itemsList = [];
 
-       function fetchItems() {
-        fetch('/get-items')
-            .then(response => response.json())
-            .then(data => {
-                itemsList = data;
-                let nameList = document.getElementById("itemSuggestions");
-                let codeList = document.getElementById("codeSuggestions");
-                
-                nameList.innerHTML = "";
-                codeList.innerHTML = "";
-                
-                itemsList.forEach(item => {
-                    if (item["Item Name"] && item["Item Code"]) {
-                        let nameOption = document.createElement("option");
-                        nameOption.value = item["Item Name"];
-                        nameOption.dataset.code = item["Item Code"];
-                        nameList.appendChild(nameOption);
+      function fetchItems() {
+    fetch('/get-items')
+        .then(response => response.json())
+        .then(data => {
+            if (!data || !Array.isArray(data)) {
+                console.error("Error: Invalid data format for items.", data);
+                return;
+            }
 
-                        let codeOption = document.createElement("option");
-                        codeOption.value = item["Item Code"];
-                        codeOption.dataset.name = item["Item Name"];
-                        codeList.appendChild(codeOption);
-                    }
-                });
-            })
-            .catch(error => console.error("Error fetching items:", error));
-    }
+            itemsList = data;
+            let nameList = document.getElementById("itemSuggestions");
+            let codeList = document.getElementById("codeSuggestions");
+
+            if (!nameList || !codeList) {
+                console.error("Error: itemSuggestions or codeSuggestions is missing in the HTML.");
+                return;
+            }
+
+            nameList.innerHTML = "";
+            codeList.innerHTML = "";
+
+            itemsList.forEach(item => {
+                if (item["Item Name"] && item["Item Code"]) {
+                    let nameOption = document.createElement("option");
+                    nameOption.value = item["Item Name"];
+                    nameOption.dataset.code = item["Item Code"];
+                    nameList.appendChild(nameOption);
+
+                    let codeOption = document.createElement("option");
+                    codeOption.value = item["Item Code"];
+                    codeOption.dataset.name = item["Item Name"];
+                    codeList.appendChild(codeOption);
+                }
+            });
+        })
+        .catch(error => console.error("Error fetching items:", error));
+}
         function autoFillItemCode() {
         let searchBox = document.getElementById("searchBox").value;
         let itemCodeInput = document.getElementById("itemCode");
