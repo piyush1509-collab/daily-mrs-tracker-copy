@@ -315,7 +315,7 @@ def get_low_stock():
                 if physical_stock < min_stock:
                     low_stock_items.append(item)
             except ValueError:
-                print(f"Skipping invalid stock data: {item}")  # Logs if stock data is missing
+                print(f"Skipping invalid stock data: {item}")
 
         return jsonify(low_stock_items)
     except Exception as e:
