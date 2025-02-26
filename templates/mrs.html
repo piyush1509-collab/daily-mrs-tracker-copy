@@ -89,32 +89,49 @@
     <script>
         let itemsList = [];
 
-        function fetchItems() {
-            fetch('/get-items')
-                .then(response => response.json())
-                .then(data => {
-                    itemsList = data;
-                    let dataList = document.getElementById("itemSuggestions");
-                    dataList.innerHTML = "";
-                    itemsList.forEach(item => {
-                        if (item["Item Name"] && item["Item Code"]) {
-                            let option = document.createElement("option");
-                            option.value = item["Item Name"];
-                            option.dataset.code = item["Item Code"];
-                            dataList.appendChild(option);
-                        }
-                    });
-                });
-        }
+       function fetchItems() {
+        fetch('/get-items')
+            .then(response => response.json())
+            .then(data => {
+                itemsList = data;
+                let nameList = document.getElementById("itemSuggestions");
+                let codeList = document.getElementById("codeSuggestions");
+                
+                nameList.innerHTML = "";
+                codeList.innerHTML = "";
+                
+                itemsList.forEach(item => {
+                    if (item["Item Name"] && item["Item Code"]) {
+                        let nameOption = document.createElement("option");
+                        nameOption.value = item["Item Name"];
+                        nameOption.dataset.code = item["Item Code"];
+                        nameList.appendChild(nameOption);
 
+                        let codeOption = document.createElement("option");
+                        codeOption.value = item["Item Code"];
+                        codeOption.dataset.name = item["Item Name"];
+                        codeList.appendChild(codeOption);
+                    }
+                });
+            })
+            .catch(error => console.error("Error fetching items:", error));
+    }
         function autoFillItemCode() {
-            let searchBox = document.getElementById("searchBox").value;
-            let itemCodeInput = document.getElementById("itemCode");
-            let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
-            if (selectedItem) {
-                itemCodeInput.value = selectedItem["Item Code"];
-            }
+        let searchBox = document.getElementById("searchBox").value;
+        let itemCodeInput = document.getElementById("itemCode");
+        let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
+        if (selectedItem) {
+            itemCodeInput.value = selectedItem["Item Code"];
         }
+    }
+        function autoFillItemName() {
+        let itemCodeInput = document.getElementById("itemCode").value;
+        let searchBox = document.getElementById("searchBox");
+        let selectedItem = itemsList.find(item => item["Item Code"].toString() === itemCodeInput);
+        if (selectedItem) {
+            searchBox.value = selectedItem["Item Name"];
+        }
+    }
 function logConsumption() {
     let itemName = document.getElementById("searchBox").value;
     let itemCode = document.getElementById("itemCode").value;
