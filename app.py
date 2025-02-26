@@ -268,6 +268,17 @@ def area_wise_consumption():
         return jsonify(consumption_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+        
+@app.route('/get-inventory', methods=['GET'])
+def get_inventory():
+    try:
+        sheet = sh.worksheet("Inventory")  # Ensure sheet name is correct
+        inventory_data = sheet.get_all_records()
+
+        return jsonify(inventory_data)
+    except Exception as e:
+        print("Error fetching inventory:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 
 # Run the Flask app
