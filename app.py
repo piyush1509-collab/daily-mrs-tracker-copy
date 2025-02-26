@@ -320,6 +320,10 @@ def get_low_stock():
     except Exception as e:
         print("Error fetching low stock items:", str(e))
         return jsonify({"error": str(e)}), 500
+        
+@app.route('/inventory')
+def inventory_page():
+    return render_template('inventory.html')
 
 # Run the Flask app
 if __name__ == '__main__':
