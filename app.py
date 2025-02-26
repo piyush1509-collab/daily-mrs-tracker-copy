@@ -201,36 +201,40 @@ def ap_item_stocklist():
 def inventory_stock_list():
     return render_template('inventory_stock_list.html')
 
-@app.route('/add-inventory', methods=['POST'])
-def add_inventory():
-    try:
-        data = request.json
-        item_code = str(data["Item Code"])
-        item_name = data["Item Name"]
-        qty_added = int(data["QTY Added"])
-        date_added = data["Date"]
-        location = data["Receiving Location"]
+@app.route('/add-inventory', methods=['GET', 'POST'])
+def add_inventory_page():
+    if request.method == 'GET':
+        return render_template('add_inventory.html')  # Serve the HTML page
 
-        inventory_sheet = sh.worksheet("Inventory")
-        inventory_data = inventory_sheet.get_all_records()
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            item_code = str(data["Item Code"])
+            item_name = data["Item Name"]
+            qty_added = int(data["QTY Added"])
+            date_added = data["Date"]
+            location = data["Receiving Location"]
 
-        # Update physical stock in Inventory sheet
-        for i, row in enumerate(inventory_data):
-            if str(row["Item Code"]) == item_code:
-                new_stock = int(row["Physical Stock"]) + qty_added
-                inventory_sheet.update_cell(i+2, 3, new_stock)  # Assuming "Physical Stock" is column 3
-                break
+            inventory_sheet = sh.worksheet("Inventory")
+            inventory_data = inventory_sheet.get_all_records()
 
-        # Log the added stock in MOT sheet
-        mot_sheet = sh.worksheet("MOT")
-        mot_entry = [item_code, item_name, qty_added, date_added, location]
-        mot_sheet.append_row(mot_entry)
+            # Update physical stock in Inventory sheet
+            for i, row in enumerate(inventory_data):
+                if str(row["Item Code"]) == item_code:
+                    new_stock = int(row["Physical Stock"]) + qty_added
+                    inventory_sheet.update_cell(i+2, 3, new_stock)  # Assuming "Physical Stock" is column 3
+                    break
 
-        return jsonify({"message": "Stock successfully added!"})
-    except Exception as e:
-        print("Error adding stock:", str(e))
-        return jsonify({"error": str(e)}), 500
+            # Log the added stock in MOT sheet
+            mot_sheet = sh.worksheet("MOT")
+            mot_entry = [item_code, item_name, qty_added, date_added, location]
+            mot_sheet.append_row(mot_entry)
 
+            return jsonify({"message": "Stock successfully added!"})
+
+        except Exception as e:
+            print("Error adding stock:", str(e))
+            return jsonify({"error": str(e)}), 500
 
 @app.route('/view-low-stock')
 def view_low_stock():
