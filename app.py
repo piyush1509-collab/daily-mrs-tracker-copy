@@ -270,13 +270,13 @@ def area_wise_consumption():
 @app.route('/get-inventory', methods=['GET'])
 def get_inventory():
     try:
-        sheet = sh.worksheet("Inventory")  # Ensure sheet name is correct
-        inventory_data = sheet.get_all_records()
-
+        inventory_sheet = sh.worksheet("Inventory")
+        inventory_data = inventory_sheet.get_all_records()
         return jsonify(inventory_data)
     except Exception as e:
-        print("Error fetching inventory:", str(e))
+        print("Error fetching inventory stock:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/check-stock', methods=['GET'])
 def check_stock():
