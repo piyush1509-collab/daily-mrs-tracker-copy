@@ -11,7 +11,7 @@
     
     <div class="container mx-auto p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <button onclick="window.location.href='/inventory'" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">
+           <button onclick="window.location.href='/inventory'" class="bg-blue-500 p-4 rounded-lg hover:bg-blue-600">
     Inventory Stock List
 </button>
             <button onclick="showAddInventory()" class="bg-green-500 p-4 rounded-lg hover:bg-green-600">Add Inventory</button>
