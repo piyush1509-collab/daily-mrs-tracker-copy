@@ -289,10 +289,11 @@ def check_stock():
 
         # ✅ Find the item in Inventory
         for row in inventory_data:
-            if str(row["Item Code"]) == str(item_code):  # Match item code
+            if str(row["Item Code"]) == str(item_code):
                 return jsonify({
                     "Item Code": item_code,
-                    "Physical Stock": row.get("Physical Stock", 0)  # Return stock value
+                    "Physical Stock": row.get("Physical Stock", 0),
+                    "Minimum Stock": row.get("Minimum Stock", 0)
                 })
 
         return jsonify({"error": "Item not found"}), 404
