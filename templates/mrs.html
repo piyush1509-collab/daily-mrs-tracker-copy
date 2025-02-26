@@ -118,7 +118,7 @@
 function logConsumption() {
     let itemName = document.getElementById("searchBox").value;
     let itemCode = document.getElementById("itemCode").value;
-    let quantity = document.getElementById("quantity").value;
+    let quantity = parseInt(document.getElementById("quantity").value);
     let unit = document.getElementById("unit").value;
     let consumedArea = document.getElementById("consumedArea").value;
     let shift = document.getElementById("shift").value;
@@ -129,25 +129,38 @@ function logConsumption() {
         return;
     }
 
-    fetch('/log-consumption', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            "Item Name": itemName,
-            "Item Code": itemCode,
-            "Quantity": quantity,
-            "Unit": unit,
-            "Consumed Area": consumedArea,
-            "Shift": shift,
-            "Date": date
-        })
-    })
+    // Check available stock before logging
+    fetch(`/check-stock?itemCode=${itemCode}`)
     .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        fetchConsumptionHistory();  // Reload history after logging
-    })
-    .catch(error => console.error("Error logging consumption:", error));
+    .then(stockData => {
+        let availableStock = stockData["Physical Stock"];
+
+        if (quantity > availableStock) {
+            alert(`Error: Requested quantity (${quantity}) exceeds available stock (${availableStock}).`);
+            return;
+        }
+
+        // Proceed with logging consumption
+        fetch('/log-consumption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                "Item Name": itemName,
+                "Item Code": itemCode,
+                "Quantity": quantity,
+                "Unit": unit,
+                "Consumed Area": consumedArea,
+                "Shift": shift,
+                "Date": date
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            fetchConsumptionHistory();  // Reload history after logging
+        })
+        .catch(error => console.error("Error logging consumption:", error));
+    });
 }
 
 function fetchConsumptionHistory() {
