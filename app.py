@@ -281,6 +281,27 @@ def get_inventory():
         print("Error fetching inventory:", str(e))
         return jsonify({"error": str(e)}), 500
 
+@app.route('/check-stock', methods=['GET'])
+def check_stock():
+    try:
+        item_code = request.args.get("itemCode")
+
+        # ✅ Open the Inventory sheet
+        inventory_sheet = sh.worksheet("Inventory")
+        inventory_data = inventory_sheet.get_all_records()
+
+        # ✅ Find the item in Inventory
+        for row in inventory_data:
+            if str(row["Item Code"]) == str(item_code):  # Match item code
+                return jsonify({
+                    "Item Code": item_code,
+                    "Physical Stock": row.get("Physical Stock", 0)  # Return stock value
+                })
+
+        return jsonify({"error": "Item not found"}), 404
+    except Exception as e:
+        print("Error checking stock:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 # Run the Flask app
 if __name__ == '__main__':
