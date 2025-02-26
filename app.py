@@ -277,7 +277,6 @@ def get_inventory():
         print("Error fetching inventory stock:", str(e))
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/check-stock', methods=['GET'])
 def check_stock():
     try:
