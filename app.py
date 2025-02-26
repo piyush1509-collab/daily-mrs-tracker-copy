@@ -268,6 +268,11 @@ def new_area_wise_consumption():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/Consumption-Report')
+def consumption_report_page():
+    return render_template('Consumption-Report.html')  # Ensure the file exists
+
 @app.route('/area-wise-consumption')
 def area_wise_consumption():
     try:
