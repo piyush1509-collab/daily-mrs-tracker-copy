@@ -25,11 +25,12 @@
     </thead>
     <tbody id="items-table">  <!-- ✅ Ensure this ID is present -->
         <tr>
-            <td class="border p-2">1</td>
             <td class="border p-2">
-                <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
-                       list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
-            </td>
+            <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
+                   list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+           <datalist id="itemSuggestions"></datalist>  <!-- ✅ This ensures item suggestions work -->
+           </td>
+
             <td class="border p-2"><input type="number" class="quantity border p-1 w-full bg-gray-700 text-white"></td>
             <td class="border p-2">
                 <select class="unit border p-1 w-full bg-gray-700 text-white">
@@ -100,15 +101,21 @@
     </div>
     
     <script>
-        let itemsList = [];
+       let itemsList = [];
 
     function fetchItems() {
+        let nameList = document.getElementById("itemSuggestions");
+
+        if (!nameList) {
+            console.error("Error: 'itemSuggestions' element not found.");
+            return;
+        }
+
         fetch('/get-items')
             .then(response => response.json())
             .then(data => {
                 itemsList = data;
-                let nameList = document.getElementById("itemSuggestions");
-                nameList.innerHTML = "";
+                nameList.innerHTML = ""; // ✅ Clear previous suggestions
 
                 itemsList.forEach(item => {
                     let option = document.createElement("option");
@@ -123,47 +130,18 @@
         let itemName = input.value;
         let row = input.closest("tr");
         let itemCodeInput = row.querySelector(".item-code");
-        let selectedItem = itemsList.find(item => item["Item Name"] === itemName);
-        if (selectedItem) {
-            itemCodeInput.value = selectedItem["Item Code"];
-        } else {
-            itemCodeInput.value = ""; // Clear if no match is found
+
+        if (!itemCodeInput) {
+            console.error("Error: 'item-code' input field not found in row.");
+            return;
         }
+
+        let selectedItem = itemsList.find(item => item["Item Name"] === itemName);
+        itemCodeInput.value = selectedItem ? selectedItem["Item Code"] : ""; // ✅ Prevents undefined values
     }
 
-     document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
         fetchItems();
-
-        // ✅ Wait for the page to load before adding event listener
-        let addItemButton = document.getElementById("add-item");
-        let itemsTable = document.getElementById("items-table");
-
-        if (addItemButton && itemsTable) {
-            addItemButton.addEventListener("click", function () {
-                let itemCount = document.querySelectorAll("#items-table tr").length + 1;
-                let newRow = document.createElement("tr");
-
-                newRow.innerHTML = `
-                    <td class="border p-2">${itemCount}</td>
-                    <td class="border p-2">
-                        <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
-                               list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
-                    </td>
-                    <td class="border p-2"><input type="number" class="quantity border p-1 w-full bg-gray-700 text-white"></td>
-                    <td class="border p-2">
-                        <select class="unit border p-1 w-full bg-gray-700 text-white">
-                            <option value="kg">KG</option>
-                            <option value="pcs">PCS</option>
-                        </select>
-                    </td>
-                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
-                `;
-
-                itemsTable.appendChild(newRow);  // ✅ Now this will work!
-            });
-        } else {
-            console.error("Error: 'add-item' button or 'items-table' not found.");
-        }
     });
         function fetchConsumptionHistory() {
             let area = document.getElementById("filterArea").value;
