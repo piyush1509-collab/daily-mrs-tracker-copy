@@ -42,38 +42,7 @@
         
         <button id="add-item" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Add More Items</button>
         
-        <div class="grid grid-cols-2 gap-4 mt-4">
-            <select id="area" class="border p-2 w-full bg-gray-700 text-white">
-                <option>Furnace</option>
-                <option>Gas Zone</option>
-                <option>Operation</option>
-            </select>
-            <input type="text" id="incharge" class="border p-2 w-full bg-gray-700 text-white" placeholder="Incharge Name">
-            <select id="shift" class="border p-2 w-full bg-gray-700 text-white">
-                <option>Day</option>
-                <option>Night</option>
-            </select>
-            <input type="text" id="receiver" class="border p-2 w-full bg-gray-700 text-white" placeholder="Receiver">
-            <input type="text" id="contractor" class="border p-2 w-full bg-gray-700 text-white" placeholder="Contractor">
-        </div>
-        
-        <div class="mt-4 flex justify-between">
-            <button id="log-consumption" class="bg-green-500 text-white px-4 py-2 rounded">Log Consumption</button>
-            <button id="reset" class="bg-red-500 text-white px-4 py-2 rounded">Reset</button>
-        </div>
-
         <h3 class="text-xl font-bold mt-6">Consumption History</h3>
-        <label for="filterArea">Filter by Area:</label>
-        <select id="filterArea" class="border p-2 w-full bg-gray-700 text-white">
-            <option value="">All Areas</option>
-            <option>Furnace</option>
-            <option>Gas Zone</option>
-            <option>Operation</option>
-        </select>
-        <label for="filterDate">Filter by Date:</label>
-        <input type="date" id="filterDate" class="border p-2 w-full bg-gray-700 text-white">
-        <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
-
         <table class="min-w-full bg-gray-800 rounded-lg mt-4">
             <thead>
                 <tr class="text-left border-b border-gray-700">
@@ -82,6 +51,11 @@
                     <th class="p-3">Item Code</th>
                     <th class="p-3">Quantity</th>
                     <th class="p-3">Unit</th>
+                    <th class="p-3">Consumed Area</th>
+                    <th class="p-3">Shift</th>
+                    <th class="p-3">Area-Incharge</th>
+                    <th class="p-3">Receiver</th>
+                    <th class="p-3">Contractor</th>
                 </tr>
             </thead>
             <tbody id="consumptionHistory" class="text-gray-300"></tbody>
@@ -89,11 +63,37 @@
     </div>
     
     <script>
+        let itemsList = [];
+
+        function fetchItems() {
+            fetch('/get-items')
+                .then(response => response.json())
+                .then(data => {
+                    itemsList = data;
+                    let nameList = document.getElementById("itemSuggestions");
+                    nameList.innerHTML = "";
+
+                    itemsList.forEach(item => {
+                        let option = document.createElement("option");
+                        option.value = item["Item Name"];
+                        nameList.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching items:", error));
+        }
+
+        function autoFillItemCode(input) {
+            let itemName = input.value;
+            let row = input.closest("tr");
+            let itemCodeInput = row.querySelector(".item-code");
+            let selectedItem = itemsList.find(item => item["Item Name"] === itemName);
+            if (selectedItem) {
+                itemCodeInput.value = selectedItem["Item Code"];
+            }
+        }
+
         function fetchConsumptionHistory() {
-            let area = document.getElementById("filterArea").value;
-            let date = document.getElementById("filterDate").value;
-            let url = `/consumption-history?area=${area}&date=${date}`;
-            fetch(url)
+            fetch("/consumption-history")
             .then(response => response.json())
             .then(data => {
                 let historyTable = document.getElementById("consumptionHistory");
@@ -105,6 +105,11 @@
                         <td class="p-3">${entry["Item Code"]}</td>
                         <td class="p-3">${entry.Quantity}</td>
                         <td class="p-3">${entry.Unit}</td>
+                        <td class="p-3">${entry["Consumed Area"]}</td>
+                        <td class="p-3">${entry.Shift}</td>
+                        <td class="p-3">${entry["Area-Incharge"]}</td>
+                        <td class="p-3">${entry.Receiver}</td>
+                        <td class="p-3">${entry.Contractor}</td>
                     </tr>`;
                     historyTable.innerHTML += row;
                 });
@@ -113,12 +118,17 @@
         }
 
         $(document).ready(function() {
+            fetchItems();
             fetchConsumptionHistory();
-            $("#reset").click(function() {
-                $("input, select").val("");
+            $("#add-item").click(function() {
+                $("#items-table").append(`<tr>
+                    <td class="border p-2">${$("#items-table tr").length + 1}</td>
+                    <td class="border p-2"><input type="text" class="item-name border p-1 w-full bg-gray-700 text-white" list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)"></td>
+                    <td class="border p-2"><select class="unit border p-1 w-full bg-gray-700 text-white"><option value="kg">KG</option><option value="pcs">PCS</option></select></td>
+                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
+                </tr>`);
             });
         });
     </script>
 </body>
 </html>
-
