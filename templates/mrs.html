@@ -51,6 +51,15 @@
         <label for="date" class="block text-sm font-medium mb-2">Date</label>
         <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
 
+        <label for="areaIncharge" class="block text-sm font-medium mb-2">Area In-Charge</label>
+        <input type="text" id="areaIncharge" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+
+       <label for="receiver" class="block text-sm font-medium mb-2">Receiver</label>
+       <input type="text" id="receiver" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+
+       <label for="contractor" class="block text-sm font-medium mb-2">Contractor</label>
+       <input type="text" id="contractor" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+
         <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
     </div>
 
@@ -82,6 +91,9 @@
                 <th class="p-3">Unit</th>
                 <th class="p-3">Consumed Area</th>
                 <th class="p-3">Shift</th>
+                <th class="p-3">Area-Incharge</th>
+                <th class="p-3">Receiver</th>
+                <th class="p-3">Contractor</th>
             </tr>
         </thead>
         <tbody id="consumptionHistory" class="text-gray-300"></tbody>
@@ -151,8 +163,10 @@ function logConsumption() {
     let consumedArea = document.getElementById("consumedArea").value;
     let shift = document.getElementById("shift").value;
     let date = document.getElementById("date").value;
-
-    if (!itemName || !itemCode || !quantity || !unit || !consumedArea || !shift || !date) {
+    let areaIncharge = document.getElementById("areaIncharge").value;
+    let receiver = document.getElementById("receiver").value;
+    let contractor = document.getElementById("contractor").value;
+    if (!itemName || !itemCode || !quantity || !unit || !consumedArea || !shift || !date || !areaIncharge || !receiver || !contractor) {
         alert("Please fill all fields before logging consumption.");
         return;
     }
@@ -187,6 +201,9 @@ function logConsumption() {
                 "Consumed Area": consumedArea,
                 "Shift": shift,
                 "Date": date
+                "Area-Incharge": areaIncharge,
+                "Receiver": receiver,
+                "Contractor": contractor
             })
         })
         .then(response => response.json())
@@ -233,6 +250,9 @@ function fetchConsumptionHistory() {
                     <td class="p-3">${entry.Unit || "N/A"}</td>
                     <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
                     <td class="p-3">${entry.Shift || "N/A"}</td>
+                    <td class="p-3">${entry["Area-Incharge"] || "N/A"}</td>
+                    <td class="p-3">${entry["Receiver"] || "N/A"}</td>
+                    <td class="p-3">${entry["Contractor"] || "N/A"}</td>
                 </tr>`;
                 historyTable.innerHTML += newRow;
             });
