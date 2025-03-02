@@ -10,10 +10,35 @@
     <h2 class="text-center text-3xl font-bold my-6">Material Requisition System (MRS)</h2>
 
     <div class="p-6">
-        <label for="searchBox" class="block text-sm font-medium mb-2">Item Name</label>
-        <input type="text" id="searchBox" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full mb-4" oninput="autoFillItemCode()">
-        <datalist id="itemSuggestions"></datalist>
-        <datalist id="codeSuggestions"></datalist>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4" id="itemsTable">
+    <thead>
+        <tr>
+            <th class="p-3">Item Name</th>
+            <th class="p-3">Item Code</th>
+            <th class="p-3">Quantity</th>
+            <th class="p-3">Unit</th>
+            <th class="p-3">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="item-row">
+            <td><input type="text" name="item_name[]" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full" oninput="autoFillItemCode(this)"></td>
+            <td><input type="text" name="item_code[]" class="bg-gray-800 text-white p-2 rounded w-full" readonly></td>
+            <td><input type="number" name="quantity[]" class="bg-gray-800 text-white p-2 rounded w-full"></td>
+            <td>
+                <select name="unit[]" class="bg-gray-800 text-white p-2 rounded w-full">
+                    <option>Meter</option>
+                    <option>Litre</option>
+                    <option>Nos</option>
+                    <option>KG</option>
+                </select>
+            </td>
+            <td><button type="button" onclick="removeRow(this)" class="bg-red-500 px-2 py-1 rounded">X</button></td>
+        </tr>
+    </tbody>
+</table>
+
+<button type="button" onclick="addRow()" class="bg-green-500 px-4 py-2 rounded-lg hover:bg-green-600 mt-3">Add More Items</button>
 
         <label for="itemCode" class="block text-sm font-medium mb-2">Item Code</label>
         <input type="text" id="itemCode" class="bg-gray-800 text-white p-2 rounded w-full mb-4" readonly>
@@ -262,7 +287,38 @@ function fetchConsumptionHistory() {
     })
     .catch(error => console.error("Error fetching consumption history:", error));
 }
-        
+        function addRow() {
+    let table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
+    let newRow = document.createElement("tr");
+    newRow.classList.add("item-row");
+    newRow.innerHTML = `
+        <td><input type="text" name="item_name[]" list="itemSuggestions" class="bg-gray-800 text-white p-2 rounded w-full" oninput="autoFillItemCode(this)"></td>
+        <td><input type="text" name="item_code[]" class="bg-gray-800 text-white p-2 rounded w-full" readonly></td>
+        <td><input type="number" name="quantity[]" class="bg-gray-800 text-white p-2 rounded w-full"></td>
+        <td>
+            <select name="unit[]" class="bg-gray-800 text-white p-2 rounded w-full">
+                <option>Meter</option>
+                <option>Litre</option>
+                <option>Nos</option>
+                <option>KG</option>
+            </select>
+        </td>
+        <td><button type="button" onclick="removeRow(this)" class="bg-red-500 px-2 py-1 rounded">X</button></td>
+    `;
+    table.appendChild(newRow);
+}
+
+function removeRow(button) {
+    button.closest("tr").remove();
+}
+
+function autoFillItemCode(input) {
+    let itemCodeInput = input.closest("tr").querySelector("input[name='item_code[]']");
+    let selectedItem = itemsList.find(item => item["Item Name"] === input.value);
+    if (selectedItem) {
+        itemCodeInput.value = selectedItem["Item Code"];
+    }
+}
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
