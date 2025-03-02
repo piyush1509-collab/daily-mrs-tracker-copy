@@ -53,7 +53,6 @@ def get_names():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# API to get consumption history
 @app.route('/consumption-history', methods=['GET'])
 def get_consumption_history():
     try:
@@ -65,25 +64,26 @@ def get_consumption_history():
         date_filter = request.args.get("date", "").strip()
 
         # Filter records based on area & date
-filtered_records = [
-    {
-        "Date": record.get("Date", ""),
-        "Item Name": record.get("Item Name", ""),
-        "Item Code": record.get("Item Code", ""),
-        "Quantity": record.get("Quantity", ""),
-        "Unit": record.get("Unit", ""),
-        "Consumed Area": record.get("Consumed Area", ""),
-        "Shift": record.get("Shift", ""),
-        "Area Incharge": record.get("Area Incharge", ""),  # ✅ Added
-        "Receiver": record.get("Receiver", ""),  # ✅ Added
-        "Contractor": record.get("Contractor", "")  # ✅ Added
-    }
-    for record in records
-    if (not area_filter or record.get("Consumed Area", "").strip() == area_filter)
-    and (not date_filter or record.get("Date", "").strip() == date_filter)
-]
+        filtered_records = [
+            {
+                "Date": record.get("Date", ""),
+                "Item Name": record.get("Item Name", ""),
+                "Item Code": record.get("Item Code", ""),
+                "Quantity": record.get("Quantity", ""),
+                "Unit": record.get("Unit", ""),
+                "Consumed Area": record.get("Consumed Area", ""),
+                "Shift": record.get("Shift", ""),
+                "Area Incharge": record.get("Area Incharge", ""),  # ✅ Added
+                "Receiver": record.get("Receiver", ""),  # ✅ Added
+                "Contractor": record.get("Contractor", "")  # ✅ Added
+            }
+            for record in records
+            if (not area_filter or record.get("Consumed Area", "").strip() == area_filter)
+            and (not date_filter or record.get("Date", "").strip() == date_filter)
+        ]
 
         return jsonify(filtered_records)
+
     except Exception as e:
         print("Error fetching consumption history:", str(e))
         return jsonify({"error": str(e)}), 500
