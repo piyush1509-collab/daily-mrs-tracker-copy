@@ -65,7 +65,7 @@ def get_consumption_history():
         date_filter = request.args.get("date", "").strip()
 
         # Filter records based on area & date
-       filtered_records = [
+filtered_records = [
     {
         "Date": record.get("Date", ""),
         "Item Name": record.get("Item Name", ""),
