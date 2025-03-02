@@ -25,7 +25,10 @@
             <tbody id="items-table">
                 <tr>
                     <td class="border p-2">1</td>
-                    <td class="border p-2"><input type="text" class="item-name border p-1 w-full" placeholder="Enter Item"></td>
+                    <td class="border p-2">
+                        <input type="text" class="item-name border p-1 w-full" list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+                        <datalist id="itemSuggestions"></datalist>
+                    </td>
                     <td class="border p-2">
                         <select class="unit border p-1 w-full">
                             <option value="kg">KG</option>
@@ -61,63 +64,40 @@
     </div>
     
     <script>
-        $(document).ready(function() {
-            let itemCount = 1;
-            $("#add-item").click(function() {
-                itemCount++;
-                $("#items-table").append(`
-                    <tr>
-                        <td class="border p-2">${itemCount}</td>
-                        <td class="border p-2"><input type="text" class="item-name border p-1 w-full" placeholder="Enter Item"></td>
-                        <td class="border p-2">
-                            <select class="unit border p-1 w-full">
-                                <option value="kg">KG</option>
-                                <option value="pcs">PCS</option>
-                            </select>
-                        </td>
-                        <td class="border p-2"><input type="text" class="item-code border p-1 w-full" readonly></td>
-                    </tr>
-                `);
-            });
-            
-            $(document).on("input", ".item-name", function() {
-                let itemName = $(this).val();
-                let itemCodeInput = $(this).closest("tr").find(".item-code");
-                if (itemName) {
-                    $.get("/get-item-code", { item_name: itemName }, function(data) {
-                        itemCodeInput.val(data.item_code || "");
+        let itemsList = [];
+
+        function fetchItems() {
+            fetch('/get-items')
+                .then(response => response.json())
+                .then(data => {
+                    itemsList = data;
+                    let nameList = document.getElementById("itemSuggestions");
+                    nameList.innerHTML = "";
+
+                    itemsList.forEach(item => {
+                        if (item["Item Name"] && item["Item Code"]) {
+                            let option = document.createElement("option");
+                            option.value = item["Item Name"];
+                            nameList.appendChild(option);
+                        }
                     });
-                }
-            });
-            
-            $("#log-consumption").click(function() {
-                let consumptionData = [];
-                $("#items-table tr").each(function() {
-                    let itemName = $(this).find(".item-name").val();
-                    let unit = $(this).find(".unit").val();
-                    let itemCode = $(this).find(".item-code").val();
-                    if (itemName && itemCode) {
-                        consumptionData.push({ item_name: itemName, unit: unit, item_code: itemCode });
-                    }
-                });
-                
-                let requestData = {
-                    date: $("#date").val(),
-                    area: $("#area").val(),
-                    incharge: $("#incharge").val(),
-                    shift: $("#shift").val(),
-                    receiver: $("#receiver").val(),
-                    contractor: $("#contractor").val(),
-                    items: consumptionData
-                };
-                
-                $.post("/log-consumption", requestData, function(response) {
-                    alert("Consumption Logged Successfully!");
-                    location.reload();
-                });
-            });
+                })
+                .catch(error => console.error("Error fetching items:", error));
+        }
+
+        function autoFillItemCode(input) {
+            let itemName = input.value;
+            let row = input.closest("tr");
+            let itemCodeInput = row.querySelector(".item-code");
+            let selectedItem = itemsList.find(item => item["Item Name"] === itemName);
+            if (selectedItem) {
+                itemCodeInput.value = selectedItem["Item Code"];
+            }
+        }
+
+        $(document).ready(function() {
+            fetchItems();
         });
     </script>
 </body>
 </html>
-
