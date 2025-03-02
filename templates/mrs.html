@@ -7,15 +7,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </head>
-<body class="p-6 bg-gray-100">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+<body class="p-6 bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded shadow">
         <h2 class="text-xl font-bold mb-4 text-center">Material Requisition Slip</h2>
         
-        <label>Date: <input type="date" id="date" class="border p-1"></label>
+        <label>Date: <input type="date" id="date" class="border p-1 bg-gray-700 text-white"></label>
         
-        <table class="w-full mt-4 border-collapse border border-gray-400">
+        <table class="w-full mt-4 border-collapse border border-gray-600">
             <thead>
-                <tr class="bg-gray-200">
+                <tr class="bg-gray-700">
                     <th class="border p-2">S. L NO</th>
                     <th class="border p-2">Item Name</th>
                     <th class="border p-2">Unit</th>
@@ -26,16 +26,16 @@
                 <tr>
                     <td class="border p-2">1</td>
                     <td class="border p-2">
-                        <input type="text" class="item-name border p-1 w-full" list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+                        <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white" list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
                         <datalist id="itemSuggestions"></datalist>
                     </td>
                     <td class="border p-2">
-                        <select class="unit border p-1 w-full">
+                        <select class="unit border p-1 w-full bg-gray-700 text-white">
                             <option value="kg">KG</option>
                             <option value="pcs">PCS</option>
                         </select>
                     </td>
-                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full" readonly></td>
+                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
                 </tr>
             </tbody>
         </table>
@@ -43,29 +43,43 @@
         <button id="add-item" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Add More Items</button>
         
         <div class="grid grid-cols-2 gap-4 mt-4">
-            <select id="area" class="border p-2 w-full">
+            <select id="area" class="border p-2 w-full bg-gray-700 text-white">
                 <option>Furnace</option>
                 <option>Gas Zone</option>
                 <option>Operation</option>
             </select>
-            <input type="text" id="incharge" class="border p-2 w-full" placeholder="Incharge Name">
-            <select id="shift" class="border p-2 w-full">
+            <input type="text" id="incharge" class="border p-2 w-full bg-gray-700 text-white" placeholder="Incharge Name">
+            <select id="shift" class="border p-2 w-full bg-gray-700 text-white">
                 <option>Day</option>
                 <option>Night</option>
             </select>
-            <input type="text" id="receiver" class="border p-2 w-full" placeholder="Receiver">
-            <input type="text" id="contractor" class="border p-2 w-full" placeholder="Contractor">
+            <input type="text" id="receiver" class="border p-2 w-full bg-gray-700 text-white" placeholder="Receiver">
+            <input type="text" id="contractor" class="border p-2 w-full bg-gray-700 text-white" placeholder="Contractor">
         </div>
         
         <div class="mt-4 flex justify-between">
             <button id="log-consumption" class="bg-green-500 text-white px-4 py-2 rounded">Log Consumption</button>
             <button id="reset" class="bg-red-500 text-white px-4 py-2 rounded">Reset</button>
         </div>
+
+        <h3 class="text-xl font-bold mt-6">Consumption History</h3>
+        <table class="min-w-full bg-gray-800 rounded-lg mt-4">
+            <thead>
+                <tr class="text-left border-b border-gray-700">
+                    <th class="p-3">Date</th>
+                    <th class="p-3">Item Name</th>
+                    <th class="p-3">Item Code</th>
+                    <th class="p-3">Quantity</th>
+                    <th class="p-3">Unit</th>
+                </tr>
+            </thead>
+            <tbody id="consumptionHistory" class="text-gray-300"></tbody>
+        </table>
     </div>
     
     <script>
         let itemsList = [];
-
+        
         function fetchItems() {
             fetch('/get-items')
                 .then(response => response.json())
@@ -95,8 +109,29 @@
             }
         }
 
+        function fetchConsumptionHistory() {
+            fetch("/consumption-history")
+            .then(response => response.json())
+            .then(data => {
+                let historyTable = document.getElementById("consumptionHistory");
+                historyTable.innerHTML = "";
+                data.forEach(entry => {
+                    let row = `<tr>
+                        <td class="p-3">${entry.Date}</td>
+                        <td class="p-3">${entry["Item Name"]}</td>
+                        <td class="p-3">${entry["Item Code"]}</td>
+                        <td class="p-3">${entry.Quantity}</td>
+                        <td class="p-3">${entry.Unit}</td>
+                    </tr>`;
+                    historyTable.innerHTML += row;
+                });
+            })
+            .catch(error => console.error("Error fetching consumption history:", error));
+        }
+
         $(document).ready(function() {
             fetchItems();
+            fetchConsumptionHistory();
         });
     </script>
 </body>
