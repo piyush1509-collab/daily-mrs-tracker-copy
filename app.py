@@ -158,43 +158,43 @@ def get_tools():
 def log_consumption():
     try:
         data = request.json
-        items = data.get("Items", [])  # Ensure "Items" is a list, avoid KeyError
+        items = data.get("Items", [])  # Ensure "Items" is a list
 
-    for item in items:
-        item_code = item.get("Item Code")
-        item_name = item.get("Item Name")
-        quantity = int(item.get("Quantity", 0))
-        unit = item.get("Unit")
+        for item in items:
+            item_code = item.get("Item Code")
+            item_name = item.get("Item Name")
+            quantity = int(item.get("Quantity", 0))
+            unit = item.get("Unit")
 
-        # ✅ Open the Inventory and Consumption Log sheets
-        inventory_data = inventory_sheet.get_all_records()
+            # ✅ Open the Inventory and Consumption Log sheets
+            inventory_data = inventory_sheet.get_all_records()
 
-        # ✅ Find and update Physical Stock in Inventory
-        for idx, row in enumerate(inventory_data):
-            if str(row["Item Code"]) == str(item_code):
-                physical_stock = int(row.get("Physical Stock", 0))
+            # ✅ Find and update Physical Stock in Inventory
+            for idx, row in enumerate(inventory_data):
+                if str(row["Item Code"]) == str(item_code):
+                    physical_stock = int(row.get("Physical Stock", 0))
 
-                if quantity > physical_stock:
-                    return jsonify({"error": f"Requested quantity ({quantity}) exceeds stock ({physical_stock}) for {item_name}"}), 400
+                    if quantity > physical_stock:
+                        return jsonify({"error": f"Requested quantity ({quantity}) exceeds stock ({physical_stock}) for {item_name}"}), 400
 
-                new_stock = max(0, physical_stock - quantity)
-                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update Physical Stock column
-                break
+                    new_stock = max(0, physical_stock - quantity)
+                    inventory_sheet.update_cell(idx + 2, 3, new_stock)  # ✅ Update Physical Stock column
+                    break
 
-        # ✅ Append entry to Consumption Log
-        log_entry = [
-            data.get("Date", ""), item_name, item_code, quantity, unit,
-            data.get("Consumed Area", ""), data.get("Shift", ""),
-            data.get("Area-Incharge", ""), data.get("Receiver", ""),
-            data.get("Contractor", "")
-        ]
-        consumption_sheet.append_row(log_entry)
+            # ✅ Append entry to Consumption Log
+            log_entry = [
+                data.get("Date", ""), item_name, item_code, quantity, unit,
+                data.get("Consumed Area", ""), data.get("Shift", ""),
+                data.get("Area-Incharge", ""), data.get("Receiver", ""),
+                data.get("Contractor", "")
+            ]
+            consumption_sheet.append_row(log_entry)
 
-    return jsonify({"message": "Consumption logged successfully!"})
+        return jsonify({"message": "Consumption logged successfully!"})
 
-except Exception as e:  # ✅ Ensure the except block is correctly placed
-    print("Error logging consumption:", str(e))
-    return jsonify({"error": str(e)}), 500
+    except Exception as e:  # ✅ Ensure the except block is correctly placed
+        print("Error logging consumption:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
