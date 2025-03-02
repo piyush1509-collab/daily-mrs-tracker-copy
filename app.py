@@ -44,46 +44,25 @@ def get_items():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/get-names', methods=['GET'])
-def get_names():
-    try:
-        names_sheet = sh.worksheet("Names")  # Open "Names" sheet
-        records = names_sheet.get_all_records()
-        return jsonify(records)  # Return all names as JSON
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+# API to get consumption history
 @app.route('/consumption-history', methods=['GET'])
 def get_consumption_history():
     try:
         sheet = sh.worksheet("Consumption Log")  # Ensure correct sheet name
         records = sheet.get_all_records()
-        print("Fetched Records:", records)
+
         # Extract query parameters
         area_filter = request.args.get("area", "").strip()
         date_filter = request.args.get("date", "").strip()
 
         # Filter records based on area & date
         filtered_records = [
-            {
-                "Date": record.get("Date", ""),
-                "Item Name": record.get("Item Name", ""),
-                "Item Code": record.get("Item Code", ""),
-                "Quantity": record.get("Quantity", ""),
-                "Unit": record.get("Unit", ""),
-                "Consumed Area": record.get("Consumed Area", ""),
-                "Shift": record.get("Shift", ""),
-                "Area Incharge": record.get("Area Incharge", ""),  # ✅ Added
-                "Receiver": record.get("Receiver", ""),  # ✅ Added
-                "Contractor": record.get("Contractor", "")  # ✅ Added
-            }
-            for record in records
+            record for record in records
             if (not area_filter or record.get("Consumed Area", "").strip() == area_filter)
             and (not date_filter or record.get("Date", "").strip() == date_filter)
         ]
 
         return jsonify(filtered_records)
-
     except Exception as e:
         print("Error fetching consumption history:", str(e))
         return jsonify({"error": str(e)}), 500
@@ -186,10 +165,6 @@ def log_consumption():
         consumed_area = data["Consumed Area"]
         shift = data["Shift"]
         date = data["Date"]
-        area_incharge = data["Area Incharge"]
-        receiver = data["Receiver"]
-        contractor = data["Contractor"]
-
 
         # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
@@ -210,7 +185,7 @@ def log_consumption():
                 break
 
         # ✅ Append entry to Consumption Log
-        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift]
         consumption_sheet.append_row(log_entry)
 
         return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
