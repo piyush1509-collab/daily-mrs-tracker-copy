@@ -168,6 +168,7 @@ def log_consumption():
         area_incharge = data["Area-Incharge"]
         receiver = data["Receiver"]
         contractor = data["Contractor"]
+
         # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
         consumption_sheet = sh.worksheet("Consumption Log")
@@ -186,8 +187,8 @@ def log_consumption():
                 inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update Physical Stock column
                 break
 
-        # ✅ Append entry to Consumption Log
-        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift]
+        # ✅ Append entry to Consumption Log (with correct fields)
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
         consumption_sheet.append_row(log_entry)
 
         return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
