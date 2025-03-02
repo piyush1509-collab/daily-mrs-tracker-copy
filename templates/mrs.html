@@ -14,33 +14,34 @@
         <label>Date: <input type="date" id="date" class="border p-1 bg-gray-700 text-white"></label>
         
         <table class="w-full mt-4 border-collapse border border-gray-600">
-            <thead>
-                <tr class="bg-gray-700">
-                    <th class="border p-2">S. L NO</th>
-                    <th class="border p-2">Item Name</th>
-                    <th class="border p-2">Quantity</th>
-                    <th class="border p-2">Unit</th>
-                    <th class="border p-2">Item Code</th>
-                </tr>
-            </thead>
-            <tbody id="-table">
-                <tr>
-                    <td class="border p-2">1</td>
-                    <td class="border p-2">
-                        <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white" list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
-                        <datalist id="itemSuggestions"></datalist>
-                    </td>
-                    <td class="border p-2"><input type="number" class="quantity border p-1 w-full bg-gray-700 text-white"></td>
-                    <td class="border p-2">
-                        <select class="unit border p-1 w-full bg-gray-700 text-white">
-                            <option value="kg">KG</option>
-                            <option value="pcs">PCS</option>
-                        </select>
-                    </td>
-                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
-                </tr>
-            </tbody>
-        </table>
+    <thead>
+        <tr class="bg-gray-700">
+            <th class="border p-2">S. L NO</th>
+            <th class="border p-2">Item Name</th>
+            <th class="border p-2">Quantity</th>
+            <th class="border p-2">Unit</th>
+            <th class="border p-2">Item Code</th>
+        </tr>
+    </thead>
+    <tbody id="items-table">  <!-- ✅ Ensure this ID is present -->
+        <tr>
+            <td class="border p-2">1</td>
+            <td class="border p-2">
+                <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
+                       list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+            </td>
+            <td class="border p-2"><input type="number" class="quantity border p-1 w-full bg-gray-700 text-white"></td>
+            <td class="border p-2">
+                <select class="unit border p-1 w-full bg-gray-700 text-white">
+                    <option value="kg">KG</option>
+                    <option value="pcs">PCS</option>
+                </select>
+            </td>
+            <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
+        </tr>
+    </tbody>
+</table>
+
         
         <button id="add-item" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
           Add More Items
@@ -130,34 +131,40 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+     document.addEventListener("DOMContentLoaded", function () {
         fetchItems();
-         // Add event listener for "Add More Items" button
-        document.getElementById("add-item").addEventListener("click", function () {
-            let itemCount = document.querySelectorAll("#items-table tr").length + 1;
-            let newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td class="border p-2">${itemCount}</td>
-                <td class="border p-2">
-                    <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
-                           list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
-                </td>
-                <td class="border p-2">
-                    <input type="number" class="quantity border p-1 w-full bg-gray-700 text-white">
-                </td>
-                <td class="border p-2">
-                    <select class="unit border p-1 w-full bg-gray-700 text-white">
-                        <option value="kg">KG</option>
-                        <option value="pcs">PCS</option>
-                    </select>
-                </td>
-                <td class="border p-2">
-                    <input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly>
-                </td>
-            `;
-            document.getElementById("items-table").appendChild(newRow);
-         }); 
-     });
+
+        // ✅ Wait for the page to load before adding event listener
+        let addItemButton = document.getElementById("add-item");
+        let itemsTable = document.getElementById("items-table");
+
+        if (addItemButton && itemsTable) {
+            addItemButton.addEventListener("click", function () {
+                let itemCount = document.querySelectorAll("#items-table tr").length + 1;
+                let newRow = document.createElement("tr");
+
+                newRow.innerHTML = `
+                    <td class="border p-2">${itemCount}</td>
+                    <td class="border p-2">
+                        <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
+                               list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+                    </td>
+                    <td class="border p-2"><input type="number" class="quantity border p-1 w-full bg-gray-700 text-white"></td>
+                    <td class="border p-2">
+                        <select class="unit border p-1 w-full bg-gray-700 text-white">
+                            <option value="kg">KG</option>
+                            <option value="pcs">PCS</option>
+                        </select>
+                    </td>
+                    <td class="border p-2"><input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly></td>
+                `;
+
+                itemsTable.appendChild(newRow);  // ✅ Now this will work!
+            });
+        } else {
+            console.error("Error: 'add-item' button or 'items-table' not found.");
+        }
+    });
         function fetchConsumptionHistory() {
             let area = document.getElementById("filterArea").value;
             let date = document.getElementById("filterDate").value;
