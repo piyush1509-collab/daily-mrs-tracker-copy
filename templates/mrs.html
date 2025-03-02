@@ -166,6 +166,7 @@ function logConsumption() {
     let areaIncharge = document.getElementById("areaIncharge").value;
     let receiver = document.getElementById("receiver").value;
     let contractor = document.getElementById("contractor").value;
+
     if (!itemName || !itemCode || !quantity || !unit || !consumedArea || !shift || !date || !areaIncharge || !receiver || !contractor) {
         alert("Please fill all fields before logging consumption.");
         return;
@@ -200,7 +201,7 @@ function logConsumption() {
                 "Unit": unit,
                 "Consumed Area": consumedArea,
                 "Shift": shift,
-                "Date": date
+                "Date": date,  // ✅ Fixed comma issue
                 "Area-Incharge": areaIncharge,
                 "Receiver": receiver,
                 "Contractor": contractor
@@ -222,7 +223,6 @@ function logConsumption() {
     })
     .catch(error => console.error("Error checking stock:", error));
 }
-
 function fetchConsumptionHistory() {
     let filterArea = document.getElementById("filterArea").value;
     let filterDate = document.getElementById("filterDate").value;
