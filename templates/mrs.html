@@ -191,19 +191,22 @@ function logConsumption() {
         }
 
         // ✅ Proceed with logging consumption
-        fetch('/log-consumption', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                "Item Name": itemName,
-                "Item Code": itemCode,
-                "Quantity": quantity,
-                "Unit": unit,
-                "Consumed Area": consumedArea,
-                "Shift": shift,
-                "Date": date
-            })
-        })
+       fetch('/log-consumption', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        "Item Name": itemName,
+        "Item Code": itemCode,
+        "Quantity": quantity,
+        "Unit": unit,
+        "Consumed Area": consumedArea,
+        "Shift": shift,
+        "Date": date,
+        "Area Incharge": document.getElementById("areaIncharge").value,  // ✅ Added
+        "Receiver": document.getElementById("receiver").value,  // ✅ Added
+        "Contractor": document.getElementById("contractor").value  // ✅ Added
+    })
+})
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -301,7 +304,7 @@ function fetchConsumptionHistory() {
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
-            fetchNamesAndPopulateDropdowns();
+           fetchNamesForSuggestions();
         };
     </script>
 </body>
