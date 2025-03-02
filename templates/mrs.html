@@ -218,7 +218,7 @@ function logConsumption() {
     .catch(error => console.error("Error checking stock:", error));
 }
 function fetchNamesForSuggestions() {
-    fetch('/get-names')
+  fetch('/fetch-names')  // Updated to match new API name
         .then(response => response.json())
         .then(data => {
             let areaInchargeList = document.getElementById("areaInchargeList");
