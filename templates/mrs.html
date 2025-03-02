@@ -39,18 +39,6 @@
             <option>ELECTRICAL</option>
             <option>OPERATION</option>
         </select>
-       <label for="areaIncharge" class="block text-sm font-medium mb-2">Area Incharge</label>
-       <input type="text" id="areaIncharge" list="areaInchargeList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-       <datalist id="areaInchargeList"></datalist>
-
-       <label for="receiver" class="block text-sm font-medium mb-2">Receiver</label>
-       <input type="text" id="receiver" list="receiverList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-       <datalist id="receiverList"></datalist>
-
-       <label for="contractor" class="block text-sm font-medium mb-2">Contractor</label>
-       <input type="text" id="contractor" list="contractorList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
-       <datalist id="contractorList"></datalist>
-
 
         <label for="shift" class="block text-sm font-medium mb-2">Shift</label>
         <select id="shift" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -85,22 +73,19 @@
     <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
 
     <table class="min-w-full bg-gray-800 rounded-lg mt-4">
-<thead>
-      <tr class="text-left border-b border-gray-700">
-         <th class="p-3">Date</th>
-         <th class="p-3">Item Name</th>
-         <th class="p-3">Item Code</th>
-         <th class="p-3">Quantity</th>
-         <th class="p-3">Unit</th>
-         <th class="p-3">Consumed Area</th>
-         <th class="p-3">Shift</th>
-         <th class="p-3">Area Incharge</th>  <!-- ✅ Added -->
-         <th class="p-3">Receiver</th>  <!-- ✅ Added -->
-         <th class="p-3">Contractor</th>  <!-- ✅ Added -->
-     </tr>
- </thead>
- <tbody id="consumptionHistory" class="text-gray-300"></tbody>
-</table>
+        <thead>
+            <tr class="text-left border-b border-gray-700">
+                <th class="p-3">Date</th>
+                <th class="p-3">Item Name</th>
+                <th class="p-3">Item Code</th>
+                <th class="p-3">Quantity</th>
+                <th class="p-3">Unit</th>
+                <th class="p-3">Consumed Area</th>
+                <th class="p-3">Shift</th>
+            </tr>
+        </thead>
+        <tbody id="consumptionHistory" class="text-gray-300"></tbody>
+    </table>
 
     <script>
         let itemsList = [];
@@ -109,70 +94,55 @@
     fetch('/get-items')
         .then(response => response.json())
         .then(data => {
-            console.log("Fetched Items from API:", data); // ✅ Debugging output
-
             if (!data || !Array.isArray(data)) {
                 console.error("Error: Invalid data format for items.", data);
                 return;
             }
 
-            itemsList = data;  // ✅ Store fetched items in `itemsList`
-
+            itemsList = data;
             let nameList = document.getElementById("itemSuggestions");
             let codeList = document.getElementById("codeSuggestions");
+
+            if (!nameList || !codeList) {
+                console.error("Error: itemSuggestions or codeSuggestions is missing in the HTML.");
+                return;
+            }
 
             nameList.innerHTML = "";
             codeList.innerHTML = "";
 
-            data.forEach(item => {
+            itemsList.forEach(item => {
                 if (item["Item Name"] && item["Item Code"]) {
                     let nameOption = document.createElement("option");
                     nameOption.value = item["Item Name"];
+                    nameOption.dataset.code = item["Item Code"];
                     nameList.appendChild(nameOption);
 
                     let codeOption = document.createElement("option");
                     codeOption.value = item["Item Code"];
+                    codeOption.dataset.name = item["Item Name"];
                     codeList.appendChild(codeOption);
                 }
             });
         })
         .catch(error => console.error("Error fetching items:", error));
 }
-       function autoFillItemCode() {
-    let searchBox = document.getElementById("searchBox").value;
-    let itemCodeInput = document.getElementById("itemCode");
-
-    if (!itemsList || itemsList.length === 0) {
-        console.error("Items list is empty!");
-        return;
+        function autoFillItemCode() {
+        let searchBox = document.getElementById("searchBox").value;
+        let itemCodeInput = document.getElementById("itemCode");
+        let selectedItem = itemsList.find(item => item["Item Name"] === searchBox);
+        if (selectedItem) {
+            itemCodeInput.value = selectedItem["Item Code"];
+        }
     }
-
-    let selectedItem = itemsList.find(item => item["Item Name"].trim() === searchBox.trim());
-
-    if (selectedItem && selectedItem["Item Code"]) {
-        itemCodeInput.value = selectedItem["Item Code"];
-    } else {
-        itemCodeInput.value = "";  // ✅ Keep blank instead of "N/A"
+        function autoFillItemName() {
+        let itemCodeInput = document.getElementById("itemCode").value;
+        let searchBox = document.getElementById("searchBox");
+        let selectedItem = itemsList.find(item => item["Item Code"].toString() === itemCodeInput);
+        if (selectedItem) {
+            searchBox.value = selectedItem["Item Name"];
+        }
     }
-}
-      function autoFillItemName() {
-    let itemCodeInput = document.getElementById("itemCode").value;
-    let searchBox = document.getElementById("searchBox");
-
-    if (!itemsList || itemsList.length === 0) {
-        console.error("Items list is empty!");
-        return;
-    }
-
-    let selectedItem = itemsList.find(item => item["Item Code"].toString().trim() === itemCodeInput.trim());
-
-    if (selectedItem && selectedItem["Item Name"]) {
-        searchBox.value = selectedItem["Item Name"];
-    } else {
-        searchBox.value = "";  // ✅ Keep blank instead of "N/A"
-    }
-}
-
 function logConsumption() {
     let itemName = document.getElementById("searchBox").value;
     let itemCode = document.getElementById("itemCode").value;
@@ -206,22 +176,19 @@ function logConsumption() {
         }
 
         // ✅ Proceed with logging consumption
-       fetch('/log-consumption', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        "Item Name": itemName,
-        "Item Code": itemCode,
-        "Quantity": quantity,
-        "Unit": unit,
-        "Consumed Area": consumedArea,
-        "Shift": shift,
-        "Date": date,
-        "Area Incharge": document.getElementById("areaIncharge").value,  // ✅ Added
-        "Receiver": document.getElementById("receiver").value,  // ✅ Added
-        "Contractor": document.getElementById("contractor").value  // ✅ Added
-    })
-})
+        fetch('/log-consumption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                "Item Name": itemName,
+                "Item Code": itemCode,
+                "Quantity": quantity,
+                "Unit": unit,
+                "Consumed Area": consumedArea,
+                "Shift": shift,
+                "Date": date
+            })
+        })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -237,42 +204,6 @@ function logConsumption() {
         });
     })
     .catch(error => console.error("Error checking stock:", error));
-}
-function fetchNamesForSuggestions() {
-    fetch('/get-names')
-        .then(response => response.json())
-        .then(data => {
-            let areaInchargeList = document.getElementById("areaInchargeList");
-            let receiverList = document.getElementById("receiverList");
-            let contractorList = document.getElementById("contractorList");
-
-            // Clear previous suggestions
-            areaInchargeList.innerHTML = "";
-            receiverList.innerHTML = "";
-            contractorList.innerHTML = "";
-
-            // Populate datalist with names from the "Names" sheet
-            data.forEach(entry => {
-                if (entry["Area Incharge"]) {
-                    let option = document.createElement("option");
-                    option.value = entry["Area Incharge"];
-                    areaInchargeList.appendChild(option);
-                }
-
-                if (entry["Receiver"]) {
-                    let option = document.createElement("option");
-                    option.value = entry["Receiver"];
-                    receiverList.appendChild(option);
-                }
-
-                if (entry["Contractor"]) {
-                    let option = document.createElement("option");
-                    option.value = entry["Contractor"];
-                    contractorList.appendChild(option);
-                }
-            });
-        })
-        .catch(error => console.error("Error fetching names:", error));
 }
 
 function fetchConsumptionHistory() {
@@ -291,49 +222,31 @@ function fetchConsumptionHistory() {
 
         if (Array.isArray(data)) {
             data.forEach(entry => {
-               let itemName = entry["Item Name"] || "N/A";  
-               let itemCode = entry["Item Code"] || "N/A";
+                let itemName = entry["Item name"] || entry["Item Name"] || "N/A";  // 🔍 Fix field names
+                let itemCode = entry["Item code"] || entry["Item Code"] || "N/A";  // 🔍 Fix field names
 
-              let newRow = `<tr>
-                 <td class="p-3">${entry.Date || "N/A"}</td>
-                 <td class="p-3">${itemName}</td>
-                 <td class="p-3">${itemCode}</td>
-                 <td class="p-3">${entry.Quantity || "N/A"}</td>
-                 <td class="p-3">${entry.Unit || "N/A"}</td>
-                 <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
-                 <td class="p-3">${entry.Shift || "N/A"}</td>
-                 <td class="p-3">${entry["Area Incharge"] || "N/A"}</td>  <!-- ✅ Added -->
-                 <td class="p-3">${entry["Receiver"] || "N/A"}</td>  <!-- ✅ Added -->
-                 <td class="p-3">${entry["Contractor"] || "N/A"}</td>  <!-- ✅ Added -->
+                let newRow = `<tr>
+                    <td class="p-3">${entry.Date || "N/A"}</td>
+                    <td class="p-3">${itemName}</td>
+                    <td class="p-3">${itemCode}</td>
+                    <td class="p-3">${entry.Quantity || "N/A"}</td>
+                    <td class="p-3">${entry.Unit || "N/A"}</td>
+                    <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
+                    <td class="p-3">${entry.Shift || "N/A"}</td>
                 </tr>`;
                 historyTable.innerHTML += newRow;
-           fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        let historyTable = document.getElementById("consumptionHistory");
-        historyTable.innerHTML = "";  // Clear previous data
-
-        console.log("Fetched history data:", data);  // Debugging
-
-        if (Array.isArray(data)) {
-            data.forEach(entry => {
-                let itemName = entry["Item Name"] || entry["item name"] || "N/A";
-                let itemCode = entry["Item Code"] || entry["item code"] || "N/A";
-                // ... rest of your code ...
             });
         } else {
-            historyTable.innerHTML = "<tr><td colspan='10' class='p-3 text-center'>No data found</td></tr>";
+            historyTable.innerHTML = "<tr><td colspan='7' class='p-3 text-center'>No data found</td></tr>";
         }
     })
     .catch(error => console.error("Error fetching consumption history:", error));
 }
-                         
+        
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
-           fetchNamesForSuggestions();
         };
     </script>
 </body>
 </html>
-
