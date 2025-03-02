@@ -39,6 +39,18 @@
             <option>ELECTRICAL</option>
             <option>OPERATION</option>
         </select>
+       <label for="areaIncharge" class="block text-sm font-medium mb-2">Area Incharge</label>
+       <input type="text" id="areaIncharge" list="areaInchargeList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+       <datalist id="areaInchargeList"></datalist>
+
+       <label for="receiver" class="block text-sm font-medium mb-2">Receiver</label>
+       <input type="text" id="receiver" list="receiverList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+       <datalist id="receiverList"></datalist>
+
+       <label for="contractor" class="block text-sm font-medium mb-2">Contractor</label>
+       <input type="text" id="contractor" list="contractorList" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+       <datalist id="contractorList"></datalist>
+
 
         <label for="shift" class="block text-sm font-medium mb-2">Shift</label>
         <select id="shift" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
@@ -205,6 +217,49 @@ function logConsumption() {
     })
     .catch(error => console.error("Error checking stock:", error));
 }
+function fetchNamesForSuggestions() {
+    fetch('/get-names')
+        .then(response => response.json())
+        .then(data => {
+            let areaInchargeList = document.getElementById("areaInchargeList");
+            let receiverList = document.getElementById("receiverList");
+            let contractorList = document.getElementById("contractorList");
+
+            // Clear previous suggestions
+            areaInchargeList.innerHTML = "";
+            receiverList.innerHTML = "";
+            contractorList.innerHTML = "";
+
+            // Populate datalist with names from the "Names" sheet
+            data.forEach(entry => {
+                if (entry["Area Incharge"]) {
+                    let option = document.createElement("option");
+                    option.value = entry["Area Incharge"];
+                    areaInchargeList.appendChild(option);
+                }
+
+                if (entry["Receiver"]) {
+                    let option = document.createElement("option");
+                    option.value = entry["Receiver"];
+                    receiverList.appendChild(option);
+                }
+
+                if (entry["Contractor"]) {
+                    let option = document.createElement("option");
+                    option.value = entry["Contractor"];
+                    contractorList.appendChild(option);
+                }
+            });
+        })
+        .catch(error => console.error("Error fetching names:", error));
+}
+
+// Call this function when the page loads
+window.onload = function () {
+    fetchItems();
+    fetchNamesForSuggestions();
+    fetchConsumptionHistory();
+};
 
 function fetchConsumptionHistory() {
     let filterArea = document.getElementById("filterArea").value;
@@ -246,6 +301,7 @@ function fetchConsumptionHistory() {
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
+            fetchNamesAndPopulateDropdowns();
         };
     </script>
 </body>
