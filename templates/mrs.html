@@ -155,14 +155,24 @@
         itemCodeInput.value = "";  // ✅ Keep blank instead of "N/A"
     }
 }
-        function autoFillItemName() {
-        let itemCodeInput = document.getElementById("itemCode").value;
-        let searchBox = document.getElementById("searchBox");
-        let selectedItem = itemsList.find(item => item["Item Code"].toString() === itemCodeInput);
-        if (selectedItem) {
-            searchBox.value = selectedItem["Item Name"];
-        }
+      function autoFillItemName() {
+    let itemCodeInput = document.getElementById("itemCode").value;
+    let searchBox = document.getElementById("searchBox");
+
+    if (!itemsList || itemsList.length === 0) {
+        console.error("Items list is empty!");
+        return;
     }
+
+    let selectedItem = itemsList.find(item => item["Item Code"].toString().trim() === itemCodeInput.trim());
+
+    if (selectedItem && selectedItem["Item Name"]) {
+        searchBox.value = selectedItem["Item Name"];
+    } else {
+        searchBox.value = "";  // ✅ Keep blank instead of "N/A"
+    }
+}
+
 function logConsumption() {
     let itemName = document.getElementById("searchBox").value;
     let itemCode = document.getElementById("itemCode").value;
