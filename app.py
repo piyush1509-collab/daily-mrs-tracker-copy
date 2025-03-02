@@ -157,8 +157,8 @@ def get_tools():
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     try:
-    data = request.json
-    items = data.get("Items", [])  # Ensure "Items" is a list, avoid KeyError
+        data = request.json
+        items = data.get("Items", [])  # Ensure "Items" is a list, avoid KeyError
 
     for item in items:
         item_code = item.get("Item Code")
