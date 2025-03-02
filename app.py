@@ -44,6 +44,24 @@ def get_items():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get-names', methods=['GET'])
+def get_names():
+    try:
+        names_sheet = sh.worksheet("Names")  # Open "Names" sheet
+        records = names_sheet.get_all_records()
+        return jsonify(records)  # Return all names as JSON
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get-names', methods=['GET'])
+def get_names():
+    try:
+        names_sheet = sh.worksheet("Names")  # Open "Names" sheet
+        records = names_sheet.get_all_records()
+        return jsonify(records)  # Return all names as JSON
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # API to get consumption history
 @app.route('/consumption-history', methods=['GET'])
 def get_consumption_history():
@@ -165,6 +183,10 @@ def log_consumption():
         consumed_area = data["Consumed Area"]
         shift = data["Shift"]
         date = data["Date"]
+        area_incharge = data["Area Incharge"]
+        receiver = data["Receiver"]
+        contractor = data["Contractor"]
+
 
         # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
@@ -185,7 +207,7 @@ def log_consumption():
                 break
 
         # ✅ Append entry to Consumption Log
-        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift]
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
         consumption_sheet.append_row(log_entry)
 
         return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
