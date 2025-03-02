@@ -200,6 +200,9 @@ function logConsumption() {
                 "Consumed Area": consumedArea,
                 "Shift": shift,
                 "Date": date
+                "Area Incharge": document.getElementById("areaIncharge").value,  // ✅ Check spelling
+                "Receiver": document.getElementById("receiver").value,
+                "Contractor": document.getElementById("contractor").value
             })
         })
         .then(response => response.json())
