@@ -218,7 +218,7 @@ function logConsumption() {
     .catch(error => console.error("Error checking stock:", error));
 }
 function fetchNamesForSuggestions() {
-  fetch('/fetch-names')  // Updated to match new API name
+    fetch('/get-names')
         .then(response => response.json())
         .then(data => {
             let areaInchargeList = document.getElementById("areaInchargeList");
@@ -253,13 +253,6 @@ function fetchNamesForSuggestions() {
         })
         .catch(error => console.error("Error fetching names:", error));
 }
-
-// Call this function when the page loads
-window.onload = function () {
-    fetchItems();
-    fetchNamesForSuggestions();
-    fetchConsumptionHistory();
-};
 
 function fetchConsumptionHistory() {
     let filterArea = document.getElementById("filterArea").value;
