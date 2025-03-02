@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 import gspread
-import pandas as pd
-from flask import Flask, request, jsonify
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
