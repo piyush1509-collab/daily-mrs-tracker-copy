@@ -58,7 +58,7 @@ def get_consumption_history():
     try:
         sheet = sh.worksheet("Consumption Log")  # Ensure correct sheet name
         records = sheet.get_all_records()
-
+        print("Fetched Records:", records)
         # Extract query parameters
         area_filter = request.args.get("area", "").strip()
         date_filter = request.args.get("date", "").strip()
