@@ -216,28 +216,42 @@ function logConsumption() {
         }
 
         // ✅ Proceed with logging consumption
-        fetch('/log-consumption', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+        function logConsumption() {
+    let rows = document.querySelectorAll("#itemsTable .item-row");
+    let items = [];
+
+    rows.forEach(row => {
+        let itemName = row.querySelector("input[name='item_name[]']").value;
+        let itemCode = row.querySelector("input[name='item_code[]']").value;
+        let quantity = row.querySelector("input[name='quantity[]']").value;
+        let unit = row.querySelector("select[name='unit[]']").value;
+
+        if (itemName && itemCode && quantity) {
+            items.push({
                 "Item Name": itemName,
                 "Item Code": itemCode,
                 "Quantity": quantity,
-                "Unit": unit,
-                "Consumed Area": consumedArea,
-                "Shift": shift,
-                "Date": date,  // ✅ Fixed comma issue
-                "Area-Incharge": areaIncharge,
-                "Receiver": receiver,
-                "Contractor": contractor
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert("Error: " + data.error);
-            } else {
-                alert(data.message);
+                "Unit": unit
+            });
+        }
+    });
+
+    let requestData = {
+        "Date": document.getElementById("date").value,
+        "Consumed Area": document.getElementById("consumedArea").value,
+        "Shift": document.getElementById("shift").value,
+        "Area-Incharge": document.getElementById("areaIncharge").value,
+        "Receiver": document.getElementById("receiver").value,
+        "Contractor": document.getElementById("contractor").value,
+        "Items": items
+    };
+
+    fetch('/log-consumption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+    }).then(response => response.json())
+      .then(data => alert(data.message));
                 fetchConsumptionHistory();  // ✅ Reload history after logging
             }
         })
