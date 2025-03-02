@@ -165,7 +165,9 @@ def log_consumption():
         consumed_area = data["Consumed Area"]
         shift = data["Shift"]
         date = data["Date"]
-
+        area_incharge = data["Area-Incharge"]
+        receiver = data["Receiver"]
+        contractor = data["Contractor"]
         # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
         consumption_sheet = sh.worksheet("Consumption Log")
