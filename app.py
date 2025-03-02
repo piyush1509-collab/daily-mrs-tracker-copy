@@ -53,15 +53,6 @@ def get_names():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/get-names', methods=['GET'])
-def get_names():
-    try:
-        names_sheet = sh.worksheet("Names")  # Open "Names" sheet
-        records = names_sheet.get_all_records()
-        return jsonify(records)  # Return all names as JSON
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 # API to get consumption history
 @app.route('/consumption-history', methods=['GET'])
 def get_consumption_history():
