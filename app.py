@@ -158,41 +158,41 @@ def get_tools():
 def log_consumption():
     try:
         data = request.json
-        items = data.get("Items", [])  # Ensure "Items" is a list
+        item_code = data["Item Code"]
+        item_name = data["Item Name"]
+        quantity = int(data["Quantity"])
+        unit = data["Unit"]
+        consumed_area = data["Consumed Area"]
+        shift = data["Shift"]
+        date = data["Date"]
+        area_incharge = data["Area-Incharge"]
+        receiver = data["Receiver"]
+        contractor = data["Contractor"]
 
-        for item in items:
-            item_code = item.get("Item Code")
-            item_name = item.get("Item Name")
-            quantity = int(item.get("Quantity", 0))
-            unit = item.get("Unit")
+        # ✅ Open the Inventory and Consumption Log sheets
+        inventory_sheet = sh.worksheet("Inventory")
+        consumption_sheet = sh.worksheet("Consumption Log")
+        inventory_data = inventory_sheet.get_all_records()
 
-            # ✅ Open the Inventory and Consumption Log sheets
-            inventory_data = inventory_sheet.get_all_records()
+        # ✅ Find and update Physical Stock in Inventory
+        for idx, row in enumerate(inventory_data):
+            if str(row["Item Code"]) == str(item_code):
+                physical_stock = int(row["Physical Stock"])  # Current stock
+                
+                # ✅ Check stock before deducting
+                if quantity > physical_stock:
+                    return jsonify({"error": "Requested quantity exceeds physical stock!"}), 400
 
-            # ✅ Find and update Physical Stock in Inventory
-            for idx, row in enumerate(inventory_data):
-                if str(row["Item Code"]) == str(item_code):
-                    physical_stock = int(row.get("Physical Stock", 0))
+                new_stock = max(0, physical_stock - quantity)
+                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update Physical Stock column
+                break
 
-                    if quantity > physical_stock:
-                        return jsonify({"error": f"Requested quantity ({quantity}) exceeds stock ({physical_stock}) for {item_name}"}), 400
+        # ✅ Append entry to Consumption Log (with correct fields)
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
+        consumption_sheet.append_row(log_entry)
 
-                    new_stock = max(0, physical_stock - quantity)
-                    inventory_sheet.update_cell(idx + 2, 3, new_stock)  # ✅ Update Physical Stock column
-                    break
-
-            # ✅ Append entry to Consumption Log
-            log_entry = [
-                data.get("Date", ""), item_name, item_code, quantity, unit,
-                data.get("Consumed Area", ""), data.get("Shift", ""),
-                data.get("Area-Incharge", ""), data.get("Receiver", ""),
-                data.get("Contractor", "")
-            ]
-            consumption_sheet.append_row(log_entry)
-
-        return jsonify({"message": "Consumption logged successfully!"})
-
-    except Exception as e:  # ✅ Ensure the except block is correctly placed
+        return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
+    except Exception as e:
         print("Error logging consumption:", str(e))
         return jsonify({"error": str(e)}), 500
 
