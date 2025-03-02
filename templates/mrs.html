@@ -307,14 +307,27 @@ function fetchConsumptionHistory() {
                  <td class="p-3">${entry["Contractor"] || "N/A"}</td>  <!-- ✅ Added -->
                 </tr>`;
                 historyTable.innerHTML += newRow;
+           fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        let historyTable = document.getElementById("consumptionHistory");
+        historyTable.innerHTML = "";  // Clear previous data
+
+        console.log("Fetched history data:", data);  // Debugging
+
+        if (Array.isArray(data)) {
+            data.forEach(entry => {
+                let itemName = entry["Item Name"] || entry["item name"] || "N/A";
+                let itemCode = entry["Item Code"] || entry["item code"] || "N/A";
+                // ... rest of your code ...
             });
         } else {
-            historyTable.innerHTML = "<tr><td colspan='7' class='p-3 text-center'>No data found</td></tr>";
+            historyTable.innerHTML = "<tr><td colspan='10' class='p-3 text-center'>No data found</td></tr>";
         }
     })
     .catch(error => console.error("Error fetching consumption history:", error));
 }
-        
+                         
         window.onload = function () {
             fetchItems();
             fetchConsumptionHistory();
