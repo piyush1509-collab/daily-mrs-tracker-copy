@@ -42,7 +42,10 @@
             </tbody>
         </table>
         
-        <button id="add-item" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Add More </button>
+        <button id="add-item" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+          Add More Items
+        </button>
+
         
         <div class="grid grid-cols-2 gap-4 mt-4">
             <select id="area" class="border p-2 w-full bg-gray-700 text-white">
@@ -129,7 +132,32 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         fetchItems();
-    });
+         // Add event listener for "Add More Items" button
+        document.getElementById("add-item").addEventListener("click", function () {
+            let itemCount = document.querySelectorAll("#items-table tr").length + 1;
+            let newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td class="border p-2">${itemCount}</td>
+                <td class="border p-2">
+                    <input type="text" class="item-name border p-1 w-full bg-gray-700 text-white"
+                           list="itemSuggestions" placeholder="Enter Item" oninput="autoFillItemCode(this)">
+                </td>
+                <td class="border p-2">
+                    <input type="number" class="quantity border p-1 w-full bg-gray-700 text-white">
+                </td>
+                <td class="border p-2">
+                    <select class="unit border p-1 w-full bg-gray-700 text-white">
+                        <option value="kg">KG</option>
+                        <option value="pcs">PCS</option>
+                    </select>
+                </td>
+                <td class="border p-2">
+                    <input type="text" class="item-code border p-1 w-full bg-gray-700 text-white" readonly>
+                </td>
+            `;
+            document.getElementById("items-table").appendChild(newRow);
+         }); 
+     });
         function fetchConsumptionHistory() {
             let area = document.getElementById("filterArea").value;
             let date = document.getElementById("filterDate").value;
