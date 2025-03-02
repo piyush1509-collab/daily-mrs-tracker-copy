@@ -279,19 +279,18 @@ function fetchConsumptionHistory() {
                 let itemName = entry["Item name"] || entry["Item Name"] || "N/A";  // 🔍 Fix field names
                 let itemCode = entry["Item code"] || entry["Item Code"] || "N/A";  // 🔍 Fix field names
 
-               let newRow = `<tr>
-                   <td class="p-3">${entry.Date || "N/A"}</td>
-                   <td class="p-3">${itemName}</td>
-                   <td class="p-3">${itemCode}</td>
-                   <td class="p-3">${entry.Quantity || "N/A"}</td>
-                   <td class="p-3">${entry.Unit || "N/A"}</td>
-                   <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
-                   <td class="p-3">${entry.Shift || "N/A"}</td>
-                   <td class="p-3">${entry["Area Incharge"] || "N/A"}</td>  <!-- ✅ New Field -->
-                   <td class="p-3">${entry["Receiver"] || "N/A"}</td>  <!-- ✅ New Field -->
-                   <td class="p-3">${entry["Contractor"] || "N/A"}</td>  <!-- ✅ New Field -->
-                   </tr>`;
-
+              let newRow = `<tr>
+                 <td class="p-3">${entry.Date || "N/A"}</td>
+                 <td class="p-3">${itemName}</td>
+                 <td class="p-3">${itemCode}</td>
+                 <td class="p-3">${entry.Quantity || "N/A"}</td>
+                 <td class="p-3">${entry.Unit || "N/A"}</td>
+                 <td class="p-3">${entry["Consumed Area"] || "N/A"}</td>
+                 <td class="p-3">${entry.Shift || "N/A"}</td>
+                 <td class="p-3">${entry["Area Incharge"] || "N/A"}</td>  <!-- ✅ Added -->
+                 <td class="p-3">${entry["Receiver"] || "N/A"}</td>  <!-- ✅ Added -->
+                 <td class="p-3">${entry["Contractor"] || "N/A"}</td>  <!-- ✅ Added -->
+                </tr>`;
                 historyTable.innerHTML += newRow;
             });
         } else {
