@@ -165,6 +165,9 @@ def log_consumption():
         consumed_area = data["Consumed Area"]
         shift = data["Shift"]
         date = data["Date"]
+        area_incharge = data["Area Incharge"]    # New field
+        receiver = data["Receiver"]             # New field
+        contractor = data["Contractor"]         # New field
 
         # ✅ Open the Inventory and Consumption Log sheets
         inventory_sheet = sh.worksheet("Inventory")
@@ -175,7 +178,7 @@ def log_consumption():
         for idx, row in enumerate(inventory_data):
             if str(row["Item Code"]) == str(item_code):
                 physical_stock = int(row["Physical Stock"])  # Current stock
-                
+
                 # ✅ Check stock before deducting
                 if quantity > physical_stock:
                     return jsonify({"error": "Requested quantity exceeds physical stock!"}), 400
@@ -185,7 +188,7 @@ def log_consumption():
                 break
 
         # ✅ Append entry to Consumption Log
-        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift]
+        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
         consumption_sheet.append_row(log_entry)
 
         return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
