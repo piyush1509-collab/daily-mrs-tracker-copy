@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Material Requisition Slip</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        body { background-color: #1a202c; color: white; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th, td { border: 1px solid gray; padding: 8px; text-align: left; }
         .add-button { background-color: #4CAF50; color: white; padding: 5px; cursor: pointer; }
         .remove-button { background-color: red; color: white; padding: 5px; cursor: pointer; }
     </style>
 </head>
-<body>
-    <h2>Material Requisition Slip</h2>
+<body class="bg-gray-900 text-white">
+    <h2 class="text-center text-3xl font-bold my-6">Material Requisition Slip</h2>
     <label>Date:</label>
-    <input type="date" id="date" value="">
+    <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
     
-    <table id="mrsTable">
+    <table id="mrsTable" class="bg-gray-800 rounded-lg">
         <thead>
             <tr>
                 <th>S.No</th>
@@ -31,131 +33,71 @@
         <tbody>
             <tr class="item-row">
                 <td>1</td>
-                <td><input type="text" class="item-name" oninput="fetchItemCode(this)"></td>
-                <td><select class="unit-dropdown"><option value="pcs">PCS</option></select></td>
-                <td><input type="text" class="item-code" readonly></td>
-                <td><input type="number" class="quantity"></td>
-                <td><button class="remove-button" onclick="removeRow(this)">Remove</button></td>
+                <td><input type="text" class="item-name bg-gray-700 text-white p-2 rounded w-full" list="itemSuggestions" oninput="fetchItemCode(this)"></td>
+                <td><select class="unit-dropdown bg-gray-700 text-white p-2 rounded w-full"><option value="Meter">Meter</option><option value="Litre">Litre</option><option value="Nos">Nos</option><option value="KG">KG</option></select></td>
+                <td><input type="text" class="item-code bg-gray-700 text-white p-2 rounded w-full" readonly></td>
+                <td><input type="number" class="quantity bg-gray-700 text-white p-2 rounded w-full"></td>
+                <td><button class="remove-button p-2 rounded" onclick="removeRow(this)">Remove</button></td>
             </tr>
         </tbody>
     </table>
-    <button class="add-button" onclick="addRow()">Add More Items</button>
+    <button class="add-button p-2 rounded mt-4" onclick="addRow()">Add More Items</button>
     <br><br>
     
     <label>Area:</label>
-    <select id="areaDropdown"><option value="Area1">Area1</option></select>
+    <select id="areaDropdown" class="bg-gray-700 text-white p-2 rounded w-full"><option>PUMP HOUSE</option><option>RO PLANT</option><option>GASZONE</option><option>FURNACE</option><option>MATERIAL HANDLING</option><option>ELECTRICAL</option><option>OPERATION</option></select>
     
     <label>In-Charge:</label>
-    <input type="text" id="inCharge">
+    <input type="text" id="inCharge" class="bg-gray-700 text-white p-2 rounded w-full">
     
     <label>Shift:</label>
-    <select id="shiftDropdown"><option value="Morning">Morning</option></select>
+    <select id="shiftDropdown" class="bg-gray-700 text-white p-2 rounded w-full"><option>G</option><option>A</option><option>B</option><option>C</option></select>
     
     <label>Receiver:</label>
-    <input type="text" id="receiver">
+    <input type="text" id="receiver" class="bg-gray-700 text-white p-2 rounded w-full">
     
     <label>Contractor:</label>
-    <input type="text" id="contractor">
+    <input type="text" id="contractor" class="bg-gray-700 text-white p-2 rounded w-full">
     
-    <button onclick="logConsumption()">Log Consumption</button>
-    <button onclick="resetForm()">Reset</button>
+    <button onclick="logConsumption()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Log Consumption</button>
+    <button onclick="resetForm()" class="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600">Reset</button>
     
-    <h3>Consumption History</h3>
-    <table id="historyTable">
+    <h3 class="text-xl font-bold mt-6">Consumption History</h3>
+    <label for="filterArea" class="block text-sm font-medium mb-2">Filter by Area</label>
+    <select id="filterArea" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+        <option value="">All Areas</option>
+        <option>PUMP HOUSE</option>
+        <option>RO PLANT</option>
+        <option>GASZONE</option>
+        <option>FURNACE</option>
+        <option>MATERIAL HANDLING</option>
+        <option>ELECTRICAL</option>
+        <option>OPERATION</option>
+    </select>
+    
+    <label for="filterDate" class="block text-sm font-medium mb-2">Filter by Date</label>
+    <input type="date" id="filterDate" class="bg-gray-800 text-white p-2 rounded w-full mb-4">
+
+    <button onclick="fetchConsumptionHistory()" class="bg-indigo-500 px-4 py-2 rounded-lg hover:bg-indigo-600">Apply Filters</button>
+
+    <table id="historyTable" class="bg-gray-800 rounded-lg mt-4">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Item Name</th>
+                <th>Item Code</th>
                 <th>Quantity</th>
-                <th>Area</th>
+                <th>Unit</th>
+                <th>Consumed Area</th>
+                <th>Shift</th>
+                <th>Area-Incharge</th>
                 <th>Receiver</th>
                 <th>Contractor</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="consumptionHistory"></tbody>
     </table>
     
-    <script>
-        function addRow() {
-            let rowCount = $("#mrsTable tbody tr").length + 1;
-            let newRow = `<tr class="item-row">
-                <td>${rowCount}</td>
-                <td><input type="text" class="item-name" oninput="fetchItemCode(this)"></td>
-                <td><select class="unit-dropdown"><option value="pcs">PCS</option></select></td>
-                <td><input type="text" class="item-code" readonly></td>
-                <td><input type="number" class="quantity"></td>
-                <td><button class="remove-button" onclick="removeRow(this)">Remove</button></td>
-            </tr>`;
-            $("#mrsTable tbody").append(newRow);
-        }
-        
-        function removeRow(button) {
-            $(button).closest("tr").remove();
-        }
-        
-        function fetchItemCode(input) {
-            let itemName = $(input).val();
-            let itemCode = "CODE-" + itemName.toUpperCase().substring(0, 3);
-            $(input).closest("tr").find(".item-code").val(itemCode);
-        }
-        
-        function logConsumption() {
-    let items = [];
-    
-    // Loop through all item rows and collect data
-    document.querySelectorAll(".item-row").forEach(row => {
-        let name = row.querySelector(".item-name").value;
-        let code = row.querySelector(".item-code").value;
-        let unit = row.querySelector(".unit-dropdown").value;
-        let quantity = row.querySelector(".quantity").value;
-
-        if (name && code && unit && quantity) {
-            items.push({
-                name: name,
-                code: code,
-                unit: unit,
-                quantity: quantity
-            });
-        }
-    });
-
-    // Prepare the payload for sending to the backend
-    let payload = {
-        area: document.getElementById("areaDropdown").value,
-        receiver: document.getElementById("receiver").value,
-        incharge: document.getElementById("inCharge").value,
-        contractor: document.getElementById("contractor").value,
-        shift: document.getElementById("shiftDropdown").value,
-        date: document.getElementById("date").value,
-        items: items
-    };
-
-    // Ensure at least one item is added before submission
-    if (items.length === 0) {
-        alert("Please add at least one item before logging consumption.");
-        return;
-    }
-
-    // Send the data to the backend
-    fetch("/log_consumption", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Consumption logged successfully!");
-            fetchConsumptionHistory();  // Reload the consumption history
-        } else {
-            alert("Error: " + data.error);
-        }
-    })
-    .catch(error => console.error("Error:", error));
-}
-
-    </script>
+    <datalist id="itemSuggestions"></datalist>
 </body>
 </html>
