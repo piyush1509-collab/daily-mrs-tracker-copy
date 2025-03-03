@@ -154,47 +154,58 @@ def get_tools():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/log-consumption', methods=['POST'])
+@app.route('/log_consumption', methods=['POST'])
 def log_consumption():
-    try:
-        data = request.json
-        item_code = data["Item Code"]
-        item_name = data["Item Name"]
-        quantity = int(data["Quantity"])
-        unit = data["Unit"]
-        consumed_area = data["Consumed Area"]
-        shift = data["Shift"]
-        date = data["Date"]
-        area_incharge = data["Area-Incharge"]
-        receiver = data["Receiver"]
-        contractor = data["Contractor"]
+    data = request.json  
+    area = data['area']
+    receiver = data['receiver']
+    incharge = data['incharge']
+    contractor = data['contractor']
+    shift = data['shift']
+    date = data['date']
+    
+    items = data['items']  # List of multiple items
 
-        # ✅ Open the Inventory and Consumption Log sheets
-        inventory_sheet = sh.worksheet("Inventory")
-        consumption_sheet = sh.worksheet("Consumption Log")
-        inventory_data = inventory_sheet.get_all_records()
+    wb = load_workbook("items.xlsx")
+    sheet = wb["Consumption Log"]
+    inventory_sheet = wb["Inventory"]
 
-        # ✅ Find and update Physical Stock in Inventory
-        for idx, row in enumerate(inventory_data):
-            if str(row["Item Code"]) == str(item_code):
-                physical_stock = int(row["Physical Stock"])  # Current stock
-                
-                # ✅ Check stock before deducting
-                if quantity > physical_stock:
-                    return jsonify({"error": "Requested quantity exceeds physical stock!"}), 400
+    for item in items:
+        item_name = item['name']
+        item_code = item['code']
+        unit = item['unit']
+        quantity = int(item['quantity'])
 
-                new_stock = max(0, physical_stock - quantity)
-                inventory_sheet.update_cell(idx + 2, 3, new_stock)  # Update Physical Stock column
+        # Check if enough stock is available
+        for row in inventory_sheet.iter_rows(min_row=2, values_only=False):
+            if row[0].value == item_name:  # Matching Item Name
+                physical_stock_cell = row[4]  # Assuming Physical Stock is Column 5
+                min_stock_cell = row[5]  # Assuming Minimum Stock is Column 6
+
+                if physical_stock_cell.value is None:
+                    physical_stock_cell.value = 0
+
+                if quantity > physical_stock_cell.value:
+                    return jsonify({"error": f"Not enough stock for {item_name}"}), 400
+
+                # Deduct stock
+                physical_stock_cell.value -= quantity
+
+                # Check for low stock alert
+                if physical_stock_cell.value < min_stock_cell.value:
+                    print(f"⚠️ Alert: {item_name} is below minimum stock!")
+
                 break
 
-        # ✅ Append entry to Consumption Log (with correct fields)
-        log_entry = [date, item_name, item_code, quantity, unit, consumed_area, shift, area_incharge, receiver, contractor]
-        consumption_sheet.append_row(log_entry)
+        # Append new entry to Consumption Log
+        new_row = [date, area, shift, receiver, incharge, contractor, item_name, item_code, unit, quantity]
+        sheet.append(new_row)
 
-        return jsonify({"message": "Consumption logged successfully!"})  # ✅ Ensure correct success response
-    except Exception as e:
-        print("Error logging consumption:", str(e))
-        return jsonify({"error": str(e)}), 500
+    wb.save("items.xlsx")
+    wb.close()
+
+    return jsonify({"success": "Items logged successfully!"}), 200
+
 
 @app.route('/AP-item-stocklist')
 def ap_item_stocklist():
