@@ -100,33 +100,62 @@
         }
         
         function logConsumption() {
-            let date = $("#date").val();
-            let area = $("#areaDropdown").val();
-            let inCharge = $("#inCharge").val();
-            let shift = $("#shiftDropdown").val();
-            let receiver = $("#receiver").val();
-            let contractor = $("#contractor").val();
-            
-            $(".item-row").each(function() {
-                let itemName = $(this).find(".item-name").val();
-                let quantity = $(this).find(".quantity").val();
-                if (itemName && quantity) {
-                    $("#historyTable tbody").append(`<tr>
-                        <td>${date}</td>
-                        <td>${itemName}</td>
-                        <td>${quantity}</td>
-                        <td>${area}</td>
-                        <td>${receiver}</td>
-                        <td>${contractor}</td>
-                    </tr>`);
-                }
+    let items = [];
+    
+    // Loop through all item rows and collect data
+    document.querySelectorAll(".item-row").forEach(row => {
+        let name = row.querySelector(".item-name").value;
+        let code = row.querySelector(".item-code").value;
+        let unit = row.querySelector(".unit-dropdown").value;
+        let quantity = row.querySelector(".quantity").value;
+
+        if (name && code && unit && quantity) {
+            items.push({
+                name: name,
+                code: code,
+                unit: unit,
+                quantity: quantity
             });
         }
-        
-        function resetForm() {
-            $("#mrsTable tbody").html("");
-            addRow();
+    });
+
+    // Prepare the payload for sending to the backend
+    let payload = {
+        area: document.getElementById("areaDropdown").value,
+        receiver: document.getElementById("receiver").value,
+        incharge: document.getElementById("inCharge").value,
+        contractor: document.getElementById("contractor").value,
+        shift: document.getElementById("shiftDropdown").value,
+        date: document.getElementById("date").value,
+        items: items
+    };
+
+    // Ensure at least one item is added before submission
+    if (items.length === 0) {
+        alert("Please add at least one item before logging consumption.");
+        return;
+    }
+
+    // Send the data to the backend
+    fetch("/log_consumption", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Consumption logged successfully!");
+            fetchConsumptionHistory();  // Reload the consumption history
+        } else {
+            alert("Error: " + data.error);
         }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
     </script>
 </body>
 </html>
