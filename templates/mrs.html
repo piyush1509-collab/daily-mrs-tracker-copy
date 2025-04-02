@@ -3,121 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MRS - Material Requisition System</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>MRS System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 80%;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .btn {
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white">
-    <h2 class="text-center text-3xl font-bold my-6">Material Requisition System (MRS)</h2>
-
-    <div class="p-6" id="item-container">
-        <div class="item-row mb-4">
-            <input type="text" class="item-name bg-gray-800 text-white p-2 rounded mb-2" placeholder="Item Name">
-            <input type="text" class="item-code bg-gray-800 text-white p-2 rounded mb-2" placeholder="Item Code" readonly>
-            <input type="number" class="item-quantity bg-gray-800 text-white p-2 rounded mb-2" placeholder="Quantity">
-            <select class="item-unit bg-gray-800 text-white p-2 rounded mb-2">
-                <option>Meter</option>
-                <option>Litre</option>
-                <option>Nos</option>
-                <option>KG</option>
-            </select>
+<body>
+    <div class="container">
+        <h1>MRS System</h1>
+        <div class="btn-container">
+            <a href="log_consumption.html" class="btn">Log Consumption</a>
+            <a href="view_consumption.html" class="btn">View Consumption History</a>
         </div>
     </div>
-
-    <button id="addItemBtn" class="bg-indigo-500 px-4 py-2 rounded mb-4">Add More Items</button>
-
-    <div class="p-6">
-        <label>Consumed Area:</label>
-        <select id="consumedArea" class="bg-gray-800 text-white p-2 rounded mb-2">
-            <option>PUMP HOUSE</option>
-            <option>RO PLANT</option>
-            <option>GASZONE</option>
-            <option>FURNACE</option>
-            <option>MATERIAL HANDLING</option>
-            <option>ELECTRICAL</option>
-            <option>OPERATION</option>
-        </select>
-
-        <label>Shift:</label>
-        <select id="shift" class="bg-gray-800 text-white p-2 rounded mb-2">
-            <option>G</option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-        </select>
-
-        <label>Date:</label>
-        <input type="date" id="date" class="bg-gray-800 text-white p-2 rounded mb-2">
-
-        <label>Area-Incharge:</label>
-        <input type="text" id="areaIncharge" class="bg-gray-800 text-white p-2 rounded mb-2">
-
-        <label>Receiver:</label>
-        <input type="text" id="receiver" class="bg-gray-800 text-white p-2 rounded mb-2">
-
-        <label>Contractor:</label>
-        <input type="text" id="contractor" class="bg-gray-800 text-white p-2 rounded mb-2">
-
-        <button id="logConsumptionBtn" class="bg-green-500 px-4 py-2 rounded">Log Consumption</button>
-    </div>
-
-    <script>
-        document.getElementById("addItemBtn").addEventListener("click", () => {
-            const newRow = document.createElement("div");
-            newRow.className = "item-row mb-4";
-            newRow.innerHTML = \`
-                <input type="text" class="item-name bg-gray-800 text-white p-2 rounded mb-2" placeholder="Item Name">
-                <input type="text" class="item-code bg-gray-800 text-white p-2 rounded mb-2" placeholder="Item Code" readonly>
-                <input type="number" class="item-quantity bg-gray-800 text-white p-2 rounded mb-2" placeholder="Quantity">
-                <select class="item-unit bg-gray-800 text-white p-2 rounded mb-2">
-                    <option>Meter</option>
-                    <option>Litre</option>
-                    <option>Nos</option>
-                    <option>KG</option>
-                </select>
-            \`;
-            document.getElementById("item-container").appendChild(newRow);
-        });
-
-        document.getElementById("logConsumptionBtn").addEventListener("click", () => {
-            const itemRows = document.querySelectorAll(".item-row");
-            let items = [];
-
-            itemRows.forEach(row => {
-                const itemName = row.querySelector(".item-name").value;
-                const itemCode = row.querySelector(".item-code").value;
-                const quantity = row.querySelector(".item-quantity").value;
-                const unit = row.querySelector(".item-unit").value;
-
-                if (itemName && itemCode && quantity && unit) {
-                    items.push({
-                        "Item Name": itemName,
-                        "Item Code": itemCode,
-                        "Quantity": quantity,
-                        "Unit": unit
-                    });
-                }
-            });
-
-            const data = {
-                items: items,
-                "Consumed Area": document.getElementById("consumedArea").value,
-                "Shift": document.getElementById("shift").value,
-                "Date": document.getElementById("date").value,
-                "Area-Incharge": document.getElementById("areaIncharge").value,
-                "Receiver": document.getElementById("receiver").value,
-                "Contractor": document.getElementById("contractor").value
-            };
-
-            fetch('/log-consumption', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => alert(result.message || result.error))
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
 </body>
 </html>
 
