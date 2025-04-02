@@ -21,7 +21,8 @@ def index():
 
 @app.route('/mrs')
 def mrs():
-    return render_template('mrs.html')
+    return render_template('mrs.html', log_page='log_consumption.html', view_page='view_consumption.html')
+
 
 @app.route('/get-items', methods=['GET'])
 def get_items():
@@ -30,12 +31,31 @@ def get_items():
         return jsonify(items_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+        
+@app.route('/view-consumption', methods=['GET'])
+def view_consumption():
+    try:
+        consumption_data = consumption_sheet.get_all_records()
+        date_filter = request.args.get("date")
+        area_filter = request.args.get("consumed_area")
+
+        if date_filter:
+            consumption_data = [entry for entry in consumption_data if entry["Date"] == date_filter]
+        if area_filter:
+            consumption_data = [entry for entry in consumption_data if entry["Consumed Area"] == area_filter]
+
+        return jsonify(consumption_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/log-consumption', methods=['POST'])
 def log_consumption():
     try:
         data = request.json
-        items = data["items"]
+        items = data.get("items", [])
+if not items:
+    return jsonify({"error": "No items provided!"}), 400
+
         consumed_area = data["Consumed Area"]
         shift = data["Shift"]
         date = data["Date"]
@@ -55,8 +75,8 @@ def log_consumption():
                 if str(row["Item Code"]) == str(item_code):
                     physical_stock = int(row["Physical Stock"])
                     
-                    if quantity > physical_stock:
-                        return jsonify({"error": f"Requested quantity of {item_name} exceeds available stock!"}), 400
+                    if physical_stock < quantity:
+    return jsonify({"error": f"Insufficient stock for {item_name}!"}), 400
 
                     new_stock = max(0, physical_stock - quantity)
                     inventory_sheet.update_cell(idx + 2, 3, new_stock)
